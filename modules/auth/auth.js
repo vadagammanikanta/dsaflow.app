@@ -7,7 +7,7 @@
 
 // ── CONFIGURE YOUR FIREBASE PROJECT HERE ──────────────────────────
 const FIREBASE_CONFIG = {
-  apiKey:            "AIzaSyByEQESkVKXgzHe_QPmw321C5ZpKePeL_Q",
+  apiKey:            "YOUR_API_KEY",
   authDomain:        "dsaflow-49a72.firebaseapp.com",
   projectId:         "dsaflow-49a72",
   storageBucket:     "dsaflow-49a72.firebasestorage.app",

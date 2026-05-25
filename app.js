@@ -772,37 +772,72 @@ function setupVisualizerListeners() {
 
   sel.addEventListener('change', e => triggerVisualizerChange(e.target.value));
   btnGen.addEventListener('click', () => { if (sel.value.startsWith('sort-')) generateRandomArray(); });
-  btnPP.addEventListener('click', () => { if (isCurrentlyPlaying()) pause(); else play(); });
-  btnSt.addEventListener('click', () => step());
+  btnPP.addEventListener('click', () => { 
+    if (sel.value.startsWith('sort-')) {
+      if (isCurrentlyPlaying()) pause(); else play(); 
+    } else if (sel.value.startsWith('graph-')) {
+      if (isGraphPlaying()) pauseGraph(); else playGraph();
+    }
+  });
+  
+  btnSt.addEventListener('click', () => {
+    if (sel.value.startsWith('sort-')) step();
+    else if (sel.value.startsWith('graph-')) stepGraphForward();
+  });
+  
   const slider = document.getElementById('speed-slider');
-  slider.addEventListener('input', e => { document.getElementById('speed-label').textContent = `${e.target.value}ms`; setDelay(parseInt(e.target.value)); });
+  slider.addEventListener('input', e => { 
+    document.getElementById('speed-label').textContent = `${e.target.value}ms`; 
+    const val = parseInt(e.target.value);
+    setDelay(val); 
+    setGraphDelay(val);
+  });
   document.getElementById('ds-btn-insert').addEventListener('click', () => handleDS('insert'));
   document.getElementById('ds-btn-remove').addEventListener('click', () => handleDS('remove'));
   document.getElementById('ds-btn-search').addEventListener('click', () => handleDS('search'));
   document.getElementById('ds-input-val').addEventListener('keypress', e => { if (e.key === 'Enter') handleDS('insert'); });
 }
 
+import { initGraph, graphComplexity, playGraph, pauseGraph, stepGraphForward, isGraphPlaying, setGraphDelay } from './modules/visualizers/graph.js';
+
 function triggerVisualizerChange(val) {
   pause();
+  try { pauseGraph(); } catch(e){} // In case graph was playing
+  
   updateVisualizerStats(val);
   const vp    = document.getElementById('viewport');
   const arr   = document.getElementById('array-container');
   const tn    = document.getElementById('tree-nodes');
   const ts    = document.getElementById('tree-svg');
+  const gSvg  = document.getElementById('graph-svg');
+  const gNode = document.getElementById('graph-nodes');
   const dsGrp = document.getElementById('ds-controls-group');
   const btnGen = document.getElementById('btn-generate');
   const btnPP  = document.getElementById('btn-play-pause');
   const btnSt  = document.getElementById('btn-step');
   const btnSearch = document.getElementById('ds-btn-search');
+  
   if (val.startsWith('sort-')) {
     vp.style.alignItems = 'flex-end'; vp.style.padding = '40px 20px';
-    arr.style.display = 'flex'; tn.style.display = 'none'; ts.style.display = 'none';
+    arr.style.display = 'flex'; 
+    tn.style.display = 'none'; ts.style.display = 'none';
+    gSvg.style.display = 'none'; gNode.style.display = 'none';
     dsGrp.style.display = 'none'; btnGen.style.display = 'inline-flex';
     btnPP.style.display = 'inline-flex'; btnSt.style.display = 'inline-flex';
     initSorting(vp);
+  } else if (val.startsWith('graph-')) {
+    vp.style.alignItems = 'center'; vp.style.padding = '0';
+    arr.style.display = 'none'; 
+    tn.style.display = 'none'; ts.style.display = 'none';
+    gSvg.style.display = 'block'; gNode.style.display = 'block';
+    dsGrp.style.display = 'none'; btnGen.style.display = 'none';
+    btnPP.style.display = 'inline-flex'; btnSt.style.display = 'inline-flex';
+    initGraph(vp);
   } else {
     vp.style.alignItems = 'center'; vp.style.padding = '0';
-    arr.style.display = 'none'; tn.style.display = 'block'; ts.style.display = 'block';
+    arr.style.display = 'none'; 
+    tn.style.display = 'block'; ts.style.display = 'block';
+    gSvg.style.display = 'none'; gNode.style.display = 'none';
     dsGrp.style.display = 'flex'; btnGen.style.display = 'none';
     btnPP.style.display = 'none'; btnSt.style.display = 'none';
     btnSearch.style.display = (val === 'ds-bst' || val === 'ds-linkedlist') ? 'inline-flex' : 'none';
@@ -811,7 +846,11 @@ function triggerVisualizerChange(val) {
 }
 
 function updateVisualizerStats(val) {
-  const stats = val.startsWith('sort-') ? sortingComplexity[val] : dsComplexity[val];
+  let stats;
+  if (val.startsWith('sort-')) stats = sortingComplexity[val];
+  else if (val.startsWith('graph-')) stats = graphComplexity[val];
+  else stats = dsComplexity[val];
+
   const optEl = document.querySelector(`option[value="${val}"]`);
   if (optEl) document.getElementById('visualizer-title').textContent = optEl.textContent;
   if (stats) {
