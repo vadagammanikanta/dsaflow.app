@@ -5,7 +5,9 @@
 
 import { signUp, signIn, signOut, markAsPaid, getCurrentUser, getTrialInfo } from './modules/auth/auth.js';
 import { openRazorpayCheckout } from './modules/payment/payment.js';
-import { curriculum, roadmapPhases, quizQuestions } from './modules/learning/content.js';
+import { curriculum as baseCurriculum, quizQuestions } from './modules/learning/content.js';
+import { curriculumExtended, newRoadmapPhases as roadmapPhases } from './modules/learning/content_extended.js';
+const curriculum = [...baseCurriculum, ...curriculumExtended];
 import { initQuiz } from './modules/learning/quiz.js';
 import {
   initSorting, generateRandomArray, resetGenerator,
@@ -577,6 +579,7 @@ function showLesson(lessonId) {
     </div>
     <div>${lesson.details}${codeHtml}</div>
     <div class="lesson-actions">
+      <a href="https://www.youtube.com/results?search_query=Bro+Code+${encodeURIComponent(lesson.title)}" target="_blank" rel="noopener" class="btn btn-youtube">▶️ Watch Bro Code Tutorial</a>
       <button class="btn btn-secondary" id="btn-lesson-vis">▶ Visualizer</button>
       <button class="btn ${done ? 'btn-secondary' : 'btn-accent'}" id="btn-mark-done" ${done ? 'disabled' : ''}>
         ${done ? '✓ Completed' : '🎯 Mark as Completed'}

@@ -751,6 +751,20 @@ pre { background: var(--code-bg); border: 1px solid var(--border-glass); padding
 .app-container { padding-bottom: 0; }
 main { padding-bottom: 56px; }
 
+/* ══ YOUTUBE BUTTON ═══════════════════════════════════════════════════ */
+.btn-youtube {
+  background: linear-gradient(135deg, #ff0000, #cc0000);
+  color: white; border: none; font-weight: 700;
+  padding: 8px 16px; border-radius: var(--radius-sm);
+  display: inline-flex; align-items: center; gap: 8px;
+  text-decoration: none; transition: var(--transition);
+  font-size: 0.9rem; margin-top: 10px;
+}
+.btn-youtube:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 0, 0, 0.4);
+}
+
 /* ══ RESPONSIVE ═════════════════════════════════════════════════════ */
 @media (max-width: 1100px) { :root { --sidebar-width: 220px; } }
 @media (max-width: 900px) {
