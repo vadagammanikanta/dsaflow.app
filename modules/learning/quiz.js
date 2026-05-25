@@ -50,8 +50,12 @@ function showQuestion() {
 
   const currentQuestion = quizQuestions[currentQuestionIndex];
   
-  // Update labels
+  // Update labels & progress bar
   progressLbl.textContent = `Question ${currentQuestionIndex + 1} of ${quizQuestions.length}`;
+  const fillEl = document.getElementById('quiz-progress-fill');
+  if (fillEl) fillEl.style.width = `${(currentQuestionIndex / quizQuestions.length) * 100}%`;
+  const emojiEl = document.getElementById('quiz-result-emoji');
+  if (emojiEl) emojiEl.textContent = '🎯 Placement Quiz';
   questionLbl.textContent = currentQuestion.question;
 
   // Render options
