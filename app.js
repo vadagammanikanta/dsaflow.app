@@ -8,6 +8,7 @@ import { openRazorpayCheckout } from './modules/payment/payment.js';
 import { curriculum as baseCurriculum, quizQuestions } from './modules/learning/content.js';
 import { curriculumExtended, newRoadmapPhases as roadmapPhases } from './modules/learning/content_extended.js';
 const curriculum = [...baseCurriculum, ...curriculumExtended];
+import { sendChatMessage, clearChatHistory } from './modules/ai/chatbot.js';
 import { initQuiz } from './modules/learning/quiz.js';
 import {
   initSorting, generateRandomArray, resetGenerator,
@@ -296,6 +297,9 @@ function bootApp(user, trial) {
 
   // Start quotes
   initQuotesTicker();
+  
+  // Start AI Chatbot
+  initChatbot();
 
   window.addEventListener('resize', () => {
     if (document.getElementById('visualizer-select').value.startsWith('ds-')) renderDS();
@@ -337,6 +341,68 @@ function initQuotesTicker() {
     currentQuoteIndex = (currentQuoteIndex + 1) % QUOTES.length;
     showQuote(currentQuoteIndex);
   }, 3000);
+}
+
+/* ═══ AI CHATBOT ═════════════════════════════════════════════════════ */
+function initChatbot() {
+  const btn = document.getElementById('ai-chat-btn');
+  const win = document.getElementById('ai-chat-window');
+  const closeBtn = document.getElementById('ai-chat-close');
+  const input = document.getElementById('ai-chat-input');
+  const sendBtn = document.getElementById('ai-chat-send');
+  const msgs = document.getElementById('ai-chat-messages');
+
+  btn.addEventListener('click', () => {
+    win.style.display = win.style.display === 'none' ? 'flex' : 'none';
+    if (win.style.display === 'flex') input.focus();
+  });
+
+  closeBtn.addEventListener('click', () => { win.style.display = 'none'; });
+
+  async function handleSend() {
+    const text = input.value.trim();
+    if (!text) return;
+
+    // Add user message
+    input.value = '';
+    const userDiv = document.createElement('div');
+    userDiv.className = 'chat-msg msg-user';
+    userDiv.textContent = text;
+    msgs.appendChild(userDiv);
+    msgs.scrollTop = msgs.scrollHeight;
+
+    sendBtn.disabled = true;
+    input.disabled = true;
+
+    // Fetch AI response
+    const aiResponse = await sendChatMessage(text);
+
+    // Add AI message
+    const aiDiv = document.createElement('div');
+    aiDiv.className = 'chat-msg msg-ai';
+    
+    // Parse markdown (bold, code blocks)
+    let formattedText = aiResponse
+      .replace(/\\*\\*(.*?)\\*\\*/g, '<strong>$1</strong>')
+      .replace(/\\`(.*?)\\`/g, '<code>$1</code>');
+    
+    // Convert triple backticks to pre code
+    if (formattedText.includes('\`\`\`')) {
+      const parts = formattedText.split('\`\`\`');
+      formattedText = parts.map((p, i) => i % 2 !== 0 ? \`<pre><code>\${p.trim()}</code></pre>\` : p).join('');
+    }
+
+    aiDiv.innerHTML = formattedText;
+    msgs.appendChild(aiDiv);
+    msgs.scrollTop = msgs.scrollHeight;
+
+    sendBtn.disabled = false;
+    input.disabled = false;
+    input.focus();
+  }
+
+  sendBtn.addEventListener('click', handleSend);
+  input.addEventListener('keypress', e => { if (e.key === 'Enter') handleSend(); });
 }
 
 /* ═══ NAVIGATION ════════════════════════════════════════════════════ */

@@ -434,6 +434,30 @@
 </div>
 
 <!-- ═══════════════════════════════════════════════════════
+     AI CHATBOT OVERLAY (GEMINI)
+════════════════════════════════════════════════════════════ -->
+<div id="ai-chat-btn" class="ai-chat-btn" title="Ask DSA AI">💬</div>
+
+<div id="ai-chat-window" class="ai-chat-window" style="display:none;">
+  <div class="ai-chat-header">
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span>🤖</span>
+      <strong>DSA Specialist AI</strong>
+    </div>
+    <button id="ai-chat-close">✖</button>
+  </div>
+  <div id="ai-chat-messages" class="ai-chat-messages">
+    <div class="chat-msg msg-ai">Hi! I'm your elite DSA AI tutor powered by Gemini. Ask me any question about algorithms, data structures, or time complexity!</div>
+  </div>
+  <div class="ai-chat-input-area">
+    <input type="text" id="ai-chat-input" placeholder="Type your DSA question..." autocomplete="off">
+    <button id="ai-chat-send">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+    </button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
      MOTIVATIONAL QUOTES TICKER (fixed bottom)
 ════════════════════════════════════════════════════════════ -->
 <div class="quotes-ticker" id="quotes-ticker" style="display:none;">
