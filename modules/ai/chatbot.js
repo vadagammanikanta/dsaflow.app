@@ -67,11 +67,11 @@ export async function sendChatMessage(userMessage, fileData = null) {
     });
 
     if (!response.ok) {
+      const text = await response.text();
       let errorData;
       try {
-        errorData = await response.json();
+        errorData = JSON.parse(text);
       } catch (e) {
-        const text = await response.text();
         throw new Error(`Server Error: ${text.substring(0, 50)}...`);
       }
       console.error("Gemini API Error:", errorData);
