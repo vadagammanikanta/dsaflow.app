@@ -128,7 +128,7 @@ const PLATFORMS = [
 /* ═══════════════════════════════════════════════════════════════════
    INIT — Entry Point
    ═══════════════════════════════════════════════════════════════════ */
-document.addEventListener('DOMContentLoaded', async () => {
+async function initApp() {
   loadAppState();
   setupAuthFormHandlers();
 
@@ -145,7 +145,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   bootApp(user, trial);
-});
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initApp);
+} else {
+  initApp();
+}
 
 /* ═══ AUTH OVERLAY ══════════════════════════════════════════════════ */
 function showAuthOverlay() {
@@ -383,13 +389,13 @@ function initChatbot() {
     
     // Parse markdown (bold, code blocks)
     let formattedText = aiResponse
-      .replace(/\\*\\*(.*?)\\*\\*/g, '<strong>$1</strong>')
-      .replace(/\\`(.*?)\\`/g, '<code>$1</code>');
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/`(.*?)`/g, '<code>$1</code>');
     
     // Convert triple backticks to pre code
-    if (formattedText.includes('\`\`\`')) {
-      const parts = formattedText.split('\`\`\`');
-      formattedText = parts.map((p, i) => i % 2 !== 0 ? \`<pre><code>\${p.trim()}</code></pre>\` : p).join('');
+    if (formattedText.includes('```')) {
+      const parts = formattedText.split('```');
+      formattedText = parts.map((p, i) => i % 2 !== 0 ? `<pre><code>${p.trim()}</code></pre>` : p).join('');
     }
 
     aiDiv.innerHTML = formattedText;

@@ -3,18 +3,18 @@
 // ═══════════════════════════════════════════════════════════════════
 
 // ── CONFIGURE YOUR GEMINI API KEY HERE ─────────────────────────────
-const GEMINI_API_KEY = 'YOUR_GEMINI_API_KEY'; // Replace with real key for production
+const GEMINI_API_KEY = 'AIzaSyDFs_SdqiCY78V-PmonSH5Q_D3fBCllzAw'; // Real key provided by user
 // ─────────────────────────────────────────────────────────────────
 
-const GEMINI_API_URL = \`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=\${GEMINI_API_KEY}\`;
+const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
 
-const SYSTEM_INSTRUCTION = \`You are 'dsa.flow AI', an elite Data Structures and Algorithms tutor. 
+const SYSTEM_INSTRUCTION = `You are 'dsa.flow AI', an elite Data Structures and Algorithms tutor. 
 Your goal is to help students learn DSA, prepare for technical interviews, and understand time/space complexity.
 Rules:
 1. ONLY answer questions related to computer science, programming, DSA, competitive programming, and technical interviews.
 2. If the user asks about unrelated topics (politics, general knowledge, etc.), politely decline and steer them back to DSA.
 3. Be concise, encouraging, and use markdown for code snippets.
-4. Explain things simply, as if you are a friendly senior engineer mentoring a junior.\`;
+4. Explain things simply, as if you are a friendly senior engineer mentoring a junior.`;
 
 let chatHistory = [];
 
@@ -74,7 +74,7 @@ export async function sendChatMessage(userMessage) {
 
   } catch (error) {
     console.error("Chatbot Error:", error);
-    return \`❌ Error: \${error.message}\`;
+    return `❌ Error: ${error.message}`;
   }
 }
 
