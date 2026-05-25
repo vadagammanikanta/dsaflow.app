@@ -815,8 +815,21 @@ function triggerVisualizerChange(val) {
   const arr   = document.getElementById('array-container');
   const tn    = document.getElementById('tree-nodes');
   const ts    = document.getElementById('tree-svg');
-  const gSvg  = document.getElementById('graph-svg');
-  const gNode = document.getElementById('graph-nodes');
+  
+  // Create graph containers dynamically if browser cached old HTML
+  let gSvg = document.getElementById('graph-svg');
+  if (!gSvg) {
+    gSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    gSvg.id = 'graph-svg'; gSvg.className = 'graph-svg-container';
+    vp.appendChild(gSvg);
+  }
+  let gNode = document.getElementById('graph-nodes');
+  if (!gNode) {
+    gNode = document.createElement('div');
+    gNode.id = 'graph-nodes'; gNode.className = 'graph-nodes-container';
+    vp.appendChild(gNode);
+  }
+
   const dsGrp = document.getElementById('ds-controls-group');
   const btnGen = document.getElementById('btn-generate');
   const btnPP  = document.getElementById('btn-play-pause');
