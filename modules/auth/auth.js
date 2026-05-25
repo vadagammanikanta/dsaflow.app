@@ -7,12 +7,12 @@
 
 // ── CONFIGURE YOUR FIREBASE PROJECT HERE ──────────────────────────
 const FIREBASE_CONFIG = {
-  apiKey:            "YOUR_API_KEY",
-  authDomain:        "YOUR_PROJECT_ID.firebaseapp.com",
-  projectId:         "YOUR_PROJECT_ID",
-  storageBucket:     "YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId:             "YOUR_APP_ID"
+  apiKey:            "AIzaSyByEQESkVKXgzHe_QPmw321C5ZpKePeL_Q",
+  authDomain:        "dsaflow-49a72.firebaseapp.com",
+  projectId:         "dsaflow-49a72",
+  storageBucket:     "dsaflow-49a72.firebasestorage.app",
+  messagingSenderId: "705752713835",
+  appId:             "1:705752713835:web:cdb2cf3ac978e2d7e97f2e"
 };
 // ─────────────────────────────────────────────────────────────────
 
