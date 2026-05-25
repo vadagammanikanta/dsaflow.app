@@ -812,11 +812,33 @@ function triggerVisualizerChange(val) {
   
   updateVisualizerStats(val);
   const vp    = document.getElementById('viewport');
-  const arr   = document.getElementById('array-container');
-  const tn    = document.getElementById('tree-nodes');
-  const ts    = document.getElementById('tree-svg');
+  if (!vp) return;
   
-  // Create graph containers dynamically if browser cached old HTML
+  // Dynamically restore/create all containers inside viewport if missing (e.g. from historical erasures or caching)
+  let arr = document.getElementById('array-container');
+  if (!arr) {
+    arr = document.createElement('div');
+    arr.id = 'array-container'; arr.className = 'array-container';
+    vp.appendChild(arr);
+  }
+  let sc = document.getElementById('struct-container');
+  if (!sc) {
+    sc = document.createElement('div');
+    sc.id = 'struct-container'; sc.className = 'struct-container';
+    vp.appendChild(sc);
+  }
+  let ts = document.getElementById('tree-svg');
+  if (!ts) {
+    ts = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    ts.id = 'tree-svg'; ts.className = 'tree-svg-container';
+    vp.appendChild(ts);
+  }
+  let tn = document.getElementById('tree-nodes');
+  if (!tn) {
+    tn = document.createElement('div');
+    tn.id = 'tree-nodes'; tn.className = 'tree-nodes-container';
+    vp.appendChild(tn);
+  }
   let gSvg = document.getElementById('graph-svg');
   if (!gSvg) {
     gSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
@@ -836,36 +858,36 @@ function triggerVisualizerChange(val) {
   const btnSt  = document.getElementById('btn-step');
   const btnSearch = document.getElementById('ds-btn-search');
   
+  // Hide all visualizer canvases by default
+  arr.style.display = 'none';
+  sc.style.display = 'none';
+  ts.style.display = 'none';
+  tn.style.display = 'none';
+  gSvg.style.display = 'none';
+  gNode.style.display = 'none';
+  
   if (val.startsWith('sort-')) {
     vp.style.alignItems = 'flex-end'; vp.style.padding = '40px 20px';
     arr.style.display = 'flex'; 
-    tn.style.display = 'none'; ts.style.display = 'none';
-    gSvg.style.display = 'none'; gNode.style.display = 'none';
     dsGrp.style.display = 'none'; btnGen.style.display = 'inline-flex';
     btnPP.style.display = 'inline-flex'; btnSt.style.display = 'inline-flex';
     initSorting(vp);
   } else if (val.startsWith('graph-')) {
     vp.style.alignItems = 'center'; vp.style.padding = '0';
-    arr.style.display = 'none'; 
-    tn.style.display = 'none'; ts.style.display = 'none';
     gSvg.style.display = 'block'; gNode.style.display = 'block';
     dsGrp.style.display = 'none'; btnGen.style.display = 'none';
     btnPP.style.display = 'inline-flex'; btnSt.style.display = 'inline-flex';
     initGraph(vp);
   } else if (val === 'ds-bst') {
     vp.style.alignItems = 'center'; vp.style.padding = '0';
-    arr.style.display = 'none'; 
-    tn.style.display = 'block'; ts.style.display = 'block';
-    gSvg.style.display = 'none'; gNode.style.display = 'none';
+    ts.style.display = 'block'; tn.style.display = 'block';
     dsGrp.style.display = 'flex'; btnGen.style.display = 'none';
     btnPP.style.display = 'inline-flex'; btnSt.style.display = 'inline-flex';
     btnSearch.style.display = 'inline-flex';
     initBST(vp);
   } else {
     vp.style.alignItems = 'center'; vp.style.padding = '0';
-    arr.style.display = 'none'; 
-    tn.style.display = 'block'; ts.style.display = 'block';
-    gSvg.style.display = 'none'; gNode.style.display = 'none';
+    sc.style.display = 'flex';
     dsGrp.style.display = 'flex'; btnGen.style.display = 'none';
     btnPP.style.display = 'none'; btnSt.style.display = 'none';
     btnSearch.style.display = (val === 'ds-linkedlist') ? 'inline-flex' : 'none';

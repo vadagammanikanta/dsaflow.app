@@ -1,6 +1,7 @@
 // Data Structures Visualizer Module for DSA Learning Hub
 
 let viewport = null;
+let structContainer = null;
 let currentDS = 'ds-stack';
 
 // Structures state
@@ -80,6 +81,7 @@ const dsPseudocode = {
 
 export function initDS(viewportContainer, type) {
   viewport = viewportContainer;
+  structContainer = document.getElementById('struct-container');
   currentDS = type;
   
   // Show inputs
@@ -125,12 +127,12 @@ function highlightDSPseudocodeLine(idx) {
 
 // Main DS Render Dispatcher
 export function renderDS() {
-  viewport.innerHTML = '';
+  if (structContainer) structContainer.innerHTML = '';
   // Clear SVG lines
   const svg = document.getElementById('tree-svg');
-  svg.innerHTML = '';
+  if (svg) svg.innerHTML = '';
   const treeNodes = document.getElementById('tree-nodes');
-  treeNodes.innerHTML = '';
+  if (treeNodes) treeNodes.innerHTML = '';
 
   if (currentDS === 'ds-stack') {
     renderStack();
@@ -138,8 +140,6 @@ export function renderDS() {
     renderQueue();
   } else if (currentDS === 'ds-linkedlist') {
     renderLinkedList();
-  } else if (currentDS === 'ds-bst') {
-    renderBST();
   }
 }
 
@@ -153,7 +153,8 @@ const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
    STACK OPERATIONS
    ========================================================================= */
 function renderStack(highlightIndex = null) {
-  viewport.innerHTML = '';
+  if (!structContainer) return;
+  structContainer.innerHTML = '';
   
   // Outer stack barrel
   const barrel = document.createElement('div');
@@ -193,7 +194,7 @@ function renderStack(highlightIndex = null) {
     barrel.appendChild(element);
   });
   
-  viewport.appendChild(barrel);
+  structContainer.appendChild(barrel);
 }
 
 export async function pushStack(val) {
@@ -230,7 +231,8 @@ export async function popStack() {
    QUEUE OPERATIONS
    ========================================================================= */
 function renderQueue(highlightIndex = null) {
-  viewport.innerHTML = '';
+  if (!structContainer) return;
+  structContainer.innerHTML = '';
   
   const lineContainer = document.createElement('div');
   lineContainer.className = 'linear-container';
@@ -280,7 +282,7 @@ function renderQueue(highlightIndex = null) {
     lineContainer.appendChild(wrapper);
   });
   
-  viewport.appendChild(lineContainer);
+  structContainer.appendChild(lineContainer);
 }
 
 export async function enqueueQueue(val) {
@@ -317,7 +319,8 @@ export async function dequeueQueue() {
    LINKED LIST OPERATIONS
    ========================================================================= */
 function renderLinkedList(activeIndices = {}, animateArrowIndex = null) {
-  viewport.innerHTML = '';
+  if (!structContainer) return;
+  structContainer.innerHTML = '';
   
   const listContainer = document.createElement('div');
   listContainer.className = 'linear-container';
@@ -366,7 +369,7 @@ function renderLinkedList(activeIndices = {}, animateArrowIndex = null) {
     listContainer.appendChild(wrapper);
   });
   
-  viewport.appendChild(listContainer);
+  structContainer.appendChild(listContainer);
 }
 
 export async function insertHeadList(val) {

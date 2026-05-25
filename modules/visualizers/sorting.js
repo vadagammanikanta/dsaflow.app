@@ -75,9 +75,14 @@ export function generateRandomArray() {
 }
 
 function renderArray(activeIndices = {}, stateClass = '') {
-  viewport.innerHTML = '';
-  const container = document.createElement('div');
-  container.className = 'array-container';
+  let container = document.getElementById('array-container');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'array-container';
+    container.className = 'array-container';
+    viewport.appendChild(container);
+  }
+  container.innerHTML = '';
 
   array.forEach((val, idx) => {
     const bar = document.createElement('div');
@@ -98,8 +103,6 @@ function renderArray(activeIndices = {}, stateClass = '') {
 
     container.appendChild(bar);
   });
-
-  viewport.appendChild(container);
 }
 
 // Reset generator depending on selected algorithm
