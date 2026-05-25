@@ -18,6 +18,7 @@ import {
   enqueueQueue, dequeueQueue, insertHeadList, deleteHeadList,
   searchList, dsComplexity
 } from './modules/visualizers/structures.js';
+import { initArena } from './modules/arena/arena.js';
 
 /* ─── STATE ──────────────────────────────────────────────────────── */
 let appState = { completedLessons: [], quizHighScore: 0, selectedLanguage: 'javascript', activeDifficulty: 'all' };
@@ -473,6 +474,8 @@ function initNav() {
         const val = document.getElementById('visualizer-select').value;
         if (val.startsWith('sort-')) resetGenerator();
         else initDS(document.getElementById('viewport'), val);
+      } else if (tab === 'arena') {
+        initArena();
       }
     });
   });
@@ -696,7 +699,6 @@ function showLesson(lessonId) {
     <div>${lesson.details}${codeHtml}</div>
     <div class="lesson-actions">
       <a href="https://www.youtube.com/results?search_query=Bro+Code+${encodeURIComponent(lesson.title)}" target="_blank" rel="noopener" class="btn btn-youtube">▶️ Watch Bro Code Tutorial</a>
-      <button class="btn btn-secondary" id="btn-lesson-vis">▶ Visualizer</button>
       <button class="btn ${done ? 'btn-secondary' : 'btn-accent'}" id="btn-mark-done" ${done ? 'disabled' : ''}>
         ${done ? '✓ Completed' : '🎯 Mark as Completed'}
       </button>
@@ -739,14 +741,7 @@ function showLesson(lessonId) {
       chatSendBtn.click();
     });
   }
-  // Visualizer shortcut
-  const visMap = { 'arrays': 'sort-bubble', 'strings': 'sort-bubble', 'stack-queue': 'ds-stack', 'linked-list': 'ds-linkedlist', 'trees-bst': 'ds-bst', 'heaps': 'ds-bst', 'tries': 'ds-bst', 'sorting-algos': 'sort-merge', 'searching': 'sort-bubble', 'divide-conquer': 'sort-merge' };
-  document.getElementById('btn-lesson-vis').addEventListener('click', () => {
-    const val = visMap[lessonId] || 'sort-bubble';
-    document.getElementById('visualizer-select').value = val;
-    triggerVisualizerChange(val);
-    document.querySelector('[data-tab=visualizer]').click();
-  });
+
 
   // Mark complete
   document.getElementById('btn-mark-done').addEventListener('click', () => {

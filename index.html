@@ -15,6 +15,9 @@
 
   <!-- Razorpay Payment -->
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+  <!-- Monaco Editor loader -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.39.0/min/vs/loader.min.js"></script>
 </head>
 <body>
 
@@ -238,6 +241,10 @@
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
         <span>Visualizer</span>
       </div>
+      <div class="nav-item" data-tab="arena" id="nav-arena">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 18l6-6-6-6M8 6L2 12l6 6"/></svg>
+        <span>Coding Arena</span>
+      </div>
       <div class="nav-item" data-tab="learning" id="nav-learning">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
         <span>Learn</span>
@@ -375,6 +382,84 @@
             <h3 style="margin-bottom:12px;">Pseudocode Trace</h3>
             <div style="flex-grow:1;overflow-y:auto;background:var(--code-bg);border-radius:var(--radius-sm);border:1px solid var(--border-glass);padding:12px;" id="pseudocode-container"></div>
           </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CODING ARENA -->
+    <section class="tab-pane" id="arena">
+      <div class="arena-workspace">
+        
+        <!-- Left Pane: Problem Description (Markdown) -->
+        <div class="arena-left-pane">
+          <div class="problem-selector-wrapper">
+            <label for="arena-problem-select">Select Problem:</label>
+            <select id="arena-problem-select" class="algorithm-selector"></select>
+          </div>
+          <div class="problem-content" id="arena-problem-content"></div>
+        </div>
+        
+        <!-- Resize Handle 1 (Horizontal) -->
+        <div class="arena-resize-handle" id="arena-handle-1"></div>
+        
+        <!-- Right Container: Editor + Console -->
+        <div class="arena-right-container">
+          
+          <!-- Top Right Pane: Code Editor -->
+          <div class="arena-top-right-pane">
+            <div class="editor-header">
+              <div style="display:flex; align-items:center; gap:8px;">
+                <label for="arena-lang-select" style="font-weight:600; font-size:0.88rem;">Language:</label>
+                <select id="arena-lang-select" class="algorithm-selector" style="padding:4px 8px; font-size:0.85rem;">
+                  <option value="javascript">⚡ JavaScript</option>
+                  <option value="python">🐍 Python</option>
+                  <option value="cpp">⚙️ C++</option>
+                  <option value="java">☕ Java</option>
+                </select>
+              </div>
+              <button class="btn btn-secondary btn-sm" id="btn-arena-reset" style="padding:4px 10px; font-size:0.8rem;">🔄 Reset Code</button>
+            </div>
+            <div id="arena-editor-container" class="arena-editor-canvas"></div>
+          </div>
+          
+          <!-- Resize Handle 2 (Vertical) -->
+          <div class="arena-resize-handle-v" id="arena-handle-2"></div>
+          
+          <!-- Bottom Right Pane: Console & Output -->
+          <div class="arena-bottom-right-pane">
+            <div class="console-tabs-header">
+              <div class="console-tabs">
+                <button class="console-tab active" data-tab="testcases">📋 Test Cases</button>
+                <button class="console-tab" data-tab="custominput">⌨️ Custom Input</button>
+                <button class="console-tab" data-tab="output">💻 Result</button>
+              </div>
+              <div class="console-actions">
+                <button class="btn btn-secondary" id="btn-arena-ask-ai" style="padding:6px 12px; font-size:0.82rem; background:rgba(0,229,255,0.08); border:1px solid rgba(0,229,255,0.2); color:var(--accent-cyan);">🤖 Ask AI for Help</button>
+                <button class="btn btn-secondary" id="btn-arena-run" style="padding:6px 12px; font-size:0.82rem;">▶ Run Code</button>
+                <button class="btn btn-accent" id="btn-arena-submit" style="padding:6px 16px; font-size:0.82rem;">🚀 Submit</button>
+              </div>
+            </div>
+            
+            <div class="console-tab-body">
+              <!-- Test cases -->
+              <div class="console-tab-content active" id="arena-tab-testcases">
+                <div id="arena-testcase-list" class="testcase-list"></div>
+              </div>
+              
+              <!-- Custom Input -->
+              <div class="console-tab-content" id="arena-tab-custominput" style="display:none;">
+                <label style="display:block; margin-bottom:8px; font-size:0.85rem; color:var(--text-secondary);">Provide stdin input parameters (one per line):</label>
+                <textarea id="arena-custom-input-val" class="text-input console-textarea" placeholder="e.g.&#10;[2,7,11,15]&#10;9"></textarea>
+              </div>
+              
+              <!-- Output -->
+              <div class="console-tab-content" id="arena-tab-output" style="display:none;">
+                <div id="arena-output-status" class="arena-status-badge">Run code to see execution result...</div>
+                <div id="arena-output-val" class="console-output"></div>
+              </div>
+            </div>
+          </div>
+          
         </div>
       </div>
     </section>
