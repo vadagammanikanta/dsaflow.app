@@ -758,20 +758,24 @@ function showLesson(lessonId) {
         let formattedText = rawText
           .replace(/!\[(.*?)\]\((.*?)\)/g, '<img src="$2" alt="$1" style="max-width:100%; border-radius:8px; margin: 8px 0;">')
           .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-          .replace(/`(.*?)`/g, '<code>$1</code>');
+          .replace(/`(.*?)`/g, '<code>$1</code>')
+          .replace(/^### (.*?)$/gm, '<h3 style="margin-top: 16px; margin-bottom: 8px;">$1</h3>')
+          .replace(/^## (.*?)$/gm, '<h2 style="margin-top: 16px; margin-bottom: 8px;">$1</h2>')
+          .replace(/^# (.*?)$/gm, '<h1 style="margin-top: 16px; margin-bottom: 8px;">$1</h1>')
+          .replace(/^\* (.*?)$/gm, '<li style="margin-left: 20px;">$1</li>');
         
         if (formattedText.includes('```')) {
           const parts = formattedText.split('```');
           formattedText = parts.map((p, i) => {
             if (i % 2 !== 0) {
-              const lines = p.split('\\n');
-              const code = lines.slice(1).join('\\n').trim();
+              const lines = p.split('\n');
+              const code = lines.slice(1).join('\n').trim();
               return `<pre><code>${esc(code || p.trim())}</code></pre>`;
             }
-            return p.replace(/\\n/g, '<br>');
+            return p.replace(/\n/g, '<br>');
           }).join('');
         } else {
-          formattedText = formattedText.replace(/\\n/g, '<br>');
+          formattedText = formattedText.replace(/\n/g, '<br>');
         }
         
         content.innerHTML = formattedText;
