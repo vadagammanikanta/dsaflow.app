@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DSA Learning Hub - Interactive Visualizations & Tutorials</title>
+  <link rel="stylesheet" href="index.css">
+</head>
+<body>
+  <div class="background-glow"></div>
+
+  <div class="app-container">
+    <!-- Header -->
+    <header>
+      <div class="logo">
+        <!-- SVG Logo Icon -->
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+        </svg>
+        <span>DSA.Flow</span>
+      </div>
+      <div class="header-status">
+        <div class="progress-pill">
+          <span>Overall Progress:</span>
+          <span class="progress-val" id="overall-progress-val">0%</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Sidebar -->
+    <aside>
+      <div class="nav-menu">
+        <div class="nav-section-title">Explore</div>
+        <div class="nav-item active" data-tab="dashboard">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+          <span>Dashboard</span>
+        </div>
+        <div class="nav-item" data-tab="visualizer">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path><path d="M22 12A10 10 0 0 0 12 2v10z"></path></svg>
+          <span>Visualizers</span>
+        </div>
+        <div class="nav-item" data-tab="learning">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+          <span>Learning Path</span>
+        </div>
+        <div class="nav-item" data-tab="quiz">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+          <span>Challenge & Quiz</span>
+        </div>
+      </div>
+      <div class="sidebar-footer">
+        <button class="btn btn-secondary" style="width: 100%;" id="reset-progress-btn">Reset Progress</button>
+      </div>
+    </aside>
+
+    <!-- Main Content Panel -->
+    <main>
+
+      <!-- TAB: DASHBOARD -->
+      <section class="tab-pane active" id="dashboard">
+        <div class="card welcome-hero">
+          <h1>Welcome to DSA.Flow!</h1>
+          <p>Embark on your journey to master Data Structures and Algorithms. Visualize complex operations step-by-step, test your knowledge, and build deep intuition.</p>
+          <button class="btn btn-accent" onclick="document.querySelector('[data-tab=learning]').click()">Start Learning</button>
+        </div>
+
+        <h2 style="margin-top: 10px;">Your Learning Modules</h2>
+        <div class="grid-3col" id="dashboard-modules-grid">
+          <!-- Dynamically populated via content.js -->
+        </div>
+      </section>
+
+      <!-- TAB: VISUALIZER -->
+      <section class="tab-pane" id="visualizer">
+        <div class="visualizer-workspace">
+          <!-- Visualization Canvas -->
+          <div class="canvas-container">
+            <div class="canvas-header">
+              <h2 id="visualizer-title">Bubble Sort</h2>
+              <select class="algorithm-selector" id="visualizer-select">
+                <optgroup label="Sorting Algorithms">
+                  <option value="sort-bubble" selected>Bubble Sort</option>
+                  <option value="sort-selection">Selection Sort</option>
+                  <option value="sort-insertion">Insertion Sort</option>
+                  <option value="sort-merge">Merge Sort</option>
+                  <option value="sort-quick">Quick Sort</option>
+                </optgroup>
+                <optgroup label="Data Structures">
+                  <option value="ds-stack">Stack (LIFO)</option>
+                  <option value="ds-queue">Queue (FIFO)</option>
+                  <option value="ds-linkedlist">Singly Linked List</option>
+                  <option value="ds-bst">Binary Search Tree (BST)</option>
+                </optgroup>
+              </select>
+            </div>
+
+            <!-- The Drawing Viewport -->
+            <div class="visualization-viewport" id="viewport">
+              <!-- Array elements or Graph nodes are rendered here -->
+              <div class="array-container" id="array-container"></div>
+              
+              <!-- SVG for drawing tree branches / pointer arrows -->
+              <svg class="tree-svg-container" id="tree-svg"></svg>
+              <div class="tree-nodes-container" id="tree-nodes"></div>
+            </div>
+
+            <!-- Visualizer Action Bar -->
+            <div class="card controls-card">
+              <!-- Context-aware inputs (for Stack/Queue/LinkedList/BST) -->
+              <div class="input-group" id="ds-controls-group" style="display: none; margin-bottom: 0;">
+                <input type="number" class="text-input" id="ds-input-val" placeholder="Value (0-99)" min="0" max="99" style="width: 120px;">
+                <button class="btn btn-primary" id="ds-btn-insert">Insert/Push</button>
+                <button class="btn btn-secondary" id="ds-btn-remove">Remove/Pop</button>
+                <button class="btn btn-secondary" id="ds-btn-search" style="display: none;">Search</button>
+              </div>
+
+              <!-- General visualizer controls -->
+              <button class="btn btn-secondary" id="btn-generate">Generate Random</button>
+              
+              <!-- Play / Pause / Step Controls -->
+              <button class="btn btn-primary btn-icon" id="btn-play-pause" title="Play">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+              </button>
+              <button class="btn btn-secondary btn-icon" id="btn-step" title="Step-by-step">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 4 15 12 5 20 5 4"></polygon><line x1="19" y1="5" x2="19" y2="19"></line></svg>
+              </button>
+
+              <div class="speed-control">
+                <span>Speed:</span>
+                <input type="range" id="speed-slider" min="10" max="1000" value="500">
+                <span id="speed-label">500ms</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Info & Algorithm Properties Sidebar -->
+          <div class="visualizer-sidebar">
+            <div class="card" style="padding: 20px;">
+              <h3 style="margin-bottom: 12px;">Complexity & Stats</h3>
+              <div class="badge-group" style="margin-bottom: 16px;">
+                <span class="info-badge">Time (Worst): <span id="stat-worst-time">O(N²)</span></span>
+                <span class="info-badge">Time (Best): <span id="stat-best-time">O(N)</span></span>
+                <span class="info-badge">Space (Worst): <span id="stat-space">O(1)</span></span>
+              </div>
+              <p id="algorithm-description" style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.4;">
+                Bubble sort is a simple sorting algorithm that repeatedly steps through the list, compares adjacent elements, and swaps them if they are in the wrong order.
+              </p>
+            </div>
+
+            <!-- Trace / Pseudocode Highlight -->
+            <div class="card" style="flex-grow: 1; padding: 20px; display: flex; flex-direction: column;">
+              <h3 style="margin-bottom: 12px;">Pseudocode Trace</h3>
+              <div style="flex-grow: 1; overflow-y: auto; background: #07080d; border-radius: var(--radius-sm); border: 1px solid var(--border-glass); padding: 12px;" id="pseudocode-container">
+                <!-- Dynamically filled with pseudocode statements -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB: LEARNING -->
+      <section class="tab-pane" id="learning">
+        <div class="learning-layout">
+          <!-- Curriculum Sidebar -->
+          <div class="curriculum-list" id="curriculum-list">
+            <!-- Dynamically populated via content.js -->
+          </div>
+
+          <!-- Detail Viewer -->
+          <div class="card learning-content-viewer" id="learning-content-viewer">
+            <!-- Dynamically populated detail view -->
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB: QUIZ -->
+      <section class="tab-pane" id="quiz">
+        <div class="quiz-container">
+          <div class="quiz-welcome" id="quiz-welcome-screen">
+            <h2 class="quiz-result-header">Challenge Your Mind</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 24px; font-size: 1.05rem;">
+              Test your knowledge on data structures, Big O notation, and sorting complexities. Earn mastery score to unlock new accomplishments!
+            </p>
+            <button class="btn btn-accent" id="btn-start-quiz">Start Quiz Session</button>
+          </div>
+
+          <div class="quiz-active" id="quiz-active-screen" style="display: none;">
+            <div class="card quiz-card">
+              <div class="quiz-progress" id="quiz-progress-lbl">Question 1 of 5</div>
+              <div class="quiz-question" id="quiz-question-lbl">What is the worst-case time complexity of Quick Sort?</div>
+              <div class="quiz-options" id="quiz-options-container">
+                <!-- Options populated dynamically -->
+              </div>
+              <div class="quiz-explanation" id="quiz-explanation" style="display: none;">
+                <!-- Explanation -->
+              </div>
+            </div>
+            <button class="btn btn-primary" id="btn-next-question" style="float: right;" disabled>Next Question</button>
+          </div>
+
+          <div class="quiz-results" id="quiz-results-screen" style="display: none;">
+            <div class="card">
+              <div class="quiz-result-header">Quiz Finished!</div>
+              <p style="color: var(--text-secondary);">Here is your performance report:</p>
+              
+              <div class="quiz-score-circle">
+                <span class="quiz-score-val" id="quiz-score-val">4</span>
+                <span class="quiz-score-max">/ 5 correct</span>
+              </div>
+
+              <div id="quiz-feedback-msg" style="margin-bottom: 24px; font-weight: 600;">Excellent Job!</div>
+              
+              <div style="display: flex; gap: 12px; justify-content: center;">
+                <button class="btn btn-accent" id="btn-restart-quiz">Retry Quiz</button>
+                <button class="btn btn-secondary" onclick="document.querySelector('[data-tab=learning]').click()">Back to Learning</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- App logic using modern ES Modules -->
+  <script type="module" src="app.js"></script>
+</body>
+</html>
