@@ -1,3 +1,5 @@
+const https = require('https');
+
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -11,22 +13,46 @@ module.exports = async function handler(req, res) {
     });
   }
 
-  const GEMINI_API_URL = \`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=\${API_KEY}\`;
+  const options = {
+    hostname: 'generativelanguage.googleapis.com',
+    port: 443,
+    path: `/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`,
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  };
 
-  try {
-    // Forward the exact JSON payload sent from the frontend to Google
-    const googleRes = await fetch(GEMINI_API_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(req.body)
+  return new Promise((resolve, reject) => {
+    const googleReq = https.request(options, (googleRes) => {
+      let responseBody = '';
+
+      googleRes.on('data', (chunk) => {
+        responseBody += chunk;
+      });
+
+      googleRes.on('end', () => {
+        try {
+          const data = JSON.parse(responseBody);
+          res.status(googleRes.statusCode || 200).json(data);
+          resolve();
+        } catch (e) {
+          console.error("JSON Parse Error:", e);
+          res.status(500).json({ error: 'Invalid response from Google AI' });
+          resolve();
+        }
+      });
     });
 
-    const data = await googleRes.json();
-    return res.status(200).json(data);
-  } catch (error) {
-    console.error("Gemini API Error:", error);
-    return res.status(500).json({ error: 'Failed to communicate with Google AI' });
-  }
-}
+    googleReq.on('error', (error) => {
+      console.error("Gemini API Error:", error);
+      res.status(500).json({ error: 'Failed to communicate with Google AI' });
+      resolve();
+    });
+
+    // req.body is already parsed as an object by Vercel
+    const payload = typeof req.body === 'string' ? req.body : JSON.stringify(req.body);
+    googleReq.write(payload);
+    googleReq.end();
+  });
+};
