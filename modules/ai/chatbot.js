@@ -67,9 +67,15 @@ export async function sendChatMessage(userMessage, fileData = null) {
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
+      let errorData;
+      try {
+        errorData = await response.json();
+      } catch (e) {
+        const text = await response.text();
+        throw new Error(`Server Error: ${text.substring(0, 50)}...`);
+      }
       console.error("Gemini API Error:", errorData);
-      throw new Error(errorData.error?.message || "Failed to communicate with AI.");
+      throw new Error(errorData.error?.message || errorData.error || "Failed to communicate with AI.");
     }
 
     const data = await response.json();
