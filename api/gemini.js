@@ -18,7 +18,7 @@ module.exports = async function handler(req, res) {
   const options = {
     hostname: 'generativelanguage.googleapis.com',
     port: 443,
-    path: `/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`,
+    path: `/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${API_KEY}`,
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
