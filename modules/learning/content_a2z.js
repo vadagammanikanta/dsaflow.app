@@ -5777,7 +5777,70 @@ export const roadmapPhases = [
       "a2z-s18-c514-p6",
       "a2z-s18-c514-p7",
       "a2z-s18-c514-p8",
-      "a2z-s18-c514-p9"
     ]
   }
 ];
+
+export const githubAlgorithmMappings = {
+  // Step 2 — Sorting-I — Bubble Sort
+  "a2z-s2-c487-p2": {
+    topic: "Bubble Sort",
+    paths: {
+      javascript: "Sorts/BubbleSort.js",
+      java: "src/main/java/com/thealgorithms/sorts/BubbleSort.java",
+      cpp: "sorts/bubble_sort.cpp",
+      python: "sorts/bubble_sort.py"
+    }
+  },
+  // Step 2 — Sorting-I — Selection Sort
+  "a2z-s2-c487-p1": {
+    topic: "Selection Sort",
+    paths: {
+      javascript: "Sorts/SelectionSort.js",
+      java: "src/main/java/com/thealgorithms/sorts/SelectionSort.java",
+      cpp: "sorts/selection_sort.cpp",
+      python: "sorts/selection_sort.py"
+    }
+  },
+  // Step 2 — Sorting-I — Insertion Sorting
+  "a2z-s2-c487-p3": {
+    topic: "Insertion Sorting",
+    paths: {
+      javascript: "Sorts/InsertionSort.js",
+      java: "src/main/java/com/thealgorithms/sorts/InsertionSort.java",
+      cpp: "sorts/insertion_sort.cpp",
+      python: "sorts/insertion_sort.py"
+    }
+  },
+  // Step 2 — Sorting-II — Merge Sorting
+  "a2z-s2-c488-p1": {
+    topic: "Merge Sorting",
+    paths: {
+      javascript: "Sorts/MergeSort.js",
+      java: "src/main/java/com/thealgorithms/sorts/MergeSort.java",
+      cpp: "sorts/merge_sort.cpp",
+      python: "sorts/merge_sort.py"
+    }
+  },
+  // Step 2 — Sorting-II — Quick Sorting
+  "a2z-s2-c488-p4": {
+    topic: "Quick Sorting",
+    paths: {
+      javascript: "Sorts/QuickSort.js",
+      java: "src/main/java/com/thealgorithms/sorts/QuickSort.java",
+      cpp: "sorts/quick_sort.cpp",
+      python: "sorts/quick_sort.py"
+    }
+  },
+  // Step 4 — Binary Search
+  "a2z-s4-c489-p1": {
+    topic: "Binary Search",
+    paths: {
+      javascript: "Search/BinarySearch.js",
+      java: "src/main/java/com/thealgorithms/searches/BinarySearch.java",
+      cpp: "search/binary_search.cpp",
+      python: "searches/binary_search.py"
+    }
+  }
+};
+

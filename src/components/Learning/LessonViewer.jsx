@@ -1,11 +1,26 @@
-import React, { useEffect, useRef, useMemo } from 'react';
+import React, { useEffect, useRef, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
+import AlgorithmCodeFetcher from './AlgorithmCodeFetcher';
+import { githubAlgorithmMappings } from '../../../modules/learning/content_a2z';
 
 export default function LessonViewer({ lesson }) {
   const { appState, markLessonCompleted } = useApp();
   const navigate = useNavigate();
   const contentRef = useRef(null);
+
+  const mapping = githubAlgorithmMappings[lesson?.id];
+  const [activeCodeLang, setActiveCodeLang] = useState('javascript');
+
+  useEffect(() => {
+    if (mapping) {
+      const availableLangs = Object.keys(mapping.paths);
+      const defaultLang = availableLangs.includes(appState.selectedLanguage)
+        ? appState.selectedLanguage
+        : (availableLangs[0] || 'javascript');
+      setActiveCodeLang(defaultLang);
+    }
+  }, [lesson, mapping, appState.selectedLanguage]);
 
   const getLanguageExtension = (lang) => {
     switch(lang) {
@@ -111,6 +126,45 @@ export default function LessonViewer({ lesson }) {
           style={{ lineHeight: '1.6', color: 'var(--text-secondary)' }} 
         />
       </div>
+
+      {/* Dynamic GitHub Code Snippet Section */}
+      {mapping && (
+        <div style={{ marginBottom: '24px', paddingBottom: '24px', borderBottom: '1px solid var(--border-glass)' }}>
+          <h3 style={{ fontSize: '1.1rem', color: 'var(--text-main)', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span>💻</span> GitHub Source Code (TheAlgorithms)
+          </h3>
+          <div style={{ display: 'flex', gap: '8px', marginBottom: '14px' }}>
+            {['javascript', 'java', 'cpp', 'python'].map((lang) => {
+              const hasPath = !!mapping.paths[lang];
+              if (!hasPath) return null;
+              
+              return (
+                <button
+                  key={lang}
+                  onClick={() => setActiveCodeLang(lang)}
+                  className={`btn ${activeCodeLang === lang ? 'btn-accent' : 'btn-secondary'}`}
+                  style={{
+                    padding: '6px 12px',
+                    fontSize: '0.85rem',
+                    borderRadius: '6px',
+                    textTransform: 'capitalize',
+                    fontWeight: activeCodeLang === lang ? 'bold' : 'normal'
+                  }}
+                >
+                  {lang === 'cpp' ? 'C++' : lang === 'javascript' ? 'JavaScript' : lang}
+                </button>
+              );
+            })}
+          </div>
+          {mapping.paths[activeCodeLang] ? (
+            <AlgorithmCodeFetcher language={activeCodeLang} githubPath={mapping.paths[activeCodeLang]} />
+          ) : (
+            <div style={{ color: 'var(--text-muted)', fontSize: '0.9rem', padding: '12px 0' }}>
+              No implementation path mapped for this language.
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Reference & Video Tutorials Section */}
       <div style={{ 

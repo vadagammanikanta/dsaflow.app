@@ -1471,9 +1471,27 @@ main { padding-bottom: 56px; }
 .ide-folder-contents {
   padding-left: 16px; border-left: 1px solid var(--border-glass); margin-left: 18px;
 }
+
 .ide-tree-item.editing input {
   background: var(--bg-input); border: 1px solid var(--border-focus);
   color: var(--text-primary); padding: 2px 4px; outline: none;
   font-family: var(--font-main); font-size: 0.88rem; border-radius: 4px;
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   Skeleton Loader Animations for Code Snippets
+   ═══════════════════════════════════════════════════════════════════ */
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 0.35; transform: scaleX(0.995); }
+  50% { opacity: 0.7; transform: scaleX(1); }
+}
+
+.skeleton-line {
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.06) 25%, rgba(255, 255, 255, 0.12) 50%, rgba(255, 255, 255, 0.06) 75%);
+  background-size: 200% 100%;
+  border-radius: 4px;
+  margin-bottom: 12px;
+  animation: skeleton-pulse 1.8s infinite ease-in-out;
+}
+
 
