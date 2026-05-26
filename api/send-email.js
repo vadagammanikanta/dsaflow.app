@@ -1,3 +1,5 @@
+import nodemailer from 'nodemailer';
+
 const ADMIN_EMAIL = 'dsa.flow@outlook.com';
 
 export default async function handler(req, res) {
@@ -19,7 +21,8 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Missing email or name' });
   }
 
-  const resendApiKey = process.env.RESEND_API_KEY;
+  const emailUser = process.env.EMAIL_USER;
+  const emailPass = process.env.EMAIL_PASS;
   const isWelcome = type === 'welcome';
 
   const memberSubject = isWelcome 
@@ -85,25 +88,46 @@ export default async function handler(req, res) {
     </div>
   `;
 
-  if (resendApiKey) {
+  if (emailUser && emailPass) {
     try {
-      await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${resendApiKey}` },
-        body: JSON.stringify({ from: 'dsa.flow <onboarding@resend.dev>', to: [email], subject: memberSubject, html: memberHtml })
+      const transporter = nodemailer.createTransport({
+        host: 'smtp.office365.com',
+        port: 587,
+        secure: false, // STARTTLS
+        auth: {
+          user: emailUser,
+          pass: emailPass
+        },
+        tls: {
+          ciphers: 'SSLv3',
+          rejectUnauthorized: false
+        }
       });
-      await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${resendApiKey}` },
-        body: JSON.stringify({ from: 'dsa.flow <onboarding@resend.dev>', to: [ADMIN_EMAIL], subject: adminSubject, html: adminHtml })
+
+      // Send to Member
+      await transporter.sendMail({
+        from: `"dsa.flow" <${emailUser}>`,
+        to: email,
+        subject: memberSubject,
+        html: memberHtml
       });
+
+      // Send to Admin
+      await transporter.sendMail({
+        from: `"dsa.flow" <${emailUser}>`,
+        to: ADMIN_EMAIL,
+        subject: adminSubject,
+        html: adminHtml
+      });
+
       return res.status(200).json({ success: true });
     } catch (e) {
+      console.error('[dsa.flow] SMTP send failed:', e.message);
       return res.status(500).json({ error: `Email send failed: ${e.message}` });
     }
   } else {
     console.info(`[EMAIL SIM] To: ${email} | Subject: ${memberSubject}`);
     console.info(`[EMAIL SIM] To Admin: ${ADMIN_EMAIL} | Subject: ${adminSubject}`);
-    return res.status(200).json({ success: true, message: 'Email simulated (set RESEND_API_KEY to activate)' });
+    return res.status(200).json({ success: true, message: 'Email simulated (set EMAIL_USER and EMAIL_PASS to activate)' });
   }
 }
