@@ -370,6 +370,14 @@ function initNav() {
       navItems.forEach(n => n.classList.remove('active'));
       item.classList.add('active');
       tabPanes.forEach(p => { p.classList.remove('active'); if (p.id === tab) p.classList.add('active'); });
+      if (tab === 'ide') {
+        const reactRoot = document.getElementById('react-ide-root');
+        const vanillaRoot = document.getElementById('vanilla-ide-workspace');
+        if (reactRoot && vanillaRoot) {
+          reactRoot.style.display = 'block';
+          vanillaRoot.style.display = 'none';
+        }
+      }
       if (tab === 'visualizer') {
         const val = document.getElementById('visualizer-select').value;
         if (val.startsWith('sort-')) resetGenerator();

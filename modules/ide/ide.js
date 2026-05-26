@@ -424,5 +424,6 @@ export function openInIDE(filename, initialCode) {
   // Wait a small tick to ensure DOM is visible before creating editor
   setTimeout(() => {
     openFile(file.id);
+    window.dispatchEvent(new CustomEvent('ide_open_file', { detail: { id: file.id } }));
   }, 50);
 }

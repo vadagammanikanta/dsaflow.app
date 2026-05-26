@@ -17,10 +17,24 @@ export default function WebIDE() {
   // Derived state for the currently active file
   const activeFile = files.find(f => f.id === activeFileId);
 
-  // Load from localStorage on mount
+  // Load from localStorage on mount and listen to custom event
   useEffect(() => {
-    const saved = localStorage.getItem('ide_vfs');
-    if (saved) setFiles(JSON.parse(saved));
+    const loadVFS = () => {
+      const saved = localStorage.getItem('dsaflow_vfs');
+      if (saved) setFiles(JSON.parse(saved));
+    };
+    
+    loadVFS();
+
+    const handleOpenFile = (e) => {
+      loadVFS();
+      if (e.detail && e.detail.id) {
+        setActiveFileId(e.detail.id);
+      }
+    };
+
+    window.addEventListener('ide_open_file', handleOpenFile);
+    return () => window.removeEventListener('ide_open_file', handleOpenFile);
   }, []);
 
   // 2. Dynamic Editor Binding Helper
@@ -44,7 +58,7 @@ export default function WebIDE() {
   };
 
   const handleSave = () => {
-    localStorage.setItem('ide_vfs', JSON.stringify(files));
+    localStorage.setItem('dsaflow_vfs', JSON.stringify(files));
     // Optional: Show a toast notification here
   };
 
