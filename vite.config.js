@@ -149,10 +149,30 @@ function localCompilerPlugin() {
                 console.log(`To Upgraded Member (${email}): "Welcome to dsa.flow Premium!"`);
                 console.log(`To Admin (dsa.flow@outlook.com): "New Premium Member: ${name} - WhatsApp: ${whatsapp} - Payment ID: ${paymentId}"`);
               }
+              res.writeHead(200, { 'Content-Type': 'application/json' });
+              return res.end(JSON.stringify({ success: true, message: 'Local email simulated' }));
+            } catch (err) {
+              res.writeHead(500, { 'Content-Type': 'application/json' });
+              return res.end(JSON.stringify({ error: err.message }));
+            }
+          });
+        } else if (req.url === '/api/send-bulk-emails' && req.method === 'POST') {
+          let body = '';
+          req.on('data', chunk => body += chunk);
+          req.on('end', async () => {
+            try {
+              const payload = JSON.parse(body);
+              const { key, subject, message } = payload;
+              console.log("=========================================");
+              console.log("📨 [LOCAL BULK EMAIL TRIGGERED]");
+              console.log(`Key Match: ${key ? 'Yes' : 'No'}`);
+              console.log(`Subject: "${subject}"`);
+              console.log(`Message Body (Preview): "${message ? message.slice(0, 100) : ''}..."`);
+              console.log(`[EMAIL SIM] Simulated sending greetings to all Firestore users via Microsoft SMTP.`);
               console.log("=========================================");
               
               res.writeHead(200, { 'Content-Type': 'application/json' });
-              return res.end(JSON.stringify({ success: true, message: 'Local email simulated' }));
+              return res.end(JSON.stringify({ success: true, count: 5, message: 'Local bulk email simulated' }));
             } catch (err) {
               res.writeHead(500, { 'Content-Type': 'application/json' });
               return res.end(JSON.stringify({ error: err.message }));
