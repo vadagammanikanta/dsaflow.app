@@ -1,6 +1,6 @@
 const ADMIN_EMAIL = 'dsa.flow@outlook.com';
 
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -31,12 +31,10 @@ module.exports = async function handler(req, res) {
         <ul style="margin: 0; padding-left: 20px;">
           <li style="margin-bottom: 4px;"><strong>Transaction ID:</strong> <span style="font-family: monospace; color: #a5f3fc;">${paymentId}</span></li>
           <li style="margin-bottom: 4px;"><strong>WhatsApp Registered:</strong> ${whatsapp}</li>
-          <li style="margin-bottom: 4px;"><strong>Support Contact:</strong> <a href="mailto:${ADMIN_EMAIL}" style="color: #00e5ff;">${ADMIN_EMAIL}</a></li>
+          <li style="margin-bottom: 4px;"><strong>Support:</strong> <a href="mailto:${ADMIN_EMAIL}" style="color: #00e5ff;">${ADMIN_EMAIL}</a></li>
         </ul>
       </div>
-      <p style="line-height: 1.5;">You now have lifetime, unrestricted access to all 16 DSA learning modules, the interactive VisuAlgo visualizer, coding arena with multi-language execution, and placement test quizzes.</p>
-      <p style="line-height: 1.5;">Let's ace those placement rounds together!</p>
-      <br/>
+      <p style="line-height: 1.5;">You now have lifetime access to all 16 DSA learning modules, the interactive VisuAlgo visualizer, coding arena with multi-language execution, and placement test quizzes.</p>
       <p style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 12px; margin-bottom: 0;">Best regards,<br/><strong>dsa.flow Team</strong></p>
     </div>
   `;
@@ -44,9 +42,7 @@ module.exports = async function handler(req, res) {
   const adminSubject = `🚨 New Premium Upgrade: ${name}`;
   const adminHtml = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px;">
-      <h2>New Premium Upgrade Received 💳</h2>
-      <p>A user has successfully upgraded to dsa.flow Premium.</p>
-      <p><strong>User Details:</strong></p>
+      <h2>New Premium Upgrade 💳</h2>
       <ul>
         <li><strong>Name:</strong> ${name}</li>
         <li><strong>Email:</strong> ${email}</li>
@@ -59,47 +55,23 @@ module.exports = async function handler(req, res) {
 
   if (resendApiKey) {
     try {
-      // Send to upgraded member
       await fetch('https://api.resend.com/emails', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${resendApiKey}`
-        },
-        body: JSON.stringify({
-          from: 'dsa.flow Premium <onboarding@resend.dev>',
-          to: [email],
-          subject: memberSubject,
-          html: memberHtml
-        })
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${resendApiKey}` },
+        body: JSON.stringify({ from: 'dsa.flow <onboarding@resend.dev>', to: [email], subject: memberSubject, html: memberHtml })
       });
-
-      // Send copy to admin
       await fetch('https://api.resend.com/emails', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${resendApiKey}`
-        },
-        body: JSON.stringify({
-          from: 'dsa.flow Premium <onboarding@resend.dev>',
-          to: [ADMIN_EMAIL],
-          subject: adminSubject,
-          html: adminHtml
-        })
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${resendApiKey}` },
+        body: JSON.stringify({ from: 'dsa.flow <onboarding@resend.dev>', to: [ADMIN_EMAIL], subject: adminSubject, html: adminHtml })
       });
-
-      return res.status(200).json({ success: true, message: 'Emails sent successfully via Resend API' });
+      return res.status(200).json({ success: true });
     } catch (e) {
-      console.error("Resend API failed:", e);
-      return res.status(500).json({ error: `Failed to send email: ${e.message}` });
+      return res.status(500).json({ error: `Email send failed: ${e.message}` });
     }
   } else {
-    // Demo/Development mode fallback
-    console.info("===== EMAIL SIMULATION (RESEND_API_KEY not configured) =====");
-    console.info(`To Member (${email}):`, memberSubject);
-    console.info(`To Admin (${ADMIN_EMAIL}):`, adminSubject);
-    console.info("=========================================================");
-    return res.status(200).json({ success: true, message: 'Email simulated successfully (add RESEND_API_KEY in environment to activate live mails)' });
+    console.info(`[EMAIL SIM] To: ${email} | Subject: ${memberSubject}`);
+    console.info(`[EMAIL SIM] To Admin: ${ADMIN_EMAIL} | Subject: ${adminSubject}`);
+    return res.status(200).json({ success: true, message: 'Email simulated (set RESEND_API_KEY to activate)' });
   }
-};
+}

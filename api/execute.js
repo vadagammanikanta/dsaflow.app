@@ -20,7 +20,7 @@ const COMPILER_MAP = {
   'kt': 'kotlin-head'
 };
 
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -41,7 +41,7 @@ module.exports = async function handler(req, res) {
 
   const normalizedKey = language.toLowerCase();
   const compiler = COMPILER_MAP[normalizedKey];
-  
+
   if (!compiler) {
     return res.status(400).json({ error: `Unsupported language: ${language}` });
   }
@@ -65,8 +65,7 @@ module.exports = async function handler(req, res) {
   }
 
   let data = null;
-  let attempts = 3;
-  let lastErr = null;
+  const attempts = 3;
 
   for (let attempt = 1; attempt <= attempts; attempt++) {
     try {
@@ -77,38 +76,36 @@ module.exports = async function handler(req, res) {
       });
 
       if (!wandboxRes.ok) {
-        throw new Error(`Upstream compilation service returned status ${wandboxRes.status}`);
+        throw new Error(`Wandbox returned HTTP ${wandboxRes.status}`);
       }
 
       data = await wandboxRes.json();
 
-      // Check if this is a transient sandbox error, e.g. OCI runtime container allocation failure
+      // Detect transient OCI container allocation errors and retry
       const isTransientError = data.program_error && (
-        data.program_error.includes("OCI runtime error") || 
-        data.program_error.includes("Resource temporarily unavailable") || 
+        data.program_error.includes("OCI runtime error") ||
+        data.program_error.includes("Resource temporarily unavailable") ||
         data.status === "126"
       );
 
       if (isTransientError && attempt < attempts) {
         console.warn(`Wandbox transient error (attempt ${attempt}/${attempts}):`, data.program_error);
-        await new Promise(resolve => setTimeout(resolve, 500));
+        await new Promise(r => setTimeout(r, 600));
         continue;
       }
 
-      // If we got a valid response (either compile error, runtime success, or actual programmer runtime error)
       break;
     } catch (err) {
-      lastErr = err;
       if (attempt === attempts) {
-        console.error("Wandbox execution exhausted all retry attempts:", err);
-        return res.status(502).json({ error: `Upstream compiler error: ${err.message}` });
+        console.error("Wandbox exhausted retries:", err);
+        return res.status(502).json({ error: `Compiler service error: ${err.message}` });
       }
-      console.warn(`Wandbox connection attempt ${attempt}/${attempts} failed, retrying...`, err.message);
-      await new Promise(resolve => setTimeout(resolve, 500));
+      console.warn(`Wandbox attempt ${attempt} failed, retrying...`, err.message);
+      await new Promise(r => setTimeout(r, 600));
     }
   }
 
-  // Check for compilation errors
+  // Compilation error (syntax/type errors caught at compile time)
   const hasCompileError = data.compiler_error && data.compiler_error.trim().length > 0;
   if (hasCompileError) {
     return res.status(200).json({
@@ -121,13 +118,12 @@ module.exports = async function handler(req, res) {
   }
 
   const success = data.status === '0';
-
   return res.status(200).json({
-    success: success,
+    success,
     status: success ? 'Success' : 'Runtime Error',
     output: data.program_output || data.program_message || '',
     stdout: data.program_output || '',
     stderr: data.program_error || '',
     error: success ? '' : (data.program_error || 'Process exited with non-zero status')
   });
-};
+}
