@@ -165,6 +165,9 @@ function createNewNode(type) {
 }
 
 function openFile(id) {
+  if (activeFileId && activeFileId !== id && editor) {
+    saveActiveFile(); // auto-save previous file before switching
+  }
   const file = vfs.find(n => n.id === id);
   if (!file || file.type !== 'file') return;
   
