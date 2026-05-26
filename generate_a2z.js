@@ -464,7 +464,13 @@ try {
     const phaseNodes = [];
     
     if (step.subcategories) {
-      step.subcategories.forEach((subcat) => {
+      const subcats = [...step.subcategories];
+      const patternsIdx = subcats.findIndex(s => s.subcategory_name === "Patterns");
+      if (patternsIdx > -1) {
+        const [patternsSubcat] = subcats.splice(patternsIdx, 1);
+        subcats.unshift(patternsSubcat);
+      }
+      subcats.forEach((subcat) => {
         // Consolidated Patterns Subcategory
         if (subcat.subcategory_name === "Patterns") {
           const id = `a2z-s${stepIndex+1}-c${subcat.subcategory_id}-patterns`;
