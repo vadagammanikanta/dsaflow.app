@@ -7,12 +7,14 @@
 
 // ── CONFIGURE YOUR FIREBASE PROJECT HERE ──────────────────────────
 const FIREBASE_CONFIG = {
-  apiKey:            "YOUR_API_KEY",
-  authDomain:        "dsaflow-49a72.firebaseapp.com",
-  projectId:         "dsaflow-49a72",
-  storageBucket:     "dsaflow-49a72.firebasestorage.app",
-  messagingSenderId: "705752713835",
-  appId:             "1:705752713835:web:cdb2cf3ac978e2d7e97f2e"
+  apiKey: "AIzaSyAXGDzwz77q2l2Wm4HwE9rQwJQ2jXXLMEY",
+  authDomain: "dsa-flow-546f4.firebaseapp.com",
+  databaseURL: "https://dsa-flow-546f4-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "dsa-flow-546f4",
+  storageBucket: "dsa-flow-546f4.firebasestorage.app",
+  messagingSenderId: "947997229343",
+  appId: "1:947997229343:web:9c145ec6ed6464e0c9f02a",
+  measurementId: "G-P0NB6W0PD9"
 };
 // ─────────────────────────────────────────────────────────────────
 
