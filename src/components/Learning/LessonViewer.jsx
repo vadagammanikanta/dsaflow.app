@@ -456,7 +456,7 @@ export default function LessonViewer({ lesson }) {
       </div>
 
       {/* Dynamic GitHub Code Snippet Section */}
-      {mapping && Object.keys(mapping.paths).length > 0 && (
+      {lesson.id !== 'a2z-s1-c360-patterns' && mapping && Object.keys(mapping.paths).length > 0 && (
         <div style={{ marginBottom: '24px', paddingBottom: '24px', borderBottom: '1px solid var(--border-glass)' }}>
           <h3 style={{ fontSize: '1.1rem', color: 'var(--text-main)', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span>💻</span> GitHub Source Code (TheAlgorithms)
@@ -543,7 +543,7 @@ export default function LessonViewer({ lesson }) {
           </a>
 
           <a
-            href={`https://www.youtube.com/results?search_query=Striver+${encodeURIComponent(lesson.title)}`}
+            href={lesson.youtube || `https://www.youtube.com/results?search_query=Striver+${encodeURIComponent(lesson.title)}`}
             target="_blank"
             rel="noopener noreferrer"
             className="btn btn-secondary"
@@ -576,7 +576,7 @@ export default function LessonViewer({ lesson }) {
             <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style={{ flexShrink: 0 }}>
               <path d="M23.498 6.163a3.003 3.003 0 0 0-2.11-2.11C19.518 3.545 12 3.545 12 3.545s-7.518 0-9.388.508a3.003 3.003 0 0 0-2.11 2.11C0 8.033 0 12 0 12s0 3.967.502 5.837a3.003 3.003 0 0 0 2.11 2.11c1.87.508 9.388.508 9.388.508s7.518 0 9.388-.508a3.003 3.003 0 0 0 2.11-2.11C24 15.967 24 12 24 12s0-3.967-.502-5.837zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
             </svg>
-            Striver YouTube
+            {lesson.youtube ? "Watch Striver's Video 🚀" : "Striver YouTube"}
           </a>
 
           <a
