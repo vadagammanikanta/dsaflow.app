@@ -127,6 +127,26 @@ function localCompilerPlugin() {
               return res.end(JSON.stringify({ error: `Internal local execution error: ${err.message}` }));
             }
           });
+        } else if (req.url === '/api/send-email' && req.method === 'POST') {
+          let body = '';
+          req.on('data', chunk => body += chunk);
+          req.on('end', async () => {
+            try {
+              const payload = JSON.parse(body);
+              const { email, name, whatsapp, paymentId } = payload;
+              console.log("=========================================");
+              console.log("📨 [LOCAL MAIL TRIGGERED]");
+              console.log(`To Upgraded Member (${email}): "Welcome to dsa.flow Premium!"`);
+              console.log(`To Admin (dsa.flow@outlook.com): "New Premium Member: ${name} - WhatsApp: ${whatsapp} - Payment ID: ${paymentId}"`);
+              console.log("=========================================");
+              
+              res.writeHead(200, { 'Content-Type': 'application/json' });
+              return res.end(JSON.stringify({ success: true, message: 'Local email simulated' }));
+            } catch (err) {
+              res.writeHead(500, { 'Content-Type': 'application/json' });
+              return res.end(JSON.stringify({ error: err.message }));
+            }
+          });
         } else {
           next();
         }

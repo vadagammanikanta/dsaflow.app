@@ -310,7 +310,7 @@ function AppLayout() {
             {paymentLoading ? '⏳ Processing...' : '💳 Pay ₹99 — Unlock Lifetime Access'}
           </button>
           <div className="payment-security">
-            🔒 Secured by Razorpay • UPI, Cards, NetBanking accepted
+            🔒 Secured by Razorpay • Support: <a href="mailto:dsa.flow@outlook.com" style={{ color: 'var(--accent-cyan)', textDecoration: 'none' }}>dsa.flow@outlook.com</a>
           </div>
           <button className="btn btn-secondary" onClick={logout} style={{ marginTop: '14px', width: '100%', opacity: 0.6, fontSize: '0.82rem' }}>
             Sign out &amp; switch account

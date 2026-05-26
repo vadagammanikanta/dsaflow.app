@@ -52,8 +52,25 @@ export function AuthProvider({ children }) {
 
   const payAndUnlock = async (paymentId) => {
     await markAsPaid(paymentId);
-    setUser(getCurrentUser());
+    const currentUser = getCurrentUser();
+    setUser(currentUser);
     setTrial(getTrialInfo());
+
+    // Trigger confirmation emails asynchronously
+    try {
+      fetch('/api/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: currentUser.email,
+          name: currentUser.name,
+          whatsapp: currentUser.whatsapp || 'N/A',
+          paymentId: paymentId
+        })
+      }).catch(err => console.warn('Email API trigger error:', err));
+    } catch (e) {
+      console.warn('Email trigger request failed:', e);
+    }
   };
 
   return (
