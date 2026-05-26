@@ -77,7 +77,7 @@ export async function signUp({ name, email, phone, password }) {
       console.info('[dsa.flow] User saved to Firestore ✓');
     } catch (e) {
       if (e.code === 'auth/email-already-in-use') throw new Error('Email already registered. Please sign in.');
-      throw new Error(e.message);
+      console.warn('[dsa.flow] Firebase sign up failed, falling back to local mode:', e.message);
     }
   }
 
@@ -107,7 +107,8 @@ export async function signIn({ email, password }) {
       if (e.code === 'auth/wrong-password')      throw new Error('Incorrect password.');
       if (e.code === 'auth/invalid-email')       throw new Error('Invalid email format.');
       if (e.code === 'auth/too-many-requests')   throw new Error('Too many failed attempts. Please try again later.');
-      throw new Error(e.message);
+      
+      console.warn('[dsa.flow] Firebase sign in failed, falling back to local mode:', e.message);
     }
   }
 
