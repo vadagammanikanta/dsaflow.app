@@ -114,12 +114,18 @@ export default function Arena() {
       
       {/* Left Pane: Problem Description */}
       <div className="arena-left-pane">
-        <div className="problem-selector-wrapper">
-          <label style={{ fontWeight: 600, fontSize: '0.85rem' }}>Select Problem:</label>
+        <div className="problem-selector-wrapper" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', flexWrap: 'wrap', gap: '6px' }}>
+            <label style={{ fontWeight: 600, fontSize: '0.85rem' }}>Select Problem:</label>
+            <span style={{ fontSize: '0.75rem', color: 'var(--accent-cyan)', background: 'rgba(0, 229, 255, 0.06)', padding: '2px 8px', borderRadius: '50px', border: '1px solid rgba(0, 229, 255, 0.18)', fontWeight: '600' }}>
+              📢 All problems will be added soon!
+            </span>
+          </div>
           <select 
             className="algorithm-selector"
             value={activeProblemId}
             onChange={(e) => setActiveProblemId(e.target.value)}
+            style={{ width: '100%' }}
           >
             {problems.map(p => (
               <option key={p.id} value={p.id}>

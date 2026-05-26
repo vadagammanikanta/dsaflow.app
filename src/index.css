@@ -967,7 +967,7 @@ pre { background: var(--code-bg); border: 1px solid var(--border-glass); padding
 
 /* ══ QUOTES TICKER ════════════════════════════════════════════════════ */
 .quotes-ticker {
-  position: fixed; bottom: 0; left: 0; right: 0; z-index: 500;
+  position: fixed; bottom: 0; left: var(--sidebar-width, 260px); right: 0; z-index: 500;
   background: linear-gradient(135deg, rgba(124,77,255,0.92), rgba(0,186,255,0.88));
   backdrop-filter: blur(12px); padding: 11px 24px;
   border-top: 1px solid rgba(255,255,255,0.15);
