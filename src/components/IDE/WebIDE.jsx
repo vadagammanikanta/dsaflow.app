@@ -129,11 +129,15 @@ export default function WebIDE() {
       
       if (result.status === 'Success') {
         setOutput(result.output || 'Execution successful with no output.');
+      } else if (result.status === 'Compilation Error') {
+        setOutput(`❌ Compilation Error:\n\n${result.error || result.output || ''}`);
+      } else if (result.status === 'Runtime Error') {
+        setOutput(`⚠️ Runtime Error:\n\n${result.error || result.stderr || ''}`);
       } else {
-        setOutput(`Error: ${result.status}\n\n${result.error || result.stderr || ''}`);
+        setOutput(`❌ ${result.error || result.status || 'Unknown error from compiler.'}`);
       }
     } catch (err) {
-      setOutput('Failed to connect to execution engine.');
+      setOutput(`❌ Could not reach the compiler.\n\nDetails: ${err.message}\n\nMake sure the dev server is running with: npm run dev`);
     } finally {
       setIsExecuting(false);
     }

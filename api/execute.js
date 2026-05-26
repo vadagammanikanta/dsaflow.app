@@ -5,8 +5,8 @@ const COMPILER_MAP = {
   'py': 'cpython-3.12.7',
   'cpp': 'gcc-13.2.0',
   'c++': 'gcc-13.2.0',
-  'java': 'openjdk-jdk-21+35',
-  'c': 'gcc-head-c',
+  'java': 'openjdk-jdk-22+36',
+  'c': 'gcc-13.2.0-c',
   'csharp': 'mono-head',
   'cs': 'mono-head',
   'go': 'go-head',
@@ -57,6 +57,12 @@ module.exports = async function handler(req, res) {
     code: fullContent,
     stdin: stdin || ""
   };
+
+  // Wandbox Java requires the public class to be named "prog".
+  // We transparently rename any public class declaration to "prog" before submission.
+  if (normalizedKey === 'java') {
+    payload.code = payload.code.replace(/public\s+class\s+(\w+)/g, 'public class prog');
+  }
 
   let data = null;
   let attempts = 3;

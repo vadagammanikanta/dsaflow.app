@@ -22,8 +22,8 @@ function localCompilerPlugin() {
                 'py': 'cpython-3.12.7',
                 'cpp': 'gcc-13.2.0',
                 'c++': 'gcc-13.2.0',
-                'java': 'openjdk-jdk-21+35',
-                'c': 'gcc-head-c',
+                'java': 'openjdk-jdk-22+36',
+                'c': 'gcc-13.2.0-c',
                 'csharp': 'mono-head',
                 'cs': 'mono-head',
                 'go': 'go-head',
@@ -54,6 +54,11 @@ function localCompilerPlugin() {
                 code: fullContent,
                 stdin: stdin || ""
               };
+
+              // Wandbox Java requires the public class to be named "prog".
+              if (normalizedKey === 'java') {
+                wandboxPayload.code = wandboxPayload.code.replace(/public\s+class\s+(\w+)/g, 'public class prog');
+              }
 
               let data = null;
               let attempts = 3;
@@ -158,13 +163,7 @@ function localCompilerPlugin() {
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), localCompilerPlugin()],
-  server: {
-    proxy: {
-      '/api': {
-        target: 'https://dsa-learning-hub.vercel.app',
-        changeOrigin: true,
-        secure: false,
-      }
-    }
-  }
+  // NOTE: No server.proxy — the localCompilerPlugin middleware handles all
+  // /api/execute and /api/send-email routes locally. On Vercel, the
+  // serverless functions in /api/ handle production requests natively.
 })
