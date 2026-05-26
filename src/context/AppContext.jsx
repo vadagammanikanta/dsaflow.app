@@ -12,7 +12,8 @@ export function AppProvider({ children }) {
       completedLessons: [],
       quizHighScore: 0,
       selectedLanguage: 'javascript',
-      activeDifficulty: 'all'
+      activeDifficulty: 'all',
+      activeLessonId: 'a2z-s1-c499-p1'
     };
   });
 

@@ -1,43 +1,71 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Editor from '@monaco-editor/react';
 
+const defaultVFS = [
+  { id: 'root', type: 'folder', name: 'root', parentId: null },
+  { id: 'basics', type: 'folder', name: 'Basics', parentId: 'root' },
+  { id: 'cpp-basics', type: 'file', name: 'Cpp_Basics.py', content: 'print("Cpp Basics")', parentId: 'basics' },
+  { id: 'hello-py', type: 'file', name: 'hello.py', content: 'print("hello")', parentId: 'root' },
+  { id: 'io-java', type: 'file', name: 'Input_Output.java', content: 'public class Input_Output {\n  public static void main(String[] args) {\n    System.out.println("Hello");\n  }\n}', parentId: 'root' },
+  { id: 'io-py', type: 'file', name: 'Input_Output.py', content: 'print("Hello")', parentId: 'root' },
+  { id: 'main-js', type: 'file', name: 'main.js', content: 'console.log("Hello");', parentId: 'root' }
+];
+
 export default function WebIDE() {
-  // 1. The Virtual File System (State)
-  const [files, setFiles] = useState([
-    { id: '1', name: 'main.js', content: 'console.log("Hello");', language: 'javascript' },
-    { id: '2', name: 'Input_Output.py', content: 'print("Hello")', language: 'python' }
-  ]);
-  const [activeFileId, setActiveFileId] = useState('1');
+  const [files, setFiles] = useState(() => {
+    const saved = localStorage.getItem('dsaflow_vfs');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed.length > 0) return parsed;
+      } catch (e) {}
+    }
+    return defaultVFS;
+  });
+
+  const [activeFileId, setActiveFileId] = useState('main-js');
+  const [expandedFolders, setExpandedFolders] = useState(['basics']);
+  const [editingId, setEditingId] = useState(null);
+  const [editingName, setEditingName] = useState('');
   
   // Custom execution state
   const [customInput, setCustomInput] = useState('');
   const [output, setOutput] = useState('');
   const [isExecuting, setIsExecuting] = useState(false);
+  const [activeConsoleTab, setActiveConsoleTab] = useState('ide-custominput'); // 'ide-custominput' or 'ide-output'
 
   // Derived state for the currently active file
-  const activeFile = files.find(f => f.id === activeFileId);
+  const activeFile = files.find(f => f.id === activeFileId && f.type === 'file');
 
-  // Load from localStorage on mount and listen to custom event
+  // Sync to local storage
+  const saveVFS = (newFiles) => {
+    setFiles(newFiles);
+    localStorage.setItem('dsaflow_vfs', JSON.stringify(newFiles));
+  };
+
+  // Load from localStorage on mount and listen to custom open file event
   useEffect(() => {
-    const loadVFS = () => {
-      const saved = localStorage.getItem('dsaflow_vfs');
-      if (saved) setFiles(JSON.parse(saved));
-    };
-    
-    loadVFS();
-
     const handleOpenFile = (e) => {
-      loadVFS();
+      const saved = localStorage.getItem('dsaflow_vfs');
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          setFiles(parsed);
+        } catch (err) {}
+      }
       if (e.detail && e.detail.id) {
         setActiveFileId(e.detail.id);
+        // If file has parent folder, auto-expand it
+        const fileObj = files.find(f => f.id === e.detail.id);
+        if (fileObj && fileObj.parentId && fileObj.parentId !== 'root') {
+          setExpandedFolders(prev => prev.includes(fileObj.parentId) ? prev : [...prev, fileObj.parentId]);
+        }
       }
     };
-
     window.addEventListener('ide_open_file', handleOpenFile);
     return () => window.removeEventListener('ide_open_file', handleOpenFile);
-  }, []);
+  }, [files]);
 
-  // 2. Dynamic Editor Binding Helper
   const getLanguageFromExtension = (filename) => {
     if (!filename) return 'plaintext';
     if (filename.endsWith('.js')) return 'javascript';
@@ -49,17 +77,16 @@ export default function WebIDE() {
     return 'plaintext';
   };
 
-  // 3. The Handle Change & Save Logic
   const handleEditorChange = (newContent) => {
-    // Update only the active file's content in the array
-    setFiles(prevFiles => prevFiles.map(file => 
+    const updated = files.map(file => 
       file.id === activeFileId ? { ...file, content: newContent } : file
-    ));
+    );
+    saveVFS(updated);
   };
 
   const handleSave = () => {
     localStorage.setItem('dsaflow_vfs', JSON.stringify(files));
-    // Optional: Show a toast notification here
+    alert('File saved successfully! 💾');
   };
 
   // Listen for Ctrl+S / Cmd+S to trigger save
@@ -74,15 +101,17 @@ export default function WebIDE() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [files]);
 
-  // 4. The Run Code Payload (Execution)
+  // Code Execution API call
   const handleRunCode = async () => {
     if (!activeFile) return;
     
     setIsExecuting(true);
+    setActiveConsoleTab('ide-output');
     setOutput('⏳ Compiling and Running...');
-    handleSave(); // Force auto-save before execution
+    
+    // Save state
+    localStorage.setItem('dsaflow_vfs', JSON.stringify(files));
 
-    // Prepare exact JSON payload for backend execution API
     const payload = {
       language: getLanguageFromExtension(activeFile.name),
       code: activeFile.content,
@@ -101,7 +130,7 @@ export default function WebIDE() {
       if (result.status === 'Success') {
         setOutput(result.output || 'Execution successful with no output.');
       } else {
-        setOutput(`Error: ${result.status}\n\n${result.error || result.stderr}`);
+        setOutput(`Error: ${result.status}\n\n${result.error || result.stderr || ''}`);
       }
     } catch (err) {
       setOutput('Failed to connect to execution engine.');
@@ -110,93 +139,319 @@ export default function WebIDE() {
     }
   };
 
-  return (
-    <div style={{ display: 'flex', height: '100vh', fontFamily: 'sans-serif' }}>
+  // VFS File Actions
+  const handleCreateFile = () => {
+    const name = prompt('Enter filename (e.g. solution.js):');
+    if (!name) return;
+    
+    const newFile = {
+      id: Date.now().toString(),
+      type: 'file',
+      name: name,
+      parentId: 'root',
+      content: '// Write code here'
+    };
+    
+    const updated = [...files, newFile];
+    saveVFS(updated);
+    setActiveFileId(newFile.id);
+  };
+
+  const handleCreateFolder = () => {
+    const name = prompt('Enter folder name:');
+    if (!name) return;
+    
+    const newFolder = {
+      id: Date.now().toString(),
+      type: 'folder',
+      name: name,
+      parentId: 'root'
+    };
+    
+    const updated = [...files, newFolder];
+    saveVFS(updated);
+  };
+
+  const handleDelete = (e, id) => {
+    e.stopPropagation();
+    if (!confirm('Are you sure you want to delete this?')) return;
+    
+    // Delete target file or folder, and also folder's contents
+    const updated = files.filter(f => f.id !== id && f.parentId !== id);
+    saveVFS(updated);
+    
+    if (activeFileId === id) {
+      const remainingFiles = updated.filter(f => f.type === 'file');
+      if (remainingFiles.length > 0) {
+        setActiveFileId(remainingFiles[0].id);
+      } else {
+        setActiveFileId(null);
+      }
+    }
+  };
+
+  const toggleFolder = (id) => {
+    setExpandedFolders(prev => 
+      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+    );
+  };
+
+  // Inline rename
+  const startRename = (e, item) => {
+    e.stopPropagation();
+    setEditingId(item.id);
+    setEditingName(item.name);
+  };
+
+  const finishRename = () => {
+    if (!editingName.trim()) {
+      setEditingId(null);
+      return;
+    }
+    const updated = files.map(f => 
+      f.id === editingId ? { ...f, name: editingName } : f
+    );
+    saveVFS(updated);
+    setEditingId(null);
+  };
+
+  const handleRenameKeyDown = (e) => {
+    if (e.key === 'Enter') finishRename();
+    if (e.key === 'Escape') setEditingId(null);
+  };
+
+  const renderFileTreeItem = (item) => {
+    const isFolder = item.type === 'folder';
+    const isEditing = editingId === item.id;
+    const isActive = activeFileId === item.id;
+
+    if (isFolder) {
+      const isExpanded = expandedFolders.includes(item.id);
+      const childItems = files.filter(f => f.parentId === item.id);
       
-      {/* Sidebar: File Explorer */}
-      <div style={{ width: '250px', background: '#1e1e1e', color: '#ccc', padding: '10px' }}>
-        <h3 style={{ color: '#fff', fontSize: '0.9rem', textTransform: 'uppercase' }}>Explorer</h3>
-        <div style={{ marginTop: '15px' }}>
-          {files.map(file => (
-            <div 
-              key={file.id} 
-              onClick={() => setActiveFileId(file.id)}
-              style={{
-                padding: '8px 12px', 
-                cursor: 'pointer',
-                borderRadius: '4px',
-                marginBottom: '4px',
-                background: file.id === activeFileId ? 'rgba(0, 229, 255, 0.1)' : 'transparent',
-                color: file.id === activeFileId ? '#00e5ff' : 'inherit',
-                borderLeft: file.id === activeFileId ? '2px solid #00e5ff' : '2px solid transparent'
-              }}
+      return (
+        <div key={item.id} className="ide-folder">
+          <div 
+            className="ide-tree-item"
+            onClick={() => toggleFolder(item.id)}
+            onDoubleClick={(e) => startRename(e, item)}
+          >
+            <span className="ide-tree-icon">{isExpanded ? '📂' : '📁'}</span>
+            {isEditing ? (
+              <span className="ide-tree-item editing">
+                <input 
+                  value={editingName}
+                  onChange={(e) => setEditingName(e.target.value)}
+                  onBlur={finishRename}
+                  onKeyDown={handleRenameKeyDown}
+                  autoFocus
+                  onClick={(e) => e.stopPropagation()}
+                />
+              </span>
+            ) : (
+              <span>{item.name}</span>
+            )}
+            <span 
+              className="delete-btn" 
+              onClick={(e) => handleDelete(e, item.id)}
+              style={{ marginLeft: 'auto', opacity: 0.6, cursor: 'pointer' }}
             >
-              📄 {file.name}
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Main Editor Area */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: '#1e1e1e' }}>
-        
-        {/* Toolbar */}
-        <div style={{ padding: '10px 20px', background: '#252526', display: 'flex', gap: '10px', alignItems: 'center' }}>
-          <span style={{ color: '#fff', marginRight: 'auto', fontWeight: 'bold' }}>
-            {activeFile ? activeFile.name : 'No file selected'}
-          </span>
-          <button 
-            onClick={handleSave}
-            style={{ background: '#333', color: '#fff', border: 'none', padding: '6px 12px', borderRadius: '4px', cursor: 'pointer' }}
-          >
-            💾 Save
-          </button>
-          <button 
-            onClick={handleRunCode} 
-            disabled={isExecuting || !activeFile}
-            style={{ background: '#00e5ff', color: '#000', border: 'none', padding: '6px 12px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}
-          >
-            {isExecuting ? '⏳ Running...' : '▶️ Run Code'}
-          </button>
-        </div>
-
-        {/* Monaco Editor */}
-        <div style={{ flex: 2 }}>
-          {activeFile ? (
-            <Editor
-              height="100%"
-              theme="vs-dark"
-              language={getLanguageFromExtension(activeFile.name)}
-              value={activeFile.content}
-              onChange={handleEditorChange}
-              options={{ minimap: { enabled: false }, fontSize: 14 }}
-            />
-          ) : (
-            <div style={{ color: '#666', padding: '40px', textAlign: 'center' }}>
-              Select a file from the explorer to start coding.
+              ×
+            </span>
+          </div>
+          {isExpanded && (
+            <div className="ide-folder-contents">
+              {childItems.map(child => renderFileTreeItem(child))}
             </div>
           )}
         </div>
+      );
+    } else {
+      return (
+        <div 
+          key={item.id} 
+          className={`ide-tree-item ${isActive ? 'active' : ''}`}
+          onClick={() => setActiveFileId(item.id)}
+          onDoubleClick={(e) => startRename(e, item)}
+        >
+          <span className="ide-tree-icon">📄</span>
+          {isEditing ? (
+            <span className="ide-tree-item editing">
+              <input 
+                value={editingName}
+                onChange={(e) => setEditingName(e.target.value)}
+                onBlur={finishRename}
+                onKeyDown={handleRenameKeyDown}
+                autoFocus
+                onClick={(e) => e.stopPropagation()}
+              />
+            </span>
+          ) : (
+            <span>{item.name}</span>
+          )}
+          <span 
+            className="delete-btn" 
+            onClick={(e) => handleDelete(e, item.id)}
+            style={{ marginLeft: 'auto', opacity: 0.6, cursor: 'pointer' }}
+          >
+            ×
+          </span>
+        </div>
+      );
+    }
+  };
 
-        {/* Terminal / Output Area */}
-        <div style={{ flex: 1, borderTop: '1px solid #333', display: 'flex' }}>
-          <div style={{ flex: 1, padding: '15px', borderRight: '1px solid #333' }}>
-            <h4 style={{ color: '#ccc', marginTop: 0, marginBottom: '10px' }}>Custom Input</h4>
-            <textarea 
-              value={customInput} 
-              onChange={e => setCustomInput(e.target.value)}
-              placeholder="Enter stdin here..."
-              style={{ width: '100%', height: 'calc(100% - 30px)', background: '#1e1e1e', color: '#fff', border: '1px solid #444', padding: '10px', borderRadius: '4px', resize: 'none' }}
-            />
-          </div>
-          <div style={{ flex: 1, padding: '15px' }}>
-            <h4 style={{ color: '#ccc', marginTop: 0, marginBottom: '10px' }}>Output</h4>
-            <pre style={{ height: 'calc(100% - 30px)', margin: 0, background: '#1e1e1e', color: '#00e5ff', border: '1px solid #444', padding: '10px', borderRadius: '4px', overflow: 'auto', whiteSpace: 'pre-wrap' }}>
-              {output || 'Output will appear here...'}
-            </pre>
+  const rootItems = files.filter(f => f.parentId === 'root' || f.parentId === null);
+
+  return (
+    <div className="arena-workspace">
+      
+      {/* Left Pane: File Explorer */}
+      <div className="arena-left-pane">
+        <div className="ide-explorer-header">
+          <h3 style={{ fontSize: '0.9rem', margin: 0, color: 'var(--text-secondary)' }}>Explorer</h3>
+          <div style={{ display: 'flex', gap: '4px' }}>
+            <button 
+              className="btn btn-secondary btn-icon" 
+              onClick={handleCreateFile} 
+              title="New File" 
+              style={{ width: '26px', height: '26px', fontSize: '0.85rem' }}
+            >
+              📄
+            </button>
+            <button 
+              className="btn btn-secondary btn-icon" 
+              onClick={handleCreateFolder} 
+              title="New Folder" 
+              style={{ width: '26px', height: '26px', fontSize: '0.85rem' }}
+            >
+              📁
+            </button>
           </div>
         </div>
-
+        <div className="ide-file-tree" id="ide-file-tree" style={{ flexGrow: 1, overflowY: 'auto', padding: '12px 0' }}>
+          {rootItems.map(item => renderFileTreeItem(item))}
+        </div>
+      </div>
+      
+      {/* Resize Handle 1 (Horizontal) */}
+      <div className="arena-resize-handle" id="ide-handle-1"></div>
+      
+      {/* Right Container: Editor + Console */}
+      <div className="arena-right-container">
+        
+        {/* Top Right Pane: Code Editor */}
+        <div className="arena-top-right-pane">
+          <div className="editor-header">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span id="ide-current-filename" style={{ fontWeight: 600, fontSize: '0.88rem', color: 'var(--text-primary)' }}>
+                {activeFile ? `📄 ${activeFile.name}` : 'No file selected'}
+              </span>
+            </div>
+            <div>
+              <button 
+                className="btn btn-secondary" 
+                onClick={handleSave} 
+                style={{ padding: '4px 10px', fontSize: '0.8rem', marginRight: '8px' }}
+                disabled={!activeFile}
+              >
+                💾 Save
+              </button>
+              <button 
+                className="btn btn-secondary" 
+                onClick={(e) => handleDelete(e, activeFileId)} 
+                style={{ padding: '4px 10px', fontSize: '0.8rem', color: 'var(--accent-rose)', borderColor: 'rgba(255, 23, 68, 0.2)' }}
+                disabled={!activeFile}
+              >
+                🗑️ Delete
+              </button>
+            </div>
+          </div>
+          <div id="ide-editor-container" className="arena-editor-canvas">
+            {activeFile ? (
+              <Editor
+                height="100%"
+                theme="vs-dark"
+                language={getLanguageFromExtension(activeFile.name)}
+                value={activeFile.content}
+                onChange={handleEditorChange}
+                options={{ 
+                  minimap: { enabled: false }, 
+                  fontSize: 14,
+                  fontFamily: 'var(--font-code)'
+                }}
+              />
+            ) : (
+              <div style={{ textAlign: 'center', paddingTop: '40px', color: 'var(--text-muted)' }}>
+                Select or create a file from the explorer to start coding.
+              </div>
+            )}
+          </div>
+        </div>
+        
+        {/* Resize Handle 2 (Vertical) */}
+        <div className="arena-resize-handle-v" id="ide-handle-2"></div>
+        
+        {/* Bottom Right Pane: Console & Output */}
+        <div className="arena-bottom-right-pane">
+          <div className="console-tabs-header">
+            <div className="console-tabs">
+              <button 
+                className={`console-tab ${activeConsoleTab === 'ide-custominput' ? 'active' : ''}`}
+                onClick={() => setActiveConsoleTab('ide-custominput')}
+              >
+                ⌨️ Custom Input
+              </button>
+              <button 
+                className={`console-tab ${activeConsoleTab === 'ide-output' ? 'active' : ''}`}
+                onClick={() => setActiveConsoleTab('ide-output')}
+              >
+                💻 Output
+              </button>
+            </div>
+            <div className="console-actions">
+              <button 
+                className="btn btn-accent" 
+                onClick={handleRunCode} 
+                disabled={isExecuting || !activeFile}
+                style={{ padding: '6px 16px', fontSize: '0.82rem' }}
+              >
+                {isExecuting ? '⏳ Running...' : '▶ Run Code'}
+              </button>
+            </div>
+          </div>
+          
+          <div className="console-tab-body">
+            {/* Custom Input Tab */}
+            {activeConsoleTab === 'ide-custominput' && (
+              <div className="console-tab-content active" id="ide-tab-custominput">
+                <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                  Provide stdin input parameters:
+                </label>
+                <textarea 
+                  id="ide-custom-input-val" 
+                  className="text-input console-textarea" 
+                  placeholder="e.g. 5"
+                  value={customInput}
+                  onChange={e => setCustomInput(e.target.value)}
+                />
+              </div>
+            )}
+            
+            {/* Output Tab */}
+            {activeConsoleTab === 'ide-output' && (
+              <div className="console-tab-content" id="ide-tab-output">
+                <div id="ide-output-status" className="arena-status-badge">
+                  {isExecuting ? '⏳ Executing...' : 'Execution result:'}
+                </div>
+                <div id="ide-output-val" className="console-output">
+                  {output || 'Output will appear here...'}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+        
       </div>
     </div>
   );

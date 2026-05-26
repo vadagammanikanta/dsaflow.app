@@ -9,7 +9,8 @@ export default function Arena() {
   const [code, setCode] = useState('');
   const [output, setOutput] = useState('');
   const [isRunning, setIsRunning] = useState(false);
-  const [activeTab, setActiveTab] = useState('testcases');
+  const [activeTab, setActiveTab] = useState('testcases'); // 'testcases', 'custominput', 'output'
+  const [customInput, setCustomInput] = useState('');
   
   const activeProblem = problems.find(p => p.id === activeProblemId);
   const descRef = useRef(null);
@@ -30,8 +31,41 @@ export default function Arena() {
 
   const handleRunCode = async () => {
     setIsRunning(true);
+    const runTab = activeTab; // Capture current tab state
     setActiveTab('output');
-    setOutput('Running test cases...');
+    
+    // Check if we are running a custom stdin input
+    if (runTab === 'custominput' && customInput.trim().length > 0) {
+      setOutput('⏳ Running with custom input...');
+      try {
+        const res = await fetch('/api/execute', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            language: appState.selectedLanguage,
+            code: code,
+            driver: activeProblem.drivers[appState.selectedLanguage],
+            stdin: customInput
+          })
+        });
+        
+        const data = await res.json();
+        
+        if (data.success) {
+          setOutput(`Custom Input Run: ✅ Success\n\nOutput:\n${data.output}`);
+        } else {
+          setOutput(`Custom Input Run: ❌ Error\n\n${data.error || data.stderr || ''}`);
+        }
+      } catch (err) {
+        setOutput(`Execution failed: ${err.message}`);
+      } finally {
+        setIsRunning(false);
+      }
+      return;
+    }
+
+    // Default: Run standard test cases
+    setOutput('⏳ Running test cases...');
     
     try {
       const results = [];
@@ -53,7 +87,7 @@ export default function Arena() {
         const data = await res.json();
         
         if (!data.success) {
-          results.push(`Test Case ${i+1}: ❌ Error\n${data.error}`);
+          results.push(`Test Case ${i+1}: ❌ Error\n${data.error || data.stderr || ''}`);
           continue;
         }
 
@@ -63,11 +97,11 @@ export default function Arena() {
         if (outStr === expStr) {
           results.push(`Test Case ${i+1}: ✅ Passed`);
         } else {
-          results.push(`Test Case ${i+1}: ❌ Failed\nExpected: ${expStr}\nGot: ${outStr}`);
+          results.push(`Test Case ${i+1}: ❌ Failed\n\nInput:\n${tc.input}\n\nExpected:\n${expStr}\n\nGot:\n${outStr}`);
         }
       }
       
-      setOutput(results.join('\n\n'));
+      setOutput(results.join('\n\n════════════════════════════════\n\n'));
     } catch (err) {
       setOutput(`Execution failed: ${err.message}`);
     } finally {
@@ -76,122 +110,164 @@ export default function Arena() {
   };
 
   return (
-    <div style={{ display: 'flex', height: '100%', overflow: 'hidden' }}>
-      {/* Left: Problems List */}
-      <div style={{ width: '250px', borderRight: '1px solid var(--border-glass)', background: 'var(--bg-panel)', display: 'flex', flexDirection: 'column' }}>
-        <div style={{ padding: '16px', borderBottom: '1px solid var(--border-glass)' }}>
-          <h3 style={{ margin: 0, color: 'var(--text-main)', fontSize: '1rem' }}>Problem Set</h3>
-        </div>
-        <div style={{ flex: 1, overflowY: 'auto' }}>
-          {problems.map(p => (
-            <div 
-              key={p.id}
-              onClick={() => setActiveProblemId(p.id)}
-              style={{
-                padding: '12px 16px',
-                cursor: 'pointer',
-                background: activeProblemId === p.id ? 'rgba(0, 229, 255, 0.1)' : 'transparent',
-                borderLeft: `3px solid ${activeProblemId === p.id ? 'var(--accent-cyan)' : 'transparent'}`,
-                borderBottom: '1px solid var(--border-glass)'
-              }}
-            >
-              <div style={{ color: activeProblemId === p.id ? 'var(--accent-cyan)' : 'var(--text-main)', fontWeight: '500', fontSize: '0.9rem' }}>
-                {p.title}
-              </div>
-              <div style={{ 
-                fontSize: '0.75rem', 
-                color: p.difficulty === 'Easy' ? 'var(--diff-easy)' : 
-                       p.difficulty === 'Medium' ? 'var(--diff-medium)' : 'var(--diff-hard)',
-                marginTop: '4px'
-              }}>
-                {p.difficulty}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Middle: Description */}
-      <div style={{ width: '350px', borderRight: '1px solid var(--border-glass)', background: 'var(--bg-main)', overflowY: 'auto', padding: '24px' }}>
-        <div ref={descRef} className="lesson-markdown-content" style={{ color: 'var(--text-secondary)' }} />
-      </div>
-
-      {/* Right: Editor & Console */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: '#1e1e1e' }}>
-        <div style={{ padding: '8px 16px', borderBottom: '1px solid var(--border-glass)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--bg-panel)' }}>
+    <div className="arena-workspace">
+      
+      {/* Left Pane: Problem Description */}
+      <div className="arena-left-pane">
+        <div className="problem-selector-wrapper">
+          <label style={{ fontWeight: 600, fontSize: '0.85rem' }}>Select Problem:</label>
           <select 
-            value={appState.selectedLanguage}
-            onChange={(e) => updateAppState({ selectedLanguage: e.target.value })}
-            style={{ background: '#333', color: '#fff', border: '1px solid #444', padding: '4px 8px', borderRadius: '4px' }}
+            className="algorithm-selector"
+            value={activeProblemId}
+            onChange={(e) => setActiveProblemId(e.target.value)}
           >
-            <option value="javascript">JavaScript</option>
-            <option value="python">Python</option>
-            <option value="cpp">C++</option>
-            <option value="java">Java</option>
+            {problems.map(p => (
+              <option key={p.id} value={p.id}>
+                {p.title} ({p.difficulty})
+              </option>
+            ))}
           </select>
-          <button 
-            onClick={() => setCode(activeProblem.starterCode[appState.selectedLanguage] || '')}
-            style={{ background: 'transparent', border: '1px solid var(--border-glass)', color: 'var(--text-muted)', padding: '4px 8px', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem' }}
-          >
-            🔄 Reset
-          </button>
         </div>
+        <div 
+          ref={descRef} 
+          className="problem-content" 
+          style={{ color: 'var(--text-secondary)', padding: '20px', overflowY: 'auto' }}
+        />
+      </div>
+
+      {/* Resize Handle 1 (Horizontal) */}
+      <div className="arena-resize-handle" id="arena-handle-1"></div>
+
+      {/* Right Container: Editor & Output */}
+      <div className="arena-right-container">
         
-        <div style={{ flex: 1 }}>
-          <Editor
-            height="100%"
-            theme="vs-dark"
-            language={appState.selectedLanguage === 'cpp' ? 'cpp' : appState.selectedLanguage}
-            value={code}
-            onChange={val => setCode(val)}
-            options={{ minimap: { enabled: false }, fontSize: 14 }}
-          />
+        {/* Top Right Pane: Code Editor */}
+        <div className="arena-top-right-pane">
+          <div className="editor-header">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <label style={{ fontWeight: 600, fontSize: '0.88rem' }}>Language:</label>
+              <select 
+                className="algorithm-selector"
+                value={appState.selectedLanguage}
+                onChange={(e) => updateAppState({ selectedLanguage: e.target.value })}
+                style={{ padding: '4px 8px', fontSize: '0.85rem' }}
+              >
+                <option value="javascript">⚡ JavaScript</option>
+                <option value="python">🐍 Python</option>
+                <option value="cpp">⚙️ C++</option>
+                <option value="java">☕ Java</option>
+              </select>
+            </div>
+            <button 
+              className="btn btn-secondary btn-sm" 
+              onClick={() => setCode(activeProblem.starterCode[appState.selectedLanguage] || '')}
+              style={{ padding: '4px 10px', fontSize: '0.8rem' }}
+            >
+              🔄 Reset Code
+            </button>
+          </div>
+          <div className="arena-editor-canvas">
+            <Editor
+              height="100%"
+              theme="vs-dark"
+              language={appState.selectedLanguage === 'cpp' ? 'cpp' : appState.selectedLanguage}
+              value={code}
+              onChange={val => setCode(val)}
+              options={{ 
+                minimap: { enabled: false }, 
+                fontSize: 14, 
+                fontFamily: 'var(--font-code)' 
+              }}
+            />
+          </div>
         </div>
 
-        {/* Console Area */}
-        <div style={{ height: '250px', borderTop: '1px solid var(--border-glass)', display: 'flex', flexDirection: 'column', background: 'var(--bg-panel)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border-glass)', padding: '0 16px' }}>
-            <div style={{ display: 'flex', gap: '16px' }}>
+        {/* Resize Handle 2 (Vertical) */}
+        <div className="arena-resize-handle-v" id="arena-handle-2"></div>
+
+        {/* Bottom Right Pane: Console & Output */}
+        <div className="arena-bottom-right-pane">
+          <div className="console-tabs-header">
+            <div className="console-tabs">
               <button 
+                className={`console-tab ${activeTab === 'testcases' ? 'active' : ''}`}
                 onClick={() => setActiveTab('testcases')}
-                style={{ padding: '12px 0', background: 'none', border: 'none', color: activeTab === 'testcases' ? 'var(--accent-cyan)' : 'var(--text-muted)', borderBottom: `2px solid ${activeTab === 'testcases' ? 'var(--accent-cyan)' : 'transparent'}`, cursor: 'pointer' }}
-              >Test Cases</button>
+              >
+                📋 Test Cases
+              </button>
               <button 
+                className={`console-tab ${activeTab === 'custominput' ? 'active' : ''}`}
+                onClick={() => setActiveTab('custominput')}
+              >
+                ⌨️ Custom Input
+              </button>
+              <button 
+                className={`console-tab ${activeTab === 'output' ? 'active' : ''}`}
                 onClick={() => setActiveTab('output')}
-                style={{ padding: '12px 0', background: 'none', border: 'none', color: activeTab === 'output' ? 'var(--accent-cyan)' : 'var(--text-muted)', borderBottom: `2px solid ${activeTab === 'output' ? 'var(--accent-cyan)' : 'transparent'}`, cursor: 'pointer' }}
-              >Output</button>
+              >
+                💻 Result
+              </button>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center' }}>
+            <div className="console-actions">
               <button 
+                className="btn btn-accent" 
                 onClick={handleRunCode}
                 disabled={isRunning}
-                style={{ background: 'var(--accent-cyan)', color: '#000', border: 'none', padding: '6px 16px', borderRadius: '4px', fontWeight: 'bold', cursor: isRunning ? 'not-allowed' : 'pointer' }}
+                style={{ padding: '6px 16px', fontSize: '0.82rem' }}
               >
                 {isRunning ? '⏳ Running...' : '▶ Run Code'}
               </button>
             </div>
           </div>
-          
-          <div style={{ flex: 1, padding: '16px', overflowY: 'auto', color: 'var(--text-secondary)', fontSize: '0.9rem', fontFamily: 'var(--font-code)' }}>
+
+          <div className="console-tab-body">
+            {/* Test Cases */}
             {activeTab === 'testcases' && (
-              <div>
-                {activeProblem?.testCases.filter(t => !t.isHidden).map((tc, idx) => (
-                  <div key={idx} style={{ marginBottom: '16px', padding: '12px', background: 'rgba(255,255,255,0.03)', borderRadius: '6px' }}>
-                    <div style={{ fontWeight: 'bold', color: 'var(--text-main)', marginBottom: '8px' }}>Case {idx + 1}</div>
-                    <div style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>Input:</div>
-                    <div style={{ marginBottom: '8px', background: '#1e1e1e', padding: '6px', borderRadius: '4px' }}>{tc.input}</div>
-                    <div style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>Expected Output:</div>
-                    <div style={{ background: '#1e1e1e', padding: '6px', borderRadius: '4px' }}>{tc.expectedOutput}</div>
-                  </div>
-                ))}
+              <div className="console-tab-content active" id="arena-tab-testcases">
+                <div className="testcase-list">
+                  {activeProblem?.testCases.filter(t => !t.isHidden).map((tc, idx) => (
+                    <div key={idx} className="testcase-item">
+                      <div className="testcase-title">Case {idx + 1}</div>
+                      <div style={{ color: 'var(--text-muted)', fontSize: '0.78rem', marginBottom: '2px' }}>Input:</div>
+                      <div className="testcase-io">{tc.input}</div>
+                      <div style={{ color: 'var(--text-muted)', fontSize: '0.78rem', marginBottom: '2px' }}>Expected Output:</div>
+                      <div className="testcase-io">{tc.expectedOutput}</div>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
-            
+
+            {/* Custom Input */}
+            {activeTab === 'custominput' && (
+              <div className="console-tab-content" id="arena-tab-custominput">
+                <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                  Provide stdin input parameters (one per line):
+                </label>
+                <textarea 
+                  id="arena-custom-input-val" 
+                  className="text-input console-textarea" 
+                  placeholder="e.g.&#10;[2,7,11,15]&#10;9"
+                  value={customInput}
+                  onChange={e => setCustomInput(e.target.value)}
+                />
+              </div>
+            )}
+
+            {/* Output */}
             {activeTab === 'output' && (
-              <pre style={{ margin: 0, whiteSpace: 'pre-wrap' }}>{output || 'Run code to see results.'}</pre>
+              <div className="console-tab-content" id="arena-tab-output">
+                <div id="arena-output-status" className="arena-status-badge">
+                  {isRunning ? '⏳ Executing...' : 'Execution result:'}
+                </div>
+                <div id="arena-output-val" className="console-output">
+                  {output || 'Run code to see execution result...'}
+                </div>
+              </div>
             )}
           </div>
         </div>
+
       </div>
     </div>
   );

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { signUp, signIn, signOut, getCurrentUser, getTrialInfo } from '../../modules/auth/auth.js';
+import { signUp, signIn, signOut, getCurrentUser, getTrialInfo, markAsPaid } from '../../modules/auth/auth.js';
 
 const AuthContext = createContext();
 
@@ -7,6 +7,10 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [trial, setTrial] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  const refreshTrial = () => {
+    setTrial(getTrialInfo());
+  };
 
   useEffect(() => {
     // On mount, check if there's a logged-in user in localStorage/Firebase
@@ -46,8 +50,14 @@ export function AuthProvider({ children }) {
     setTrial(null);
   };
 
+  const payAndUnlock = async (paymentId) => {
+    await markAsPaid(paymentId);
+    setUser(getCurrentUser());
+    setTrial(getTrialInfo());
+  };
+
   return (
-    <AuthContext.Provider value={{ user, trial, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, trial, loading, login, register, logout, payAndUnlock, refreshTrial }}>
       {children}
     </AuthContext.Provider>
   );
