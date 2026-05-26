@@ -22,3 +22,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Temporary search tree scripts and data
+repo_tree.json
+scratch/
+

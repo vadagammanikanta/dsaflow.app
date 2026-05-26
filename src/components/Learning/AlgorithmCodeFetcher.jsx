@@ -6,15 +6,15 @@ import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 const fetchCache = new Map();
 
 const LANGUAGE_REPO_MAP = {
-  python: { repo: 'Python', defaultBranch: 'master', ext: 'py', displayName: 'Python' },
-  java: { repo: 'Java', defaultBranch: 'master', ext: 'java', displayName: 'Java' },
-  cpp: { repo: 'C-Plus-Plus', defaultBranch: 'master', ext: 'cpp', displayName: 'C++' },
-  cplusplus: { repo: 'C-Plus-Plus', defaultBranch: 'master', ext: 'cpp', displayName: 'C++' },
-  javascript: { repo: 'JavaScript', defaultBranch: 'master', ext: 'js', displayName: 'JavaScript' },
-  js: { repo: 'JavaScript', defaultBranch: 'master', ext: 'js', displayName: 'JavaScript' },
-  c: { repo: 'C', defaultBranch: 'master', ext: 'c', displayName: 'C' },
-  go: { repo: 'Go', defaultBranch: 'master', ext: 'go', displayName: 'Go' },
-  rust: { repo: 'Rust', defaultBranch: 'master', ext: 'rs', displayName: 'Rust' }
+  python: { repo: 'TheAlgorithms/Python', defaultBranch: 'master', ext: 'py', displayName: 'Python' },
+  java: { repo: 'TheAlgorithms/Java', defaultBranch: 'master', ext: 'java', displayName: 'Java' },
+  cpp: { repo: 'vineethm1627/SDE_Sheet_Striver', defaultBranch: 'main', ext: 'cpp', displayName: 'C++' },
+  cplusplus: { repo: 'vineethm1627/SDE_Sheet_Striver', defaultBranch: 'main', ext: 'cpp', displayName: 'C++' },
+  javascript: { repo: 'TheAlgorithms/JavaScript', defaultBranch: 'master', ext: 'js', displayName: 'JavaScript' },
+  js: { repo: 'TheAlgorithms/JavaScript', defaultBranch: 'master', ext: 'js', displayName: 'JavaScript' },
+  c: { repo: 'TheAlgorithms/C', defaultBranch: 'master', ext: 'c', displayName: 'C' },
+  go: { repo: 'TheAlgorithms/Go', defaultBranch: 'master', ext: 'go', displayName: 'Go' },
+  rust: { repo: 'TheAlgorithms/Rust', defaultBranch: 'master', ext: 'rs', displayName: 'Rust' }
 };
 
 export default function AlgorithmCodeFetcher({ language, githubPath }) {
@@ -45,7 +45,7 @@ export default function AlgorithmCodeFetcher({ language, githubPath }) {
     const cleanPath = githubPath.replace(/^\/+/, '');
     
     // Construct Raw Github URL
-    const url = `https://raw.githubusercontent.com/TheAlgorithms/${repo}/${defaultBranch}/${cleanPath}`;
+    const url = `https://raw.githubusercontent.com/${repo}/${defaultBranch}/${cleanPath}`;
     
     // Check inside cache first (both in-memory map and sessionStorage)
     const cachedCode = fetchCache.get(url) || sessionStorage.getItem(url);

@@ -4,6 +4,77 @@ import { useApp } from '../../context/AppContext';
 import AlgorithmCodeFetcher from './AlgorithmCodeFetcher';
 import { githubAlgorithmMappings } from '../../../modules/learning/content_a2z';
 
+// Mappings of standard problems to files in vineethm1627/SDE_Sheet_Striver repository
+const STRIVER_CPP_MAPPINGS = {
+  // Day 1
+  "input output": "Day-01_Arrays/DNF_sort.cpp",
+  "missing and repeating": "Day-01_Arrays/missing_repeating.cpp",
+  "find the repeating and missing number": "Day-01_Arrays/missing_repeating.cpp",
+  "duplicate number": "Day-01_Arrays/duplicate_number.cpp",
+  "find the duplicate number": "Day-01_Arrays/duplicate_number.cpp",
+  "merge sorted arrays": "Day-01_Arrays/merge_sorted_arrays.cpp",
+  "merge two sorted arrays without extra space": "Day-01_Arrays/merge_sorted_arrays.cpp",
+  "kadane's algorithm": "Day-01_Arrays/kadanes_algorithm.cpp",
+  "maximum subarray": "Day-01_Arrays/kadanes_algorithm.cpp",
+  "merge intervals": "Day-01_Arrays/merge_intervals.cpp",
+  "merge overlapping subintervals": "Day-01_Arrays/merge_intervals.cpp",
+  "dnf sort": "Day-01_Arrays/DNF_sort.cpp",
+  "sort colors": "Day-01_Arrays/DNF_sort.cpp",
+  // Day 2
+  "best time to buy and sell stock": "Day-02_Arrays/buy_sell_stock_once.cpp",
+  "count inversions": "Day-02_Arrays/count_inversions.cpp",
+  "merge sort": "Day-02_Arrays/merge_sort.cpp",
+  "next permutation": "Day-02_Arrays/next_permutation.cpp",
+  "pascal's triangle": "Day-02_Arrays/pascal_triangle.cpp",
+  "rotate matrix": "Day-02_Arrays/rotate_matrix.cpp",
+  "rotate image": "Day-02_Arrays/rotate_matrix.cpp",
+  "set matrix zeroes": "Day-02_Arrays/set_matrix_zeros.cpp",
+  "set matrix zeros": "Day-02_Arrays/set_matrix_zeros.cpp",
+  // Day 3
+  "pow(x, n)": "Day-03_Arrays_Maths/binary_expo.cpp",
+  "binary exponentiation": "Day-03_Arrays_Maths/binary_expo.cpp",
+  "unique paths": "Day-03_Arrays_Maths/grid_unique_paths.cpp",
+  "grid unique paths": "Day-03_Arrays_Maths/grid_unique_paths.cpp",
+  "majority element": "Day-03_Arrays_Maths/majority_element_N2.cpp",
+  "majority element ii": "Day-03_Arrays_Maths/majority_element_N3.cpp",
+  "majority element-ii": "Day-03_Arrays_Maths/majority_element_N3.cpp",
+  "reverse pairs": "Day-03_Arrays_Maths/reverse_pairs.cpp",
+  "search a 2d matrix": "Day-03_Arrays_Maths/search_2D_rowColSorted.cpp",
+  "search 2d matrix": "Day-03_Arrays_Maths/search_2D_rowColSorted.cpp",
+  // Day 4
+  "4sum": "Day-04_Hashing/Four_sum.cpp",
+  "4 sum": "Day-04_Hashing/Four_sum.cpp",
+  "longest consecutive sequence": "Day-04_Hashing/LongestConsecutiveSequence.cpp",
+  "two sum": "Day-04_Hashing/Two_sum.cpp",
+  "longest substring without repeating characters": "Day-04_Hashing/repeated_chars.cpp",
+  "largest subarray with 0 sum": "Day-04_Hashing/subarray_zero_sum.cpp",
+  "largest subarray with sum 0": "Day-04_Hashing/subarray_zero_sum.cpp",
+  "subarray with given xor": "Day-04_Hashing/subarrays_xor.cpp",
+  "count subarrays with given xor k": "Day-04_Hashing/subarrays_xor.cpp",
+  // Day 5
+  "add two numbers": "Day-05_LinkedList/add_2_numbers.cpp",
+  "delete node in a linked list": "Day-05_LinkedList/delete_without_head.cpp",
+  "merge two sorted lists": "Day-05_LinkedList/merge_sorted_list.cpp",
+  "middle of the linked list": "Day-05_LinkedList/middle_list.cpp",
+  "remove nth node from end of list": "Day-05_LinkedList/remove_nth_node.cpp",
+  "reverse linked list": "Day-05_LinkedList/reverse_list_iterative.cpp",
+  // Day 6
+  "linked list cycle ii": "Day-06_LinkedList/cycle_start.cpp",
+  "linked list cycle": "Day-06_LinkedList/detect_cycle_list.cpp",
+  "flattening a linked list": "Day-06_LinkedList/flattening_list.cpp",
+  "intersection of two linked lists": "Day-06_LinkedList/intersection_Y.cpp",
+  "palindrome linked list": "Day-06_LinkedList/palindrome_list.cpp",
+  "reverse nodes in k-group": "Day-06_LinkedList/reverse_groups_k.cpp",
+  "rotate list": "Day-06_LinkedList/rotate_list.cpp",
+  // Day 7
+  "3sum": "Day-07_Two_Pointers/Three_sum.cpp",
+  "3 sum": "Day-07_Two_Pointers/Three_sum.cpp",
+  "copy list with random pointer": "Day-07_Two_Pointers/clone_list.cpp",
+  "max consecutive ones": "Day-07_Two_Pointers/max_consecutive_ones.cpp",
+  "remove duplicates from sorted array": "Day-07_Two_Pointers/remove_duplicates_sorted.cpp",
+  "trapping rain water": "Day-07_Two_Pointers/trapping_rainwater.cpp"
+};
+
 // Rules-based dynamic path resolver for TheAlgorithms repositories
 export function getDynamicGitHubPath(lessonTitle, categoryName, language) {
   const title = lessonTitle.toLowerCase().trim();
@@ -15,7 +86,34 @@ export function getDynamicGitHubPath(lessonTitle, categoryName, language) {
   const sc = snakeCase(title);
   const pc = pascalCase(title);
 
-  // 1. Sorting Algorithms
+  // Special case: C++ files are pulled from vineethm1627/SDE_Sheet_Striver
+  if (language === 'cpp' || language === 'cplusplus') {
+    // 1. Direct match
+    if (STRIVER_CPP_MAPPINGS[title]) {
+      return STRIVER_CPP_MAPPINGS[title];
+    }
+    // 2. Substring match
+    const matchKey = Object.keys(STRIVER_CPP_MAPPINGS).find(k => title.includes(k) || k.includes(title));
+    if (matchKey) {
+      return STRIVER_CPP_MAPPINGS[matchKey];
+    }
+    // 3. Category Fallbacks
+    if (cat.includes('array')) return `Day-01_Arrays/${sc}.cpp`;
+    if (cat.includes('linked list') || title.includes('linked list')) return `Day-05_LinkedList/${sc}.cpp`;
+    if (cat.includes('stack') || cat.includes('queue')) return `Day-13_Stacks_Queues/${sc}.cpp`;
+    if (cat.includes('tree') || cat.includes('bst')) return `Day-17_Binary_Tree/${sc}.cpp`;
+    if (cat.includes('graph')) return `Day-23_Graph/${sc}.cpp`;
+    if (cat.includes('greedy')) return `Day-08_Greedy/${sc}.cpp`;
+    if (cat.includes('recursion')) return `Day-09_Recursion/${sc}.cpp`;
+    if (cat.includes('backtracking')) return `Day-10_Backtracking/${sc}.cpp`;
+    if (cat.includes('binary search')) return `Day-11_Binary_Search/${sc}.cpp`;
+    if (cat.includes('bit manipulation')) return `Day-12_Bit_Manipulation/${sc}.cpp`;
+    if (cat.includes('dynamic programming')) return `Day-25_Dynamic_Programming/${sc}.cpp`;
+    
+    return `Day-01_Arrays/${sc}.cpp`;
+  }
+
+  // 1. Sorting Algorithms (Other languages)
   if (cat.includes('sort') || title.includes('sort')) {
     let base = sc.replace('_sorting', '').replace('_sort', '');
     if (base === 'insertion') base = 'insertion_sort';
