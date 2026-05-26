@@ -26,4 +26,5 @@ dist-ssr
 # Temporary search tree scripts and data
 repo_tree.json
 scratch/
+service-account.json
 

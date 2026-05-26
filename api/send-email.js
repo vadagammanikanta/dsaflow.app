@@ -91,16 +91,12 @@ export default async function handler(req, res) {
   if (emailUser && emailPass) {
     try {
       const transporter = nodemailer.createTransport({
-        host: 'smtp.office365.com',
-        port: 587,
-        secure: false, // STARTTLS
+        host: 'smtp.gmail.com',
+        port: 465,
+        secure: true, // SSL/TLS
         auth: {
           user: emailUser,
           pass: emailPass
-        },
-        tls: {
-          ciphers: 'SSLv3',
-          rejectUnauthorized: false
         }
       });
 
