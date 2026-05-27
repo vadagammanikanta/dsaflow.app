@@ -2,7 +2,7 @@
 
 <img src="public/favicon.svg" alt="dsa.flow logo" width="80" height="80" />
 
-# dsa.flow
+# dsa.flow (DSA Learning Hub)
 
 ### 🚀 Master Data Structures & Algorithms — The Smart Way
 
