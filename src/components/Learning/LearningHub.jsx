@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { useApp } from '../../context/AppContext';
-import { curriculum } from '../../../modules/learning/test_modules_curriculum';
+import { curriculum } from '../../../modules/learning/content_a2z';
 import LessonViewer from './LessonViewer';
 
 export default function LearningHub() {

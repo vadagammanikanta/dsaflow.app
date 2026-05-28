@@ -1,8 +1,7 @@
 import React, { useEffect, useRef, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
-import AlgorithmCodeFetcher from './AlgorithmCodeFetcher';
-import { githubAlgorithmMappings } from '../../../modules/learning/content_a2z';
+
 
 // Mappings of standard problems to files in vineethm1627/SDE_Sheet_Striver repository
 const STRIVER_CPP_MAPPINGS = {
@@ -510,44 +509,7 @@ export default function LessonViewer({ lesson }) {
         </div>
       )}
 
-      {/* Dynamic GitHub Code Snippet Section */}
-      {lesson.id !== 'a2z-s1-c360-patterns' && mapping && Object.keys(mapping.paths).length > 0 && (
-        <div style={{ marginBottom: '24px', paddingBottom: '24px', borderBottom: '1px solid var(--border-glass)' }}>
-          <h3 style={{ fontSize: '1.1rem', color: 'var(--text-main)', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span>💻</span> GitHub Source Code (TheAlgorithms)
-          </h3>
-          <div style={{ display: 'flex', gap: '8px', marginBottom: '14px', flexWrap: 'wrap' }}>
-            {['javascript', 'java', 'cpp', 'python'].map((lang) => {
-              const hasPath = !!mapping.paths[lang];
-              if (!hasPath) return null;
-              
-              return (
-                <button
-                  key={lang}
-                  onClick={() => setActiveCodeLang(lang)}
-                  className={`btn ${activeCodeLang === lang ? 'btn-accent' : 'btn-secondary'}`}
-                  style={{
-                    padding: '6px 12px',
-                    fontSize: '0.85rem',
-                    borderRadius: '6px',
-                    textTransform: 'capitalize',
-                    fontWeight: activeCodeLang === lang ? 'bold' : 'normal'
-                  }}
-                >
-                  {lang === 'cpp' ? 'C++' : lang === 'javascript' ? 'JavaScript' : lang}
-                </button>
-              );
-            })}
-          </div>
-          {mapping.paths[activeCodeLang] ? (
-            <AlgorithmCodeFetcher language={activeCodeLang} githubPath={mapping.paths[activeCodeLang]} />
-          ) : (
-            <div style={{ color: 'var(--text-muted)', fontSize: '0.9rem', padding: '12px 0' }}>
-              No implementation path mapped for this language.
-            </div>
-          )}
-        </div>
-      )}
+
 
       {/* Reference & Video Tutorials Section */}
       <div style={{ 

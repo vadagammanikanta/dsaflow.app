@@ -1,4 +1,6 @@
 import fs from 'fs';
+import path from 'path';
+import { getCode } from './modules/learning/code_library.js';
 
 const patternsData = [
   {
@@ -453,6 +455,27 @@ function generatePatternsDetails() {
 }
 
 try {
+  // Load handcrafted override test modules
+  const testModulesDir = path.join('modules', 'learning', 'test modules');
+  const testModulesMap = new Map();
+  if (fs.existsSync(testModulesDir)) {
+    const files = fs.readdirSync(testModulesDir).filter(f => f.endsWith('.js'));
+    files.forEach(file => {
+      const filePath = path.join(testModulesDir, file);
+      const content = fs.readFileSync(filePath, 'utf8');
+      try {
+        const parsed = new Function(`return [${content}]`)();
+        parsed.forEach(item => {
+          if (item && item.id) {
+            testModulesMap.set(item.id, item);
+          }
+        });
+      } catch (err) {
+        console.error(`Error parsing test module file ${file}:`, err);
+      }
+    });
+  }
+
   const raw = fs.readFileSync('a2z_clean.json', 'utf8');
   let data = JSON.parse(raw);
   
@@ -476,18 +499,25 @@ try {
           const id = `a2z-s${stepIndex+1}-c${subcat.subcategory_id}-patterns`;
           phaseNodes.push(id);
           
-          curriculum.push({
-            id: id,
-            title: "Patterns",
-            category: step.category_name.replace(/striver/ig, 'Elite'),
-            difficulty: "Beginner",
-            icon: "⭐",
-            iconColor: "amber",
-            summary: "Master nested loops and logic building by solving 22 essential pattern problems in one shot.",
-            readTime: "15 mins",
-            details: generatePatternsDetails(),
-            youtube: "https://www.youtube.com/watch?v=tNm_NNSB3_w"
-          });
+          let patternObj;
+          if (testModulesMap.has(id)) {
+            patternObj = testModulesMap.get(id);
+          } else {
+            patternObj = {
+              id: id,
+              title: "Patterns",
+              category: step.category_name.replace(/striver/ig, 'Elite'),
+              difficulty: "Beginner",
+              icon: "⭐",
+              iconColor: "amber",
+              summary: "Master nested loops and logic building by solving 22 essential pattern problems in one shot.",
+              readTime: "15 mins",
+              details: generatePatternsDetails(),
+              code: getCode("Patterns"),
+              youtube: "https://www.youtube.com/watch?v=tNm_NNSB3_w"
+            };
+          }
+          curriculum.push(patternObj);
           return;
         }
 
@@ -496,6 +526,11 @@ try {
             const id = `a2z-s${stepIndex+1}-c${subcat.subcategory_id}-p${probIndex+1}`;
             phaseNodes.push(id);
             
+            if (testModulesMap.has(id)) {
+              curriculum.push(testModulesMap.get(id));
+              return;
+            }
+
             const name = prob.problem_name.replace(/striver/ig, 'Elite').trim();
             const difficulty = prob.difficulty === 'Easy' ? 'Beginner' : (prob.difficulty === 'Medium' ? 'Intermediate' : 'Advanced');
             
@@ -589,6 +624,7 @@ function solve${name.replace(/[^a-zA-Z0-9]/g, '')}(InputData):
               summary: `Master the logic for ${name}.`,
               readTime: "5 mins",
               details: detailsHtml,
+              code: getCode(name),
               youtube: (prob.youtube && prob.youtube !== '$undefined') ? prob.youtube : null
             });
           });
