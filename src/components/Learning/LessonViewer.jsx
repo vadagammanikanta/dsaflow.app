@@ -250,23 +250,7 @@ export default function LessonViewer({ lesson }) {
   const navigate = useNavigate();
   const contentRef = useRef(null);
 
-  // Fallback to dynamic mapper if no explicit mapping exists in database
-  const mapping = useMemo(() => {
-    if (!lesson) return null;
-    const explicit = githubAlgorithmMappings[lesson.id];
-    if (explicit) return explicit;
 
-    const paths = {};
-    ['javascript', 'java', 'cpp', 'python'].forEach((lang) => {
-      const path = getDynamicGitHubPath(lesson.title, lesson.category || '', lang);
-      if (path) paths[lang] = path;
-    });
-
-    return {
-      topic: lesson.title,
-      paths
-    };
-  }, [lesson]);
 
   // Dynamically parse Time and Space complexity from the HTML curriculum details
   const complexities = useMemo(() => {
