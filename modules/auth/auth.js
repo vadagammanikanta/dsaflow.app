@@ -268,45 +268,54 @@ function clearLocalUser() {
 
 /* ═══ SUPPORT TICKETS ══════════════════════════════════════════════════ */
 export async function createSupportTicket({ name, email, subject, message, userId }) {
-  if (tryInitFirebase()) {
-    try {
-      const ticket = {
-        name,
-        email,
-        userId: userId || 'anonymous',
-        subject,
-        message,
-        createdAt: Date.now(),
-        status: 'pending'
-      };
-      await _db.collection('support_tickets').add(ticket);
-      console.info('[dsa.flow] Support ticket saved to Firestore ✓');
-      return true;
-    } catch (e) {
-      console.error('[dsa.flow] Firestore ticket save failed:', e);
-      throw e;
-    }
-  }
-  
-  // Local fallback (only for local sandbox runs without Firebase)
+  // Always try the serverless API endpoint first if running in browser
   try {
-    const saved = localStorage.getItem('dsaflow_tickets') || '[]';
-    const tickets = JSON.parse(saved);
-    tickets.push({
-      id: 'ticket_' + Date.now(),
-      name,
-      email,
-      userId: userId || 'local_user',
-      subject,
-      message,
-      createdAt: Date.now(),
-      status: 'pending'
+    const res = await fetch('/api/support-ticket', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, subject, message, userId })
     });
-    localStorage.setItem('dsaflow_tickets', JSON.stringify(tickets));
-    return true;
+    
+    if (res.ok) {
+      const data = await res.json();
+      if (data.success) {
+        console.info('[dsa.flow] Support ticket saved to Firestore via API ✓');
+        return true;
+      }
+    }
+    
+    // If the serverless endpoint returned a non-200 or failure, parse the error
+    const errData = await res.json().catch(() => ({}));
+    throw new Error(errData.error || `HTTP error ${res.status}`);
   } catch (e) {
-    console.error('Failed to save ticket locally:', e);
-    return false;
+    console.warn('[dsa.flow] Cloud API support ticket save failed, checking local fallback:', e.message);
+    
+    // If we're in local demo mode (Firebase not connected or running locally without backend), use localStorage fallback
+    if (!tryInitFirebase()) {
+      try {
+        const saved = localStorage.getItem('dsaflow_tickets') || '[]';
+        const tickets = JSON.parse(saved);
+        tickets.push({
+          id: 'ticket_' + Date.now(),
+          name,
+          email,
+          userId: userId || 'local_user',
+          subject,
+          message,
+          createdAt: Date.now(),
+          status: 'pending'
+        });
+        localStorage.setItem('dsaflow_tickets', JSON.stringify(tickets));
+        console.info('[dsa.flow] Support ticket saved to local storage ✓');
+        return true;
+      } catch (localErr) {
+        console.error('Failed to save ticket locally:', localErr);
+        return false;
+      }
+    }
+    
+    // Otherwise, propagate the cloud error to show the user
+    throw e;
   }
 }
 
