@@ -19,7 +19,7 @@ export default async function handler(req, res) {
 
   // ── Security ──────────────────────────────────────────────────────────
   const adminSecret = process.env.ADMIN_SECRET;
-  const { key, action, targetEmail } = req.body;
+  const { key, action, targetEmail, ticketId } = req.body;
 
   if (!adminSecret || key !== adminSecret) {
     return res.status(401).json({ error: 'Unauthorized. Invalid admin secret.' });
@@ -29,22 +29,26 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'FIREBASE_SERVICE_ACCOUNT env variable not set.' });
   }
 
-  if (!action || !targetEmail) {
-    return res.status(400).json({ error: 'Missing action or targetEmail in request body.' });
+  if (!action) {
+    return res.status(400).json({ error: 'Missing action in request body.' });
   }
 
   try {
     const db = getAdminDb();
-    const usersRef = db.collection('users');
-    const snapshot = await usersRef.where('email', '==', targetEmail).get();
-
-    if (snapshot.empty) {
-      return res.status(404).json({ error: 'User not found with the provided email.' });
-    }
-
-    const userDoc = snapshot.docs[0];
 
     if (action === 'MANUAL_UPGRADE') {
+      if (!targetEmail) {
+        return res.status(400).json({ error: 'Missing targetEmail in request body.' });
+      }
+
+      const usersRef = db.collection('users');
+      const snapshot = await usersRef.where('email', '==', targetEmail).get();
+
+      if (snapshot.empty) {
+        return res.status(404).json({ error: 'User not found with the provided email.' });
+      }
+
+      const userDoc = snapshot.docs[0];
       await userDoc.ref.update({
         isPaid: true,
         paymentId: 'MANUAL_UPGRADE_ADMIN',
@@ -73,6 +77,27 @@ export default async function handler(req, res) {
       }
 
       return res.status(200).json({ success: true, message: `Successfully upgraded ${targetEmail} to lifetime premium.` });
+
+    } else if (action === 'GET_SUPPORT_TICKETS') {
+      const ticketsRef = db.collection('support_tickets');
+      const snapshot = await ticketsRef.orderBy('createdAt', 'desc').get();
+      const tickets = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      return res.status(200).json({ success: true, tickets });
+
+    } else if (action === 'RESOLVE_SUPPORT_TICKET') {
+      if (!ticketId) {
+        return res.status(400).json({ error: 'Missing ticketId in request body.' });
+      }
+
+      const ticketRef = db.collection('support_tickets').doc(ticketId);
+      const ticketDoc = await ticketRef.get();
+      if (!ticketDoc.exists) {
+        return res.status(404).json({ error: 'Ticket not found.' });
+      }
+
+      await ticketRef.update({ status: 'resolved' });
+      return res.status(200).json({ success: true, message: `Successfully resolved ticket ${ticketId}.` });
+
     } else {
       return res.status(400).json({ error: 'Unknown action specified.' });
     }

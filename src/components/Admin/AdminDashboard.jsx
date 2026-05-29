@@ -47,7 +47,7 @@ export default function AdminDashboard() {
       setUsers(combined.sort((a, b) => new Date(b.signupDate) - new Date(a.signupDate)));
       
       // Fetch support tickets
-      const allTickets = await getSupportTickets();
+      const allTickets = await getSupportTickets(key);
       setTickets(allTickets);
       
       setIsAuthenticated(true);
@@ -63,10 +63,10 @@ export default function AdminDashboard() {
     
     setActionStatus('Resolving ticket...');
     try {
-      const success = await resolveSupportTicket(ticketId);
+      const success = await resolveSupportTicket(ticketId, adminKey);
       if (success) {
         setActionStatus('Success: Ticket resolved!');
-        const allTickets = await getSupportTickets();
+        const allTickets = await getSupportTickets(adminKey);
         setTickets(allTickets);
       } else {
         throw new Error('Failed to resolve support ticket');
@@ -82,7 +82,7 @@ export default function AdminDashboard() {
     if (isAuthenticated && activeTab === 'tickets') {
       const loadTickets = async () => {
         try {
-          const allTickets = await getSupportTickets();
+          const allTickets = await getSupportTickets(adminKey);
           setTickets(allTickets);
         } catch (e) {
           console.warn('Failed to reload tickets on tab change:', e);
@@ -90,7 +90,7 @@ export default function AdminDashboard() {
       };
       loadTickets();
     }
-  }, [activeTab, isAuthenticated]);
+  }, [activeTab, isAuthenticated, adminKey]);
 
   const handleLogin = (e) => {
     e.preventDefault();
@@ -301,7 +301,7 @@ export default function AdminDashboard() {
                 <button
                   onClick={async () => {
                     setActionStatus('Refreshing tickets...');
-                    const allTickets = await getSupportTickets();
+                    const allTickets = await getSupportTickets(adminKey);
                     setTickets(allTickets);
                     setActionStatus('Tickets refreshed!');
                     setTimeout(() => setActionStatus(''), 2000);

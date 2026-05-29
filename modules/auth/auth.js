@@ -319,7 +319,30 @@ export async function createSupportTicket({ name, email, subject, message, userI
   }
 }
 
-export async function getSupportTickets() {
+export async function getSupportTickets(adminKey) {
+  // If adminKey is provided, retrieve support tickets securely via the serverless admin-action API
+  if (adminKey) {
+    try {
+      const res = await fetch('/api/admin-action', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key: adminKey, action: 'GET_SUPPORT_TICKETS' })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && data.tickets) {
+          return data.tickets;
+        }
+      }
+      const errData = await res.json().catch(() => ({}));
+      throw new Error(errData.error || `HTTP error ${res.status}`);
+    } catch (e) {
+      console.error('[dsa.flow] Failed to fetch tickets via admin API:', e);
+      throw e;
+    }
+  }
+
+  // Otherwise, default client-side retrieval (if authorized or fallback)
   if (tryInitFirebase()) {
     try {
       const snapshot = await _db.collection('support_tickets').orderBy('createdAt', 'desc').get();
@@ -337,7 +360,28 @@ export async function getSupportTickets() {
   }
 }
 
-export async function resolveSupportTicket(ticketId) {
+export async function resolveSupportTicket(ticketId, adminKey) {
+  // If adminKey is provided, resolve ticket securely via the serverless admin-action API
+  if (adminKey) {
+    try {
+      const res = await fetch('/api/admin-action', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key: adminKey, action: 'RESOLVE_SUPPORT_TICKET', ticketId })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        return !!data.success;
+      }
+      const errData = await res.json().catch(() => ({}));
+      throw new Error(errData.error || `HTTP error ${res.status}`);
+    } catch (e) {
+      console.error('[dsa.flow] Failed to resolve ticket via admin API:', e);
+      throw e;
+    }
+  }
+
+  // Otherwise, default client-side resolve (if authorized or fallback)
   if (tryInitFirebase()) {
     try {
       const ticketRef = _db.collection('support_tickets').doc(ticketId);
