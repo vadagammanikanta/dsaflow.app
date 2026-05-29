@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 
 // Mappings of standard problems to files in vineethm1627/SDE_Sheet_Striver repository
@@ -388,7 +390,7 @@ export default function LessonViewer({ lesson }) {
       <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '20px' }}>
         <div style={{ fontSize: '2.5rem' }}>{lesson.icon}</div>
         <div>
-          <h1 style={{ fontSize: '1.8rem', color: 'var(--text-main)', margin: '0 0 8px 0' }}>
+          <h1 style={{ fontSize: '1.8rem', color: 'var(--text-primary)', margin: '0 0 8px 0' }}>
             {lesson.title}
           </h1>
           <div style={{ display: 'flex', gap: '12px', fontSize: '0.9rem', flexWrap: 'wrap', rowGap: '6px' }}>
@@ -443,7 +445,7 @@ export default function LessonViewer({ lesson }) {
       {/* Inline Code Examples Section — shown when lesson has embedded code */}
       {lesson.code && Object.keys(lesson.code).length > 0 && (
         <div style={{ marginBottom: '24px', paddingBottom: '24px', borderBottom: '1px solid var(--border-glass)' }}>
-          <h3 style={{ fontSize: '1.1rem', color: 'var(--text-main)', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <h3 style={{ fontSize: '1.1rem', color: 'var(--text-primary)', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span>💻</span> Code Examples
           </h3>
           <div style={{ display: 'flex', gap: '8px', marginBottom: '14px', flexWrap: 'wrap' }}>
@@ -465,22 +467,62 @@ export default function LessonViewer({ lesson }) {
             ))}
           </div>
           {lesson.code[activeInlineLang] && (
-            <pre style={{
-              background: 'rgba(0,0,0,0.35)',
-              border: '1px solid var(--border-glass)',
-              borderRadius: '10px',
-              padding: '20px',
-              overflowX: 'auto',
-              margin: 0,
-              fontSize: '0.88rem',
-              lineHeight: '1.6',
-              color: '#e2e8f0',
-              fontFamily: '"Fira Code", "Cascadia Code", "JetBrains Mono", monospace',
-              whiteSpace: 'pre',
-              position: 'relative'
-            }}>
-              <code>{lesson.code[activeInlineLang]}</code>
-            </pre>
+            <div 
+              style={{
+                borderRadius: '10px',
+                overflow: 'hidden',
+                border: '1px solid var(--border-glass)',
+                background: 'var(--code-bg, #0f172a)'
+              }}
+            >
+              <div 
+                style={{
+                  background: 'rgba(255, 255, 255, 0.03)',
+                  padding: '8px 16px',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  borderBottom: '1px solid var(--border-glass)'
+                }}
+              >
+                <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem', fontFamily: 'var(--font-code)', textTransform: 'uppercase' }}>
+                  {activeInlineLang === 'cpp' ? 'C++' : activeInlineLang === 'javascript' ? 'JavaScript' : activeInlineLang}
+                </span>
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(lesson.code[activeInlineLang]);
+                    alert('Code copied to clipboard! 📋');
+                  }}
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.05)',
+                    border: '1px solid var(--border-glass)',
+                    borderRadius: '4px',
+                    color: 'var(--text-secondary)',
+                    padding: '4px 8px',
+                    fontSize: '0.75rem',
+                    cursor: 'pointer',
+                    transition: 'background 0.2s'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)'}
+                  onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)'}
+                >
+                  Copy Code
+                </button>
+              </div>
+              <SyntaxHighlighter 
+                language={activeInlineLang?.toLowerCase() === 'cpp' ? 'cpp' : activeInlineLang?.toLowerCase() === 'java' ? 'java' : activeInlineLang?.toLowerCase() === 'javascript' ? 'javascript' : 'python'} 
+                style={vscDarkPlus}
+                customStyle={{
+                  margin: 0,
+                  padding: '16px',
+                  fontSize: '0.88rem',
+                  lineHeight: '1.6',
+                  background: 'transparent'
+                }}
+              >
+                {lesson.code[activeInlineLang]}
+              </SyntaxHighlighter>
+            </div>
           )}
         </div>
       )}
@@ -494,7 +536,7 @@ export default function LessonViewer({ lesson }) {
         marginBottom: '24px',
         paddingBottom: '20px'
       }}>
-        <h3 style={{ fontSize: '1.1rem', color: 'var(--text-main)', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <h3 style={{ fontSize: '1.1rem', color: 'var(--text-primary)', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
           <span>📚</span> Video & Reference Tutorials
         </h3>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px' }}>
@@ -618,7 +660,7 @@ export default function LessonViewer({ lesson }) {
           onClick={() => markLessonCompleted(lesson.id)}
           className={`btn ${appState.completedLessons.includes(lesson.id) ? 'btn-secondary' : 'btn-accent'}`}
           style={{
-            color: appState.completedLessons.includes(lesson.id) ? 'var(--accent-emerald)' : 'var(--text-main)',
+            color: appState.completedLessons.includes(lesson.id) ? 'var(--accent-emerald)' : 'var(--text-primary)',
             fontWeight: '600'
           }}
         >
@@ -649,8 +691,6 @@ export default function LessonViewer({ lesson }) {
             onClick={handleSolveWithCompiler}
             className="btn btn-primary"
             style={{
-              background: 'var(--accent-cyan)',
-              color: '#000',
               fontWeight: 'bold',
               display: 'inline-flex',
               alignItems: 'center',
