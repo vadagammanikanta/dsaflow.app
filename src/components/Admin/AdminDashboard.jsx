@@ -77,6 +77,21 @@ export default function AdminDashboard() {
     setTimeout(() => setActionStatus(''), 4000);
   };
 
+  // Fetch support tickets automatically when the admin switches to the tickets tab
+  useEffect(() => {
+    if (isAuthenticated && activeTab === 'tickets') {
+      const loadTickets = async () => {
+        try {
+          const allTickets = await getSupportTickets();
+          setTickets(allTickets);
+        } catch (e) {
+          console.warn('Failed to reload tickets on tab change:', e);
+        }
+      };
+      loadTickets();
+    }
+  }, [activeTab, isAuthenticated]);
+
   const handleLogin = (e) => {
     e.preventDefault();
     fetchStats(adminKey);
@@ -282,6 +297,21 @@ export default function AdminDashboard() {
 
           {activeTab === 'tickets' && (
             <div className="admin-tickets">
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '14px' }}>
+                <button
+                  onClick={async () => {
+                    setActionStatus('Refreshing tickets...');
+                    const allTickets = await getSupportTickets();
+                    setTickets(allTickets);
+                    setActionStatus('Tickets refreshed!');
+                    setTimeout(() => setActionStatus(''), 2000);
+                  }}
+                  className="admin-btn-small"
+                  style={{ width: 'auto', padding: '6px 12px', fontSize: '0.8rem', background: 'rgba(124, 77, 255, 0.1)', color: 'var(--accent-purple)', borderColor: 'rgba(124, 77, 255, 0.3)' }}
+                >
+                  🔄 Refresh Tickets
+                </button>
+              </div>
               {tickets.length === 0 ? (
                 <p style={{ color: 'var(--text-secondary)', textAlign: 'center', padding: '40px' }}>
                   No support tickets found in database.

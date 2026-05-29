@@ -283,11 +283,12 @@ export async function createSupportTicket({ name, email, subject, message, userI
       console.info('[dsa.flow] Support ticket saved to Firestore ✓');
       return true;
     } catch (e) {
-      console.warn('[dsa.flow] Firestore ticket save failed, using local storage:', e.message);
+      console.error('[dsa.flow] Firestore ticket save failed:', e);
+      throw e;
     }
   }
   
-  // Local fallback
+  // Local fallback (only for local sandbox runs without Firebase)
   try {
     const saved = localStorage.getItem('dsaflow_tickets') || '[]';
     const tickets = JSON.parse(saved);
@@ -304,7 +305,7 @@ export async function createSupportTicket({ name, email, subject, message, userI
     localStorage.setItem('dsaflow_tickets', JSON.stringify(tickets));
     return true;
   } catch (e) {
-    console.warn('Failed to save ticket locally:', e);
+    console.error('Failed to save ticket locally:', e);
     return false;
   }
 }
