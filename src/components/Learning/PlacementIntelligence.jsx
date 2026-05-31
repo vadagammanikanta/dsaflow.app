@@ -159,6 +159,47 @@ const PlacementIntelligence = ({ relevanceData }) => {
           {relevanceData.realWorldApp}
         </p>
       </div>
+
+      {/* Insider Interview Tip */}
+      {relevanceData.interviewTip && (
+        <div 
+          style={{
+            marginTop: '16px',
+            background: 'rgba(255, 23, 68, 0.02)',
+            borderLeft: '4px solid var(--accent-rose)',
+            borderTop: '1px solid var(--border-glass)',
+            borderRight: '1px solid var(--border-glass)',
+            borderBottom: '1px solid var(--border-glass)',
+            padding: '16px',
+            borderRadius: '4px 8px 8px 4px'
+          }}
+        >
+          <h4 
+            style={{
+              margin: '0 0 8px 0',
+              fontSize: '0.75rem',
+              fontWeight: '700',
+              color: 'var(--text-secondary)',
+              opacity: 0.8,
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em'
+            }}
+          >
+            💡 Insider Interview Tip
+          </h4>
+          <p 
+            style={{
+              margin: 0,
+              color: 'var(--text-secondary)',
+              fontSize: '0.86rem',
+              lineHeight: '1.6',
+              fontWeight: '500'
+            }}
+          >
+            {relevanceData.interviewTip}
+          </p>
+        </div>
+      )}
     </div>
   );
 };
