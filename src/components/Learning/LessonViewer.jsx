@@ -6,6 +6,8 @@ import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { DSAQuizEngine } from '../../../modules/learning/gemini-code-1780222651558';
 import { resourceLibrary } from './resource_library';
 import VideoEmbed from './VideoEmbed';
+import PlacementIntelligence from './PlacementIntelligence';
+
 
 
 
@@ -968,8 +970,14 @@ export default function LessonViewer({ lesson }) {
         )}
       </div>
 
+      {resources?.placementRelevance && (
+        <div style={{ marginBottom: '24px' }}>
+          <PlacementIntelligence relevanceData={resources.placementRelevance} />
+        </div>
+      )}
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+
         <button 
           onClick={() => markLessonCompleted(lesson.id)}
           className={`btn ${appState.completedLessons.includes(lesson.id) ? 'btn-secondary' : 'btn-accent'}`}
