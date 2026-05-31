@@ -811,7 +811,10 @@ export default function LessonViewer({ lesson }) {
               borderRadius: '12px',
               border: '1px solid var(--border-glass)',
               boxShadow: 'var(--shadow-neon)',
-              transition: 'var(--transition)'
+              transition: 'var(--transition)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '12px'
             }}>
               <h4 style={{
                 margin: 0,
@@ -820,36 +823,82 @@ export default function LessonViewer({ lesson }) {
                 color: 'var(--text-primary)',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '8px'
+                gap: '8px',
+                borderBottom: '1px solid var(--border-glass)',
+                paddingBottom: '10px'
               }}>
                 <span>📖</span> Recommended Reading & Practice
               </h4>
-              <a 
-                href={resources.resourceLink} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  marginTop: '10px',
-                  color: 'var(--accent-cyan)',
-                  textDecoration: 'none',
-                  fontWeight: '600',
-                  fontSize: '0.9rem',
-                  transition: 'var(--transition)'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.color = 'var(--text-primary)';
-                  e.currentTarget.style.textDecoration = 'underline';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.color = 'var(--accent-cyan)';
-                  e.currentTarget.style.textDecoration = 'none';
-                }}
-              >
-                {resources.resourceTitle} ↗
-              </a>
+              
+              {/* Primary Link */}
+              {resources.primaryLink && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: '700', letterSpacing: '0.05em' }}>Primary Reference</span>
+                  <a 
+                    href={resources.primaryLink.url} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      color: 'var(--accent-cyan)',
+                      textDecoration: 'none',
+                      fontWeight: '600',
+                      fontSize: '0.9rem',
+                      transition: 'var(--transition)',
+                      alignSelf: 'flex-start'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.color = 'var(--text-primary)';
+                      e.currentTarget.style.textDecoration = 'underline';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.color = 'var(--accent-cyan)';
+                      e.currentTarget.style.textDecoration = 'none';
+                    }}
+                  >
+                    {resources.primaryLink.title} ↗
+                  </a>
+                </div>
+              )}
+
+              {/* Additional Resources */}
+              {resources.additionalResources && resources.additionalResources.length > 0 && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '4px' }}>
+                  <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: '700', letterSpacing: '0.05em' }}>Additional Learning</span>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    {resources.additionalResources.map((res, i) => (
+                      <a 
+                        key={i}
+                        href={res.url} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          color: 'var(--text-secondary)',
+                          textDecoration: 'none',
+                          fontSize: '0.88rem',
+                          transition: 'var(--transition)',
+                          alignSelf: 'flex-start'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.color = 'var(--accent-cyan)';
+                          e.currentTarget.style.textDecoration = 'underline';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.color = 'var(--text-secondary)';
+                          e.currentTarget.style.textDecoration = 'none';
+                        }}
+                      >
+                        🔗 {res.title} ↗
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         ) : (
