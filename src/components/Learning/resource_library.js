@@ -156,7 +156,7 @@ export const resourceLibrary = {
     }
   },
   arrays: {
-    youtubeId: "QJNwK2uJyGs",
+    youtubeId: "n73iM4S9rZI",
     creator: "NeetCode",
     primaryLink: {
       title: "Arrays – LeetCode Explore Card",
@@ -180,7 +180,7 @@ export const resourceLibrary = {
     }
   },
   strings: {
-    youtubeId: "Pg4K_4oTRwQ",
+    youtubeId: "9UtInBqnCgA",
     creator: "NeetCode",
     primaryLink: {
       title: "Strings – LeetCode Explore Card",
@@ -228,8 +228,8 @@ export const resourceLibrary = {
     }
   },
   "stack-queue": {
-    youtubeId: "O1KeazLH6_s",
-    creator: "NeetCode",
+    youtubeId: "kU8Y3aK6uLg",
+    creator: "Take U Forward (Striver)",
     primaryLink: {
       title: "Stack & Queue – LeetCode Explore Card",
       url: "https://leetcode.com/explore/learn/card/queue-stack/"
@@ -276,7 +276,7 @@ export const resourceLibrary = {
     }
   },
   "hash-tables": {
-    youtubeId: "jalSiaIi8j4",
+    youtubeId: "cNcy3J4x62M",
     creator: "NeetCode",
     primaryLink: {
       title: "Hash Table – LeetCode Explore Card",
@@ -324,7 +324,7 @@ export const resourceLibrary = {
     }
   },
   matrices: {
-    youtubeId: "Zygk65q7Pko",
+    youtubeId: "fMSJlpNu_aU",
     creator: "NeetCode",
     primaryLink: {
       title: "Matrix Problems – LeetCode",
@@ -344,7 +344,7 @@ export const resourceLibrary = {
     }
   },
   "trees-bst": {
-    youtubeId: "s3bkMbMN0YE",
+    youtubeId: "yR5Xn3_4-zI",
     creator: "Take U Forward (Striver)",
     primaryLink: {
       title: "Binary Search Tree – LeetCode Explore Card",
@@ -628,7 +628,7 @@ export const resourceLibrary = {
     }
   },
   "fenwick-tree": {
-    youtubeId: "CWDQJGaN5y8",
+    youtubeId: "uSFzHCZ4E-8",
     creator: "WilliamFiset",
     primaryLink: {
       title: "Fenwick Tree – CP-Algorithms",
@@ -676,7 +676,7 @@ export const resourceLibrary = {
     }
   },
   "bitwise-trie": {
-    youtubeId: "QJNwK2uJyGs",
+    youtubeId: "A3ZZHoJnGP8",
     creator: "NeetCode",
     primaryLink: {
       title: "Maximum XOR – LeetCode",
@@ -720,8 +720,8 @@ export const resourceLibrary = {
     }
   },
   "bellman-ford": {
-    youtubeId: "lyvwjXq0HZY",
-    creator: "WilliamFiset",
+    youtubeId: "obWXjtg0L64",
+    creator: "Take U Forward (Striver)",
     primaryLink: {
       title: "Bellman-Ford – CP-Algorithms",
       url: "https://cp-algorithms.com/graph/bellman_ford.html"
