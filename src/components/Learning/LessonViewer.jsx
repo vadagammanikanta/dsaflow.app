@@ -4,6 +4,9 @@ import { useApp } from '../../context/AppContext';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { DSAQuizEngine } from '../../../modules/learning/gemini-code-1780222651558';
+import { resourceLibrary } from './resource_library';
+import VideoEmbed from './VideoEmbed';
+
 
 
 // Mappings of standard problems to files in vineethm1627/SDE_Sheet_Striver repository
@@ -540,7 +543,12 @@ export default function LessonViewer({ lesson }) {
     return { time, space };
   }, [lesson]);
 
+  const resources = useMemo(() => {
+    return lesson ? resourceLibrary[lesson.id] : null;
+  }, [lesson]);
+
   const [activeInlineLang, setActiveInlineLang] = useState('javascript');
+
 
   useEffect(() => {
     // Also sync inline code language
@@ -786,121 +794,180 @@ export default function LessonViewer({ lesson }) {
         <h3 style={{ fontSize: '1.1rem', color: 'var(--text-primary)', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
           <span>📚</span> Video & Reference Tutorials
         </h3>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px' }}>
-          <a
-            href={`https://www.youtube.com/results?search_query=Bro+Code+${encodeURIComponent(lesson.title)}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn btn-secondary"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '10px',
-              background: 'rgba(255, 0, 0, 0.05)',
-              border: '1px solid rgba(255, 0, 0, 0.15)',
-              color: '#ff4d4d',
-              padding: '10px 16px',
-              borderRadius: '8px',
-              textDecoration: 'none',
-              fontWeight: '600',
-              fontSize: '0.9rem',
-              transition: 'all 0.2s ease',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'rgba(255, 0, 0, 0.12)';
-              e.currentTarget.style.borderColor = 'rgba(255, 0, 0, 0.4)';
-              e.currentTarget.style.transform = 'translateY(-2px)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'rgba(255, 0, 0, 0.05)';
-              e.currentTarget.style.borderColor = 'rgba(255, 0, 0, 0.15)';
-              e.currentTarget.style.transform = 'translateY(0)';
-            }}
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style={{ flexShrink: 0 }}>
-              <path d="M23.498 6.163a3.003 3.003 0 0 0-2.11-2.11C19.518 3.545 12 3.545 12 3.545s-7.518 0-9.388.508a3.003 3.003 0 0 0-2.11 2.11C0 8.033 0 12 0 12s0 3.967.502 5.837a3.003 3.003 0 0 0 2.11 2.11c1.87.508 9.388.508 9.388.508s7.518 0 9.388-.508a3.003 3.003 0 0 0 2.11-2.11C24 15.967 24 12 24 12s0-3.967-.502-5.837zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
-            </svg>
-            Bro Code YouTube
-          </a>
 
-          <a
-            href={lesson.youtube || `https://www.youtube.com/results?search_query=Striver+${encodeURIComponent(lesson.title)}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn btn-secondary"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '10px',
-              background: 'rgba(255, 69, 0, 0.05)',
-              border: '1px solid rgba(255, 69, 0, 0.15)',
-              color: '#ff6b35',
-              padding: '10px 16px',
-              borderRadius: '8px',
-              textDecoration: 'none',
-              fontWeight: '600',
-              fontSize: '0.9rem',
-              transition: 'all 0.2s ease',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'rgba(255, 69, 0, 0.12)';
-              e.currentTarget.style.borderColor = 'rgba(255, 69, 0, 0.4)';
-              e.currentTarget.style.transform = 'translateY(-2px)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'rgba(255, 69, 0, 0.05)';
-              e.currentTarget.style.borderColor = 'rgba(255, 69, 0, 0.15)';
-              e.currentTarget.style.transform = 'translateY(0)';
-            }}
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style={{ flexShrink: 0 }}>
-              <path d="M23.498 6.163a3.003 3.003 0 0 0-2.11-2.11C19.518 3.545 12 3.545 12 3.545s-7.518 0-9.388.508a3.003 3.003 0 0 0-2.11 2.11C0 8.033 0 12 0 12s0 3.967.502 5.837a3.003 3.003 0 0 0 2.11 2.11c1.87.508 9.388.508 9.388.508s7.518 0 9.388-.508a3.003 3.003 0 0 0 2.11-2.11C24 15.967 24 12 24 12s0-3.967-.502-5.837zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
-            </svg>
-            {lesson.youtube ? "Watch Striver's Video 🚀" : "Striver YouTube"}
-          </a>
+        {resources ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <VideoEmbed 
+              youtubeId={resources.youtubeId} 
+              title={`${lesson.title} by ${resources.creator}`} 
+              creator={resources.creator} 
+            />
+            
+            <div style={{
+              padding: '16px 20px',
+              background: 'var(--bg-secondary)',
+              borderRadius: '12px',
+              border: '1px solid var(--border-glass)',
+              boxShadow: 'var(--shadow-neon)',
+              transition: 'var(--transition)'
+            }}>
+              <h4 style={{
+                margin: 0,
+                fontSize: '0.95rem',
+                fontWeight: '700',
+                color: 'var(--text-primary)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}>
+                <span>📖</span> Recommended Reading & Practice
+              </h4>
+              <a 
+                href={resources.resourceLink} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  marginTop: '10px',
+                  color: 'var(--accent-cyan)',
+                  textDecoration: 'none',
+                  fontWeight: '600',
+                  fontSize: '0.9rem',
+                  transition: 'var(--transition)'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.color = 'var(--text-primary)';
+                  e.currentTarget.style.textDecoration = 'underline';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.color = 'var(--accent-cyan)';
+                  e.currentTarget.style.textDecoration = 'none';
+                }}
+              >
+                {resources.resourceTitle} ↗
+              </a>
+            </div>
+          </div>
+        ) : (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px' }}>
+            <a
+              href={`https://www.youtube.com/results?search_query=Bro+Code+${encodeURIComponent(lesson.title)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn-secondary"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '10px',
+                background: 'rgba(255, 0, 0, 0.05)',
+                border: '1px solid rgba(255, 0, 0, 0.15)',
+                color: '#ff4d4d',
+                padding: '10px 16px',
+                borderRadius: '8px',
+                textDecoration: 'none',
+                fontWeight: '600',
+                fontSize: '0.9rem',
+                transition: 'all 0.2s ease',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'rgba(255, 0, 0, 0.12)';
+                e.currentTarget.style.borderColor = 'rgba(255, 0, 0, 0.4)';
+                e.currentTarget.style.transform = 'translateY(-2px)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'rgba(255, 0, 0, 0.05)';
+                e.currentTarget.style.borderColor = 'rgba(255, 0, 0, 0.15)';
+                e.currentTarget.style.transform = 'translateY(0)';
+              }}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style={{ flexShrink: 0 }}>
+                <path d="M23.498 6.163a3.003 3.003 0 0 0-2.11-2.11C19.518 3.545 12 3.545 12 3.545s-7.518 0-9.388.508a3.003 3.003 0 0 0-2.11 2.11C0 8.033 0 12 0 12s0 3.967.502 5.837a3.003 3.003 0 0 0 2.11 2.11c1.87.508 9.388.508 9.388.508s7.518 0 9.388-.508a3.003 3.003 0 0 0 2.11-2.11C24 15.967 24 12 24 12s0-3.967-.502-5.837zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+              </svg>
+              Bro Code YouTube
+            </a>
 
-          <a
-            href={`https://www.geeksforgeeks.org/search/?q=${encodeURIComponent(lesson.title)}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn btn-secondary"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '10px',
-              background: 'rgba(47, 133, 90, 0.06)',
-              border: '1px solid rgba(47, 133, 90, 0.15)',
-              color: '#34a853',
-              padding: '10px 16px',
-              borderRadius: '8px',
-              textDecoration: 'none',
-              fontWeight: '600',
-              fontSize: '0.9rem',
-              transition: 'all 0.2s ease',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'rgba(47, 133, 90, 0.12)';
-              e.currentTarget.style.borderColor = 'rgba(47, 133, 90, 0.4)';
-              e.currentTarget.style.transform = 'translateY(-2px)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'rgba(47, 133, 90, 0.06)';
-              e.currentTarget.style.borderColor = 'rgba(47, 133, 90, 0.15)';
-              e.currentTarget.style.transform = 'translateY(0)';
-            }}
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
-              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2 2V8a2 2 0 0 1 2-2h6"></path>
-              <polyline points="15 3 21 3 21 9"></polyline>
-              <line x1="10" y1="14" x2="21" y2="3"></line>
-            </svg>
-            Search on GFG
-          </a>
-        </div>
+            <a
+              href={lesson.youtube || `https://www.youtube.com/results?search_query=Striver+${encodeURIComponent(lesson.title)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn-secondary"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '10px',
+                background: 'rgba(255, 69, 0, 0.05)',
+                border: '1px solid rgba(255, 69, 0, 0.15)',
+                color: '#ff6b35',
+                padding: '10px 16px',
+                borderRadius: '8px',
+                textDecoration: 'none',
+                fontWeight: '600',
+                fontSize: '0.9rem',
+                transition: 'all 0.2s ease',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'rgba(255, 69, 0, 0.12)';
+                e.currentTarget.style.borderColor = 'rgba(255, 69, 0, 0.4)';
+                e.currentTarget.style.transform = 'translateY(-2px)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'rgba(255, 69, 0, 0.05)';
+                e.currentTarget.style.borderColor = 'rgba(255, 69, 0, 0.15)';
+                e.currentTarget.style.transform = 'translateY(0)';
+              }}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style={{ flexShrink: 0 }}>
+                <path d="M23.498 6.163a3.003 3.003 0 0 0-2.11-2.11C19.518 3.545 12 3.545 12 3.545s-7.518 0-9.388.508a3.003 3.003 0 0 0-2.11 2.11C0 8.033 0 12 0 12s0 3.967.502 5.837a3.003 3.003 0 0 0 2.11 2.11c1.87.508 9.388.508 9.388.508s7.518 0 9.388-.508a3.003 3.003 0 0 0 2.11-2.11C24 15.967 24 12 24 12s0-3.967-.502-5.837zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+              </svg>
+              {lesson.youtube ? "Watch Striver's Video 🚀" : "Striver YouTube"}
+            </a>
+
+            <a
+              href={`https://www.geeksforgeeks.org/search/?q=${encodeURIComponent(lesson.title)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn-secondary"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '10px',
+                background: 'rgba(47, 133, 90, 0.06)',
+                border: '1px solid rgba(47, 133, 90, 0.15)',
+                color: '#34a853',
+                padding: '10px 16px',
+                borderRadius: '8px',
+                textDecoration: 'none',
+                fontWeight: '600',
+                fontSize: '0.9rem',
+                transition: 'all 0.2s ease',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'rgba(47, 133, 90, 0.12)';
+                e.currentTarget.style.borderColor = 'rgba(47, 133, 90, 0.4)';
+                e.currentTarget.style.transform = 'translateY(-2px)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'rgba(47, 133, 90, 0.06)';
+                e.currentTarget.style.borderColor = 'rgba(47, 133, 90, 0.15)';
+                e.currentTarget.style.transform = 'translateY(0)';
+              }}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2 2V8a2 2 0 0 1 2-2h6"></path>
+                <polyline points="15 3 21 3 21 9"></polyline>
+                <line x1="10" y1="14" x2="21" y2="3"></line>
+              </svg>
+              Search on GFG
+            </a>
+          </div>
+        )}
       </div>
+
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
         <button 
