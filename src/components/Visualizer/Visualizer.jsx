@@ -299,7 +299,7 @@ export default function Visualizer() {
                 top: '-76px', // Hide the top navigation bar
                 left: '0',
                 width: '100%', 
-                height: 'calc(100% + 76px)', // Shift up by 76px to compensate and crop the header
+                height: 'calc(100% + 76px + 300px)', // Shift up by 76px to hide header, and add 300px at bottom to crop the footer
                 border: 'none',
                 colorScheme: theme === 'dark' ? 'dark' : 'light'
               }}
