@@ -24,8 +24,8 @@ const dsaModuleResources = {
   },
 
   "control-structures": {
-    youtubeId: "DWRcSXMQ7Nk",
-    creator: "Abdul Bari",
+    youtubeId: "eSYeHlwDCNA",
+    creator: "freeCodeCamp",
     primaryLink: { title: "Control Flow – Python Docs", url: "https://docs.python.org/3/tutorial/controlflow.html" },
     additionalResources: [
       { title: "Loops & Iteration – GeeksforGeeks", url: "https://www.geeksforgeeks.org/loops-in-python/" }
@@ -44,8 +44,8 @@ const dsaModuleResources = {
   },
 
   "functions": {
-    youtubeId: "u-OmVr_fT4s",
-    creator: "Programming with Mosh",
+    youtubeId: "GtovwKDemnI",
+    creator: "Web Dev Simplified",
     primaryLink: { title: "Functions – MDN Web Docs", url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Functions" },
     additionalResources: [
       { title: "Pure Functions & Side Effects – GeeksforGeeks", url: "https://www.geeksforgeeks.org/pure-functions-in-javascript/" },
@@ -65,7 +65,7 @@ const dsaModuleResources = {
   },
 
   "oop-basics": {
-    youtubeId: "SiBw7os-_zI",
+    youtubeId: "pTB0EiLXUC8",
     creator: "Programming with Mosh",
     primaryLink: { title: "OOP Concepts – GeeksforGeeks", url: "https://www.geeksforgeeks.org/object-oriented-programming-oops-concept-in-java/" },
     additionalResources: [
@@ -86,7 +86,7 @@ const dsaModuleResources = {
 
   "recursion-intro": {
     youtubeId: "IJDJ0kBx2LM",
-    creator: "Abdul Bari",
+    creator: "freeCodeCamp",
     primaryLink: { title: "Recursion – GeeksforGeeks", url: "https://www.geeksforgeeks.org/recursion/" },
     additionalResources: [
       { title: "Recursion – Visualgo", url: "https://visualgo.net/en/recursion" },
@@ -129,8 +129,8 @@ const dsaModuleResources = {
   },
 
   "asymptotic-notation": {
-    youtubeId: "0oDAlKUs_BY",
-    creator: "Abdul Bari",
+    youtubeId: "0oDAlMwTrLo",
+    creator: "MIT OpenCourseWare",
     primaryLink: { title: "Asymptotic Analysis – GeeksforGeeks", url: "https://www.geeksforgeeks.org/analysis-of-algorithms-set-3asymptotic-notations/" },
     additionalResources: [
       { title: "Big-O, Big-Θ, Big-Ω – Khan Academy", url: "https://www.khanacademy.org/computing/computer-science/algorithms/asymptotic-notation/a/asymptotic-notation" }
@@ -149,8 +149,8 @@ const dsaModuleResources = {
   },
 
   "arrays": {
-    youtubeId: "n73iM4S9rZI",
-    creator: "NeetCode",
+    youtubeId: "Qmt0QwzEmh0",
+    creator: "William Fiset",
     primaryLink: { title: "Arrays – LeetCode Explore Card", url: "https://leetcode.com/explore/learn/card/fun-with-arrays/" },
     additionalResources: [
       { title: "Array Data Structure – GeeksforGeeks", url: "https://www.geeksforgeeks.org/array-data-structure/" },
@@ -171,7 +171,7 @@ const dsaModuleResources = {
   },
 
   "strings": {
-    youtubeId: "9UtInBqnCgA",
+    youtubeId: "Yyf9bWz7G2E",
     creator: "NeetCode",
     primaryLink: { title: "Strings – LeetCode Explore Card", url: "https://leetcode.com/explore/learn/card/array-and-string/" },
     additionalResources: [
@@ -193,8 +193,8 @@ const dsaModuleResources = {
   },
 
   "searching": {
-    youtubeId: "s4DPM8ct1pI",
-    creator: "NeetCode",
+    youtubeId: "P3YID7liBug",
+    creator: "freeCodeCamp",
     primaryLink: { title: "Binary Search – LeetCode Explore Card", url: "https://leetcode.com/explore/learn/card/binary-search/" },
     additionalResources: [
       { title: "Binary Search – CP-Algorithms", url: "https://cp-algorithms.com/num_methods/binary_search.html" },
@@ -217,8 +217,8 @@ const dsaModuleResources = {
   // ── PHASE 2: LINEAR DATA STRUCTURES ──
 
   "stack-queue": {
-    youtubeId: "kU8Y3aK6uLg",
-    creator: "Take U Forward (Striver)",
+    youtubeId: "wjI1WNcIntg",
+    creator: "William Fiset",
     primaryLink: { title: "Stack & Queue – LeetCode Explore Card", url: "https://leetcode.com/explore/learn/card/queue-stack/" },
     additionalResources: [
       { title: "Stack – Visualgo", url: "https://visualgo.net/en/list" },
@@ -240,7 +240,7 @@ const dsaModuleResources = {
 
   "linked-list": {
     youtubeId: "Hj_rA0dhr2I",
-    creator: "NeetCode",
+    creator: "William Fiset",
     primaryLink: { title: "Linked List – LeetCode Explore Card", url: "https://leetcode.com/explore/learn/card/linked-list/" },
     additionalResources: [
       { title: "Linked List – Visualgo", url: "https://visualgo.net/en/list" },
@@ -261,8 +261,8 @@ const dsaModuleResources = {
   },
 
   "hash-tables": {
-    youtubeId: "cNcy3J4x62M",
-    creator: "NeetCode",
+    youtubeId: "KyUTuwz_b7Q",
+    creator: "CS Dojo",
     primaryLink: { title: "Hash Table – LeetCode Explore Card", url: "https://leetcode.com/explore/learn/card/hash-table/" },
     additionalResources: [
       { title: "Hashing – Visualgo", url: "https://visualgo.net/en/hashtable" },
@@ -283,8 +283,8 @@ const dsaModuleResources = {
   },
 
   "heaps": {
-    youtubeId: "HqPJF2L5h9U",
-    creator: "NeetCode",
+    youtubeId: "t0Cq6tVNRBA",
+    creator: "William Fiset",
     primaryLink: { title: "Heaps – GeeksforGeeks", url: "https://www.geeksforgeeks.org/heap-data-structure/" },
     additionalResources: [
       { title: "Priority Queue – CP-Algorithms", url: "https://cp-algorithms.com/data_structures/heap.html" },
@@ -305,7 +305,7 @@ const dsaModuleResources = {
   },
 
   "matrices": {
-    youtubeId: "fMSJlpNu_aU",
+    youtubeId: "A_LkGd0SiKg",
     creator: "NeetCode",
     primaryLink: { title: "Matrix Problems – LeetCode", url: "https://leetcode.com/tag/matrix/" },
     additionalResources: [
@@ -328,8 +328,8 @@ const dsaModuleResources = {
   // ── PHASE 3: NON-LINEAR DATA STRUCTURES (TREES & GRAPHS) ──
 
   "trees-bst": {
-    youtubeId: "yR5Xn3_4-zI",
-    creator: "Take U Forward (Striver)",
+    youtubeId: "oSWTXtMglKE",
+    creator: "William Fiset",
     primaryLink: { title: "Binary Search Tree – LeetCode Explore Card", url: "https://leetcode.com/explore/learn/card/introduction-to-data-structure-binary-search-tree/" },
     additionalResources: [
       { title: "BST – Visualgo", url: "https://visualgo.net/en/bst" },
@@ -350,8 +350,8 @@ const dsaModuleResources = {
   },
 
   "tree-traversal": {
-    youtubeId: "BHB0B1jFKQc",
-    creator: "Take U Forward (Striver)",
+    youtubeId: "WLvU5ZuwqIk",
+    creator: "William Fiset",
     primaryLink: { title: "Binary Tree – LeetCode Explore Card", url: "https://leetcode.com/explore/learn/card/data-structure-tree/" },
     additionalResources: [
       { title: "Tree Traversals – Visualgo", url: "https://visualgo.net/en/bst" },
@@ -372,7 +372,7 @@ const dsaModuleResources = {
   },
 
   "avl-trees": {
-    youtubeId: "jDM6_TnYIqE",
+    youtubeId: "q4fnJZr8ztY",
     creator: "Abdul Bari",
     primaryLink: { title: "AVL Tree – GeeksforGeeks", url: "https://www.geeksforgeeks.org/avl-tree-set-1-insertion/" },
     additionalResources: [
@@ -416,8 +416,8 @@ const dsaModuleResources = {
   },
 
   "graphs": {
-    youtubeId: "EgI5nU9etnU",
-    creator: "Take U Forward (Striver)",
+    youtubeId: "tWVWeAqZ0WU",
+    creator: "freeCodeCamp",
     primaryLink: { title: "Graph Theory – CP-Algorithms", url: "https://cp-algorithms.com/graph/breadth-first-search.html" },
     additionalResources: [
       { title: "Graph – Visualgo", url: "https://visualgo.net/en/graphds" },
@@ -441,7 +441,7 @@ const dsaModuleResources = {
 
   "dynamic-programming": {
     youtubeId: "oBt53YbR9Kk",
-    creator: "freeCodeCamp (Alvin Zablan)",
+    creator: "freeCodeCamp",
     primaryLink: { title: "DP Patterns – LeetCode Discuss", url: "https://leetcode.com/discuss/general-discussion/458695/dynamic-programming-patterns" },
     additionalResources: [
       { title: "DP – AtCoder Educational DP Contest", url: "https://atcoder.jp/contests/dp/tasks" },
@@ -483,8 +483,8 @@ const dsaModuleResources = {
   },
 
   "recursion-backtracking": {
-    youtubeId: "DKCbsiDBN6c",
-    creator: "Take U Forward (Striver)",
+    youtubeId: "A80YzvNwqXA",
+    creator: "NeetCode",
     primaryLink: { title: "Backtracking – LeetCode Explore", url: "https://leetcode.com/explore/learn/card/recursion-ii/" },
     additionalResources: [
       { title: "Backtracking – GeeksforGeeks", url: "https://www.geeksforgeeks.org/backtracking-algorithms/" },
@@ -506,7 +506,7 @@ const dsaModuleResources = {
 
   "bit-manipulation": {
     youtubeId: "NLKQEOgBAnw",
-    creator: "NeetCode",
+    creator: "CS Dojo",
     primaryLink: { title: "Bit Manipulation – LeetCode Explore", url: "https://leetcode.com/explore/learn/card/graph/620/introduction-to-disjoint-sets/" },
     additionalResources: [
       { title: "Bit Tricks – CP-Algorithms", url: "https://cp-algorithms.com/algebra/bit-manipulation.html" },
@@ -527,8 +527,8 @@ const dsaModuleResources = {
   },
 
   "divide-conquer": {
-    youtubeId: "2Rr2tW9zvRg",
-    creator: "Abdul Bari",
+    youtubeId: "2FShdqn-Oz8",
+    creator: "William Fiset",
     primaryLink: { title: "Divide & Conquer – GeeksforGeeks", url: "https://www.geeksforgeeks.org/divide-and-conquer/" },
     additionalResources: [
       { title: "Merge Sort & D&C – Visualgo", url: "https://visualgo.net/en/sorting" },
@@ -551,8 +551,8 @@ const dsaModuleResources = {
   // ── PHASE 5: ADVANCED DATA STRUCTURES ──
 
   "disjoint-set": {
-    youtubeId: "aBxjDBC4M1U",
-    creator: "WilliamFiset",
+    youtubeId: "ibjEGG7q3Mk",
+    creator: "William Fiset",
     primaryLink: { title: "Disjoint Set Union – CP-Algorithms", url: "https://cp-algorithms.com/data_structures/disjoint_set_union.html" },
     additionalResources: [
       { title: "Union-Find – GeeksforGeeks", url: "https://www.geeksforgeeks.org/union-find/" },
@@ -574,7 +574,7 @@ const dsaModuleResources = {
 
   "segment-tree": {
     youtubeId: "ZBHKZF5w4YU",
-    creator: "WilliamFiset",
+    creator: "William Fiset",
     primaryLink: { title: "Segment Tree – CP-Algorithms", url: "https://cp-algorithms.com/data_structures/segment_tree.html" },
     additionalResources: [
       { title: "Segment Tree – GeeksforGeeks", url: "https://www.geeksforgeeks.org/segment-tree-set-1-sum-of-given-range/" },
@@ -595,8 +595,8 @@ const dsaModuleResources = {
   },
 
   "fenwick-tree": {
-    youtubeId: "uSFzHCZ4E-8",
-    creator: "WilliamFiset",
+    youtubeId: "RgITNht_f4Q",
+    creator: "William Fiset",
     primaryLink: { title: "Fenwick Tree – CP-Algorithms", url: "https://cp-algorithms.com/data_structures/fenwick.html" },
     additionalResources: [
       { title: "BIT – GeeksforGeeks", url: "https://www.geeksforgeeks.org/binary-indexed-tree-or-fenwick-tree-2/" },
@@ -639,8 +639,8 @@ const dsaModuleResources = {
   },
 
   "bitwise-trie": {
-    youtubeId: "A3ZZHoJnGP8",
-    creator: "NeetCode",
+    youtubeId: "oSWTXtMglKE",
+    creator: "William Fiset",
     primaryLink: { title: "Maximum XOR – LeetCode", url: "https://leetcode.com/problems/maximum-xor-of-two-numbers-in-an-array/" },
     additionalResources: [
       { title: "Bitwise Trie – GeeksforGeeks", url: "https://www.geeksforgeeks.org/maximum-xor-of-two-numbers-in-an-array/" }
@@ -662,8 +662,8 @@ const dsaModuleResources = {
   // ── PHASE 6: ADVANCED GRAPHS ──
 
   "dijkstra-algo": {
-    youtubeId: "V6H1qAeB-l4",
-    creator: "WilliamFiset",
+    youtubeId: "pSqmAO-m7Lk",
+    creator: "William Fiset",
     primaryLink: { title: "Dijkstra – CP-Algorithms", url: "https://cp-algorithms.com/graph/dijkstra.html" },
     additionalResources: [
       { title: "Dijkstra – Visualgo", url: "https://visualgo.net/en/sssp" },
@@ -684,8 +684,8 @@ const dsaModuleResources = {
   },
 
   "bellman-ford": {
-    youtubeId: "obWXjtg0L64",
-    creator: "Take U Forward (Striver)",
+    youtubeId: "lyw4FaxrwHg",
+    creator: "William Fiset",
     primaryLink: { title: "Bellman-Ford – CP-Algorithms", url: "https://cp-algorithms.com/graph/bellman_ford.html" },
     additionalResources: [
       { title: "Bellman-Ford – GeeksforGeeks", url: "https://www.geeksforgeeks.org/bellman-ford-algorithm-dp-23/" },
@@ -707,7 +707,7 @@ const dsaModuleResources = {
 
   "floyd-warshall": {
     youtubeId: "4OQeCuLYj-4",
-    creator: "WilliamFiset",
+    creator: "William Fiset",
     primaryLink: { title: "Floyd-Warshall – CP-Algorithms", url: "https://cp-algorithms.com/graph/all-pair-shortest-path-floyd-warshall.html" },
     additionalResources: [
       { title: "Floyd-Warshall – GeeksforGeeks", url: "https://www.geeksforgeeks.org/floyd-warshall-algorithm-dp-16/" }
@@ -728,7 +728,7 @@ const dsaModuleResources = {
 
   "kruskal-mst": {
     youtubeId: "JZBQLXgSGfs",
-    creator: "WilliamFiset",
+    creator: "William Fiset",
     primaryLink: { title: "Kruskal's MST – CP-Algorithms", url: "https://cp-algorithms.com/graph/mst_kruskal.html" },
     additionalResources: [
       { title: "Kruskal's – GeeksforGeeks", url: "https://www.geeksforgeeks.org/kruskals-minimum-spanning-tree-algorithm-greedy-algo-2/" },
@@ -749,8 +749,8 @@ const dsaModuleResources = {
   },
 
   "prim-mst": {
-    youtubeId: "cplfcGZmX7I",
-    creator: "WilliamFiset",
+    youtubeId: "jsmMtJpPnhU",
+    creator: "William Fiset",
     primaryLink: { title: "Prim's MST – CP-Algorithms", url: "https://cp-algorithms.com/graph/mst_prim.html" },
     additionalResources: [
       { title: "Prim's – GeeksforGeeks", url: "https://www.geeksforgeeks.org/prims-minimum-spanning-tree-mst-greedy-algo-5/" },

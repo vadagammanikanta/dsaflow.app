@@ -24,8 +24,8 @@ export const resourceLibrary = {
     }
   },
   "control-structures": {
-    youtubeId: "DWRcSXMQ7Nk",
-    creator: "Abdul Bari",
+    youtubeId: "eSYeHlwDCNA",
+    creator: "freeCodeCamp",
     primaryLink: {
       title: "Control Flow – Python Docs",
       url: "https://docs.python.org/3/tutorial/controlflow.html"
@@ -44,8 +44,8 @@ export const resourceLibrary = {
     }
   },
   functions: {
-    youtubeId: "u-OmVr_fT4s",
-    creator: "Programming with Mosh",
+    youtubeId: "GtovwKDemnI",
+    creator: "Web Dev Simplified",
     primaryLink: {
       title: "Functions – MDN Web Docs",
       url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Functions"
@@ -68,7 +68,7 @@ export const resourceLibrary = {
     }
   },
   "oop-basics": {
-    youtubeId: "SiBw7os-_zI",
+    youtubeId: "pTB0EiLXUC8",
     creator: "Programming with Mosh",
     primaryLink: {
       title: "OOP Concepts – GeeksforGeeks",
@@ -89,7 +89,7 @@ export const resourceLibrary = {
   },
   "recursion-intro": {
     youtubeId: "IJDJ0kBx2LM",
-    creator: "Abdul Bari",
+    creator: "freeCodeCamp",
     primaryLink: {
       title: "Recursion – GeeksforGeeks",
       url: "https://www.geeksforgeeks.org/recursion/"
@@ -136,8 +136,8 @@ export const resourceLibrary = {
     }
   },
   "asymptotic-notation": {
-    youtubeId: "0oDAlKUs_BY",
-    creator: "Abdul Bari",
+    youtubeId: "0oDAlMwTrLo",
+    creator: "MIT OpenCourseWare",
     primaryLink: {
       title: "Asymptotic Analysis – GeeksforGeeks",
       url: "https://www.geeksforgeeks.org/analysis-of-algorithms-set-3asymptotic-notations/"
@@ -156,8 +156,8 @@ export const resourceLibrary = {
     }
   },
   arrays: {
-    youtubeId: "n73iM4S9rZI",
-    creator: "NeetCode",
+    youtubeId: "Qmt0QwzEmh0",
+    creator: "William Fiset",
     primaryLink: {
       title: "Arrays – LeetCode Explore Card",
       url: "https://leetcode.com/explore/learn/card/fun-with-arrays/"
@@ -180,7 +180,7 @@ export const resourceLibrary = {
     }
   },
   strings: {
-    youtubeId: "9UtInBqnCgA",
+    youtubeId: "Yyf9bWz7G2E",
     creator: "NeetCode",
     primaryLink: {
       title: "Strings – LeetCode Explore Card",
@@ -204,8 +204,8 @@ export const resourceLibrary = {
     }
   },
   searching: {
-    youtubeId: "s4DPM8ct1pI",
-    creator: "NeetCode",
+    youtubeId: "P3YID7liBug",
+    creator: "freeCodeCamp",
     primaryLink: {
       title: "Binary Search – LeetCode Explore Card",
       url: "https://leetcode.com/explore/learn/card/binary-search/"
@@ -228,8 +228,8 @@ export const resourceLibrary = {
     }
   },
   "stack-queue": {
-    youtubeId: "kU8Y3aK6uLg",
-    creator: "Take U Forward (Striver)",
+    youtubeId: "wjI1WNcIntg",
+    creator: "William Fiset",
     primaryLink: {
       title: "Stack & Queue – LeetCode Explore Card",
       url: "https://leetcode.com/explore/learn/card/queue-stack/"
@@ -253,7 +253,7 @@ export const resourceLibrary = {
   },
   "linked-list": {
     youtubeId: "Hj_rA0dhr2I",
-    creator: "NeetCode",
+    creator: "William Fiset",
     primaryLink: {
       title: "Linked List – LeetCode Explore Card",
       url: "https://leetcode.com/explore/learn/card/linked-list/"
@@ -276,8 +276,8 @@ export const resourceLibrary = {
     }
   },
   "hash-tables": {
-    youtubeId: "cNcy3J4x62M",
-    creator: "NeetCode",
+    youtubeId: "KyUTuwz_b7Q",
+    creator: "CS Dojo",
     primaryLink: {
       title: "Hash Table – LeetCode Explore Card",
       url: "https://leetcode.com/explore/learn/card/hash-table/"
@@ -300,8 +300,8 @@ export const resourceLibrary = {
     }
   },
   heaps: {
-    youtubeId: "HqPJF2L5h9U",
-    creator: "NeetCode",
+    youtubeId: "t0Cq6tVNRBA",
+    creator: "William Fiset",
     primaryLink: {
       title: "Heaps – GeeksforGeeks",
       url: "https://www.geeksforgeeks.org/heap-data-structure/"
@@ -324,7 +324,7 @@ export const resourceLibrary = {
     }
   },
   matrices: {
-    youtubeId: "fMSJlpNu_aU",
+    youtubeId: "A_LkGd0SiKg",
     creator: "NeetCode",
     primaryLink: {
       title: "Matrix Problems – LeetCode",
@@ -344,8 +344,8 @@ export const resourceLibrary = {
     }
   },
   "trees-bst": {
-    youtubeId: "yR5Xn3_4-zI",
-    creator: "Take U Forward (Striver)",
+    youtubeId: "oSWTXtMglKE",
+    creator: "William Fiset",
     primaryLink: {
       title: "Binary Search Tree – LeetCode Explore Card",
       url: "https://leetcode.com/explore/learn/card/introduction-to-data-structure-binary-search-tree/"
@@ -368,8 +368,8 @@ export const resourceLibrary = {
     }
   },
   "tree-traversal": {
-    youtubeId: "BHB0B1jFKQc",
-    creator: "Take U Forward (Striver)",
+    youtubeId: "WLvU5ZuwqIk",
+    creator: "William Fiset",
     primaryLink: {
       title: "Binary Tree – LeetCode Explore Card",
       url: "https://leetcode.com/explore/learn/card/data-structure-tree/"
@@ -392,7 +392,7 @@ export const resourceLibrary = {
     }
   },
   "avl-trees": {
-    youtubeId: "jDM6_TnYIqE",
+    youtubeId: "q4fnJZr8ztY",
     creator: "Abdul Bari",
     primaryLink: {
       title: "AVL Tree – GeeksforGeeks",
@@ -440,8 +440,8 @@ export const resourceLibrary = {
     }
   },
   graphs: {
-    youtubeId: "EgI5nU9etnU",
-    creator: "Take U Forward (Striver)",
+    youtubeId: "tWVWeAqZ0WU",
+    creator: "freeCodeCamp",
     primaryLink: {
       title: "Graph Theory – CP-Algorithms",
       url: "https://cp-algorithms.com/graph/breadth-first-search.html"
@@ -465,7 +465,7 @@ export const resourceLibrary = {
   },
   "dynamic-programming": {
     youtubeId: "oBt53YbR9Kk",
-    creator: "freeCodeCamp (Alvin Zablan)",
+    creator: "freeCodeCamp",
     primaryLink: {
       title: "DP Patterns – LeetCode Discuss",
       url: "https://leetcode.com/discuss/general-discussion/458695/dynamic-programming-patterns"
@@ -508,8 +508,8 @@ export const resourceLibrary = {
     }
   },
   "recursion-backtracking": {
-    youtubeId: "DKCbsiDBN6c",
-    creator: "Take U Forward (Striver)",
+    youtubeId: "A80YzvNwqXA",
+    creator: "NeetCode",
     primaryLink: {
       title: "Backtracking – LeetCode Explore",
       url: "https://leetcode.com/explore/learn/card/recursion-ii/"
@@ -533,7 +533,7 @@ export const resourceLibrary = {
   },
   "bit-manipulation": {
     youtubeId: "NLKQEOgBAnw",
-    creator: "NeetCode",
+    creator: "CS Dojo",
     primaryLink: {
       title: "Bit Manipulation – LeetCode Explore",
       url: "https://leetcode.com/explore/learn/card/graph/620/introduction-to-disjoint-sets/"
@@ -556,8 +556,8 @@ export const resourceLibrary = {
     }
   },
   "divide-conquer": {
-    youtubeId: "2Rr2tW9zvRg",
-    creator: "Abdul Bari",
+    youtubeId: "2FShdqn-Oz8",
+    creator: "William Fiset",
     primaryLink: {
       title: "Divide & Conquer – GeeksforGeeks",
       url: "https://www.geeksforgeeks.org/divide-and-conquer/"
@@ -580,8 +580,8 @@ export const resourceLibrary = {
     }
   },
   "disjoint-set": {
-    youtubeId: "aBxjDBC4M1U",
-    creator: "WilliamFiset",
+    youtubeId: "ibjEGG7q3Mk",
+    creator: "William Fiset",
     primaryLink: {
       title: "Disjoint Set Union – CP-Algorithms",
       url: "https://cp-algorithms.com/data_structures/disjoint_set_union.html"
@@ -605,7 +605,7 @@ export const resourceLibrary = {
   },
   "segment-tree": {
     youtubeId: "ZBHKZF5w4YU",
-    creator: "WilliamFiset",
+    creator: "William Fiset",
     primaryLink: {
       title: "Segment Tree – CP-Algorithms",
       url: "https://cp-algorithms.com/data_structures/segment_tree.html"
@@ -628,8 +628,8 @@ export const resourceLibrary = {
     }
   },
   "fenwick-tree": {
-    youtubeId: "uSFzHCZ4E-8",
-    creator: "WilliamFiset",
+    youtubeId: "RgITNht_f4Q",
+    creator: "William Fiset",
     primaryLink: {
       title: "Fenwick Tree – CP-Algorithms",
       url: "https://cp-algorithms.com/data_structures/fenwick.html"
@@ -676,8 +676,8 @@ export const resourceLibrary = {
     }
   },
   "bitwise-trie": {
-    youtubeId: "A3ZZHoJnGP8",
-    creator: "NeetCode",
+    youtubeId: "oSWTXtMglKE",
+    creator: "William Fiset",
     primaryLink: {
       title: "Maximum XOR – LeetCode",
       url: "https://leetcode.com/problems/maximum-xor-of-two-numbers-in-an-array/"
@@ -696,8 +696,8 @@ export const resourceLibrary = {
     }
   },
   "dijkstra-algo": {
-    youtubeId: "V6H1qAeB-l4",
-    creator: "WilliamFiset",
+    youtubeId: "pSqmAO-m7Lk",
+    creator: "William Fiset",
     primaryLink: {
       title: "Dijkstra – CP-Algorithms",
       url: "https://cp-algorithms.com/graph/dijkstra.html"
@@ -720,8 +720,8 @@ export const resourceLibrary = {
     }
   },
   "bellman-ford": {
-    youtubeId: "obWXjtg0L64",
-    creator: "Take U Forward (Striver)",
+    youtubeId: "lyw4FaxrwHg",
+    creator: "William Fiset",
     primaryLink: {
       title: "Bellman-Ford – CP-Algorithms",
       url: "https://cp-algorithms.com/graph/bellman_ford.html"
@@ -745,7 +745,7 @@ export const resourceLibrary = {
   },
   "floyd-warshall": {
     youtubeId: "4OQeCuLYj-4",
-    creator: "WilliamFiset",
+    creator: "William Fiset",
     primaryLink: {
       title: "Floyd-Warshall – CP-Algorithms",
       url: "https://cp-algorithms.com/graph/all-pair-shortest-path-floyd-warshall.html"
@@ -765,7 +765,7 @@ export const resourceLibrary = {
   },
   "kruskal-mst": {
     youtubeId: "JZBQLXgSGfs",
-    creator: "WilliamFiset",
+    creator: "William Fiset",
     primaryLink: {
       title: "Kruskal's MST – CP-Algorithms",
       url: "https://cp-algorithms.com/graph/mst_kruskal.html"
@@ -788,8 +788,8 @@ export const resourceLibrary = {
     }
   },
   "prim-mst": {
-    youtubeId: "cplfcGZmX7I",
-    creator: "WilliamFiset",
+    youtubeId: "jsmMtJpPnhU",
+    creator: "William Fiset",
     primaryLink: {
       title: "Prim's MST – CP-Algorithms",
       url: "https://cp-algorithms.com/graph/mst_prim.html"
