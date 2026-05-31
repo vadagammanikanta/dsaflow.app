@@ -295,27 +295,27 @@ export default function Visualizer() {
         /* Breakpoints for dynamic iframe height to crop footer */
         @media (max-width: 639px) {
           .dsa-iframe {
-            height: 4400px;
+            height: 5200px;
           }
         }
         @media (min-width: 640px) and (max-width: 1023px) {
           .dsa-iframe {
-            height: 2900px;
+            height: 3800px;
           }
         }
         @media (min-width: 1024px) and (max-width: 1279px) {
           .dsa-iframe {
-            height: 2200px;
+            height: 3500px;
           }
         }
         @media (min-width: 1280px) and (max-width: 1535px) {
           .dsa-iframe {
-            height: 1800px;
+            height: 3350px;
           }
         }
         @media (min-width: 1536px) {
           .dsa-iframe {
-            height: 1650px;
+            height: 3300px;
           }
         }
       `}</style>
