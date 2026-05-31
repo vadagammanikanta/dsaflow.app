@@ -12,7 +12,12 @@ export default function Header() {
   
   const [langOpen, setLangOpen] = useState(false);
   const [avatarOpen, setAvatarOpen] = useState(false);
-  const [theme, setTheme] = useState(localStorage.getItem('dsaflow_theme') || 'dark');
+  const [theme, setTheme] = useState(() => {
+    const saved = localStorage.getItem('dsaflow_theme') || 'dark';
+    // Apply immediately on first render
+    document.documentElement.setAttribute('data-theme', saved);
+    return saved;
+  });
   
   // Search state
   const [searchVal, setSearchVal] = useState('');
