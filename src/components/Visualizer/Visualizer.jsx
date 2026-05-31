@@ -7,6 +7,27 @@ import { initGraph, setGraphDelay as setGraphSpeed } from '../../../modules/visu
 export default function Visualizer() {
   const [source, setSource] = useState('visualgo'); // 'visualgo' by default, or 'native'
   const [visualgoAlgo, setVisualgoAlgo] = useState('sorting');
+  const [theme, setTheme] = useState(() => {
+    return document.documentElement.getAttribute('data-theme') || localStorage.getItem('dsaflow_theme') || 'dark';
+  });
+
+  useEffect(() => {
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.attributeName === 'data-theme') {
+          const newTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+          setTheme(newTheme);
+        }
+      });
+    });
+
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['data-theme']
+    });
+
+    return () => observer.disconnect();
+  }, []);
   
   const initialized = useRef(false);
 
@@ -126,10 +147,23 @@ export default function Visualizer() {
           >
             💻 dsa.flow (Native)
           </button>
+          <button 
+            className="btn" 
+            onClick={() => setSource('dsavisualizer')} 
+            style={{ 
+              padding: '6px 16px', 
+              fontSize: '0.8rem', 
+              borderRadius: '50px',
+              background: source === 'dsavisualizer' ? 'var(--accent-purple)' : 'transparent',
+              color: source === 'dsavisualizer' ? '#fff' : 'var(--text-secondary)'
+            }}
+          >
+            🌐 DSA Visualizer
+          </button>
         </div>
       </div>
 
-      {source === 'visualgo' ? (
+      {source === 'visualgo' && (
         /* VisuAlgo Enriched Visualizer Section */
         <div className="visualizer-workspace" style={{ display: 'flex', flexDirection: 'column', gap: '16px', height: 'auto' }}>
           <div className="card" style={{ padding: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -172,7 +206,9 @@ export default function Visualizer() {
             />
           </div>
         </div>
-      ) : (
+      )}
+
+      {source === 'native' && (
         /* Native Visualizer Section */
         <div className="visualizer-workspace">
           <div className="canvas-container">
@@ -240,6 +276,36 @@ export default function Visualizer() {
               <h3 style={{ marginBottom: '12px' }}>Pseudocode Trace</h3>
               <div style={{ flexGrow: 1, overflowY: 'auto', background: 'var(--code-bg)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-glass)', padding: '12px' }} id="pseudocode-container"></div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {source === 'dsavisualizer' && (
+        /* DSA Visualizer Section */
+        <div className="visualizer-workspace" style={{ display: 'flex', flexDirection: 'column', gap: '16px', height: 'auto' }}>
+          <div style={{ 
+            position: 'relative', 
+            width: '100%', 
+            height: 'calc(100vh - var(--header-height) - 180px)', 
+            overflow: 'hidden',
+            borderRadius: 'var(--radius-lg)',
+            border: '1px solid var(--border-glass)',
+            background: 'var(--bg-card)'
+          }}>
+            <iframe 
+              src="https://www.dsavisualizer.in/visualizer" 
+              style={{ 
+                position: 'absolute',
+                top: '-76px', // Hide the top navigation bar
+                left: '0',
+                width: '100%', 
+                height: 'calc(100% + 76px)', // Shift up by 76px to compensate and crop the header
+                border: 'none',
+                colorScheme: theme === 'dark' ? 'dark' : 'light'
+              }}
+              title="DSA Visualizer"
+              sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+            />
           </div>
         </div>
       )}
