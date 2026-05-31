@@ -1,8 +1,42 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { initSorting, setDelay as setSortingSpeed } from '../../../modules/visualizers/sorting';
-import { initDS as initStructures } from '../../../modules/visualizers/structures';
-import { initBST, setBSTDelay as setBSTSpeed } from '../../../modules/visualizers/bst';
-import { initGraph, setGraphDelay as setGraphSpeed } from '../../../modules/visualizers/graph';
+import { 
+  initSorting, 
+  setDelay as setSortingSpeed,
+  play as playSort,
+  pause as pauseSort,
+  step as stepSort,
+  generateRandomArray,
+  isCurrentlyPlaying as isSortPlaying
+} from '../../../modules/visualizers/sorting';
+import { 
+  initDS as initStructures,
+  pushStack,
+  popStack,
+  enqueueQueue,
+  dequeueQueue,
+  insertHeadList,
+  deleteHeadList,
+  searchList
+} from '../../../modules/visualizers/structures';
+import { 
+  initBST, 
+  setBSTDelay as setBSTSpeed,
+  playBST,
+  pauseBST,
+  stepBSTForward,
+  isBSTPlaying,
+  bstInsert,
+  bstDelete,
+  bstSearch
+} from '../../../modules/visualizers/bst';
+import { 
+  initGraph, 
+  setGraphDelay as setGraphSpeed,
+  playGraph,
+  pauseGraph,
+  stepGraphForward,
+  isGraphPlaying
+} from '../../../modules/visualizers/graph';
 
 export default function Visualizer() {
   const [source, setSource] = useState('visualgo'); // 'visualgo' by default, or 'native'
@@ -10,6 +44,7 @@ export default function Visualizer() {
   const [theme, setTheme] = useState(() => {
     return document.documentElement.getAttribute('data-theme') || localStorage.getItem('dsaflow_theme') || 'dark';
   });
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   useEffect(() => {
     const observer = new MutationObserver((mutations) => {
@@ -35,14 +70,15 @@ export default function Visualizer() {
     if (source === 'native') {
       // Initialize the default native visualizer
       setTimeout(() => {
-        initSorting();
-
         const select = document.getElementById('visualizer-select');
         const speedSlider = document.getElementById('speed-slider');
         const title = document.getElementById('visualizer-title');
-        
+        const viewportContainer = document.getElementById('viewport');
+
+        initSorting(viewportContainer);
+
         if (select) {
-          select.addEventListener('change', (e) => {
+          const handleSelectChange = (e) => {
             const val = e.target.value;
             const opt = e.target.options[e.target.selectedIndex].text;
             if (title) title.textContent = opt;
@@ -61,31 +97,143 @@ export default function Visualizer() {
             const btnGen = document.getElementById('btn-generate');
             if (btnGen) btnGen.style.display = (val.startsWith('ds-') || val.startsWith('graph-')) ? 'none' : 'block';
 
+            // Show play/pause and step buttons by default (structures hides them)
+            const playPauseBtn = document.getElementById('btn-play-pause');
+            const stepBtn = document.getElementById('btn-step');
+            if (playPauseBtn) playPauseBtn.style.display = 'inline-flex';
+            if (stepBtn) stepBtn.style.display = 'inline-flex';
+
             if (val.startsWith('sort-')) {
               document.getElementById('array-container').style.display = 'flex';
-              initSorting();
+              initSorting(viewportContainer);
             } else if (val === 'ds-stack' || val === 'ds-queue' || val === 'ds-linkedlist') {
               document.getElementById('struct-container').style.display = 'flex';
-              document.getElementById('ds-controls-group').style.display = 'flex';
-              initStructures();
+              initStructures(viewportContainer, val);
             } else if (val === 'ds-bst') {
+              initBST(viewportContainer);
               document.getElementById('ds-controls-group').style.display = 'flex';
-              initBST();
+              if (playPauseBtn) playPauseBtn.style.display = 'inline-flex';
+              if (stepBtn) stepBtn.style.display = 'inline-flex';
+              if (btnGen) btnGen.style.display = 'none';
+              const searchBtn = document.getElementById('ds-btn-search');
+              if (searchBtn) searchBtn.style.display = 'inline-flex';
             } else if (val.startsWith('graph-')) {
-              initGraph();
+              if (playPauseBtn) playPauseBtn.style.display = 'inline-flex';
+              if (stepBtn) stepBtn.style.display = 'inline-flex';
+              if (btnGen) btnGen.style.display = 'none';
+              initGraph(viewportContainer);
             }
-          });
+          };
+
+          select.addEventListener('change', handleSelectChange);
         }
 
         if (speedSlider) {
-          speedSlider.addEventListener('input', (e) => {
+          const handleSpeedChange = (e) => {
             const val = parseInt(e.target.value);
             document.getElementById('speed-label').textContent = val + 'ms';
             setSortingSpeed(val);
             setBSTSpeed(val);
             setGraphSpeed(val);
-          });
+          };
+          speedSlider.addEventListener('input', handleSpeedChange);
         }
+
+        // Bind Play/Pause
+        const playPauseBtn = document.getElementById('btn-play-pause');
+        const handlePlayPause = () => {
+          const val = select ? select.value : 'sort-bubble';
+          if (val.startsWith('sort-')) {
+            if (isSortPlaying()) pauseSort();
+            else playSort();
+          } else if (val === 'ds-bst') {
+            if (isBSTPlaying()) pauseBST();
+            else playBST();
+          } else if (val.startsWith('graph-')) {
+            if (isGraphPlaying()) pauseGraph();
+            else playGraph();
+          }
+        };
+        if (playPauseBtn) playPauseBtn.addEventListener('click', handlePlayPause);
+
+        // Bind Step
+        const stepBtn = document.getElementById('btn-step');
+        const handleStep = () => {
+          const val = select ? select.value : 'sort-bubble';
+          if (val.startsWith('sort-')) {
+            stepSort();
+          } else if (val === 'ds-bst') {
+            stepBSTForward();
+          } else if (val.startsWith('graph-')) {
+            stepGraphForward();
+          }
+        };
+        if (stepBtn) stepBtn.addEventListener('click', handleStep);
+
+        // Bind Generate New Array
+        const generateBtn = document.getElementById('btn-generate');
+        const handleGenerate = () => {
+          const val = select ? select.value : 'sort-bubble';
+          if (val.startsWith('sort-')) {
+            generateRandomArray();
+          }
+        };
+        if (generateBtn) generateBtn.addEventListener('click', handleGenerate);
+
+        // Bind DS Control - Insert
+        const insertBtn = document.getElementById('ds-btn-insert');
+        const handleInsert = () => {
+          const val = select ? select.value : 'ds-stack';
+          const inputEl = document.getElementById('ds-input-val');
+          const num = parseInt(inputEl.value, 10);
+          if (isNaN(num) || num < 0 || num > 99) {
+            alert('Please enter a valid value between 0 and 99.');
+            return;
+          }
+          if (val === 'ds-stack') pushStack(num);
+          else if (val === 'ds-queue') enqueueQueue(num);
+          else if (val === 'ds-linkedlist') insertHeadList(num);
+          else if (val === 'ds-bst') bstInsert(num);
+          inputEl.value = '';
+        };
+        if (insertBtn) insertBtn.addEventListener('click', handleInsert);
+
+        // Bind DS Control - Remove
+        const removeBtn = document.getElementById('ds-btn-remove');
+        const handleRemove = () => {
+          const val = select ? select.value : 'ds-stack';
+          if (val === 'ds-stack') popStack();
+          else if (val === 'ds-queue') dequeueQueue();
+          else if (val === 'ds-linkedlist') deleteHeadList();
+          else if (val === 'ds-bst') {
+            const inputEl = document.getElementById('ds-input-val');
+            const num = parseInt(inputEl.value, 10);
+            if (isNaN(num)) {
+              alert('Please enter the value to delete from the BST.');
+              return;
+            }
+            bstDelete(num);
+            inputEl.value = '';
+          }
+        };
+        if (removeBtn) removeBtn.addEventListener('click', handleRemove);
+
+        // Bind DS Control - Search
+        const searchBtn = document.getElementById('ds-btn-search');
+        const handleSearch = () => {
+          const val = select ? select.value : 'ds-linkedlist';
+          const inputEl = document.getElementById('ds-input-val');
+          const num = parseInt(inputEl.value, 10);
+          if (isNaN(num)) {
+            alert('Please enter the search value.');
+            return;
+          }
+          if (val === 'ds-linkedlist') searchList(num);
+          else if (val === 'ds-bst') bstSearch(num);
+          inputEl.value = '';
+        };
+        if (searchBtn) searchBtn.addEventListener('click', handleSearch);
+
       }, 50);
     }
   }, [source]);
@@ -111,8 +259,66 @@ export default function Visualizer() {
     'ufds': 'Union-Find Disjoint Sets'
   };
 
+  const workspaceHeight = isFullscreen ? 'calc(100vh - 120px)' : 'calc(100vh - var(--header-height) - 180px)';
+
   return (
-    <div className="tab-pane active" id="visualizer" style={{ height: '100%', overflowY: 'auto' }}>
+    <div 
+      className={`tab-pane active ${isFullscreen ? 'visualizer-fullscreen' : ''}`} 
+      id="visualizer" 
+      style={{ height: '100%', overflowY: isFullscreen ? 'hidden' : 'auto' }}
+    >
+      <style>{`
+        .visualizer-fullscreen {
+          position: fixed !important;
+          top: 0 !important;
+          left: 0 !important;
+          width: 100vw !important;
+          height: 100vh !important;
+          z-index: 99999 !important;
+          background: var(--bg-app) !important;
+          padding: 24px !important;
+          display: flex !important;
+          flex-direction: column !important;
+          gap: 16px !important;
+          box-sizing: border-box !important;
+        }
+        .visualizer-fullscreen .visualizer-workspace {
+          height: calc(100% - 60px) !important;
+        }
+        .dsa-iframe {
+          position: absolute;
+          top: -76px;
+          left: 0;
+          width: 100%;
+          border: none;
+        }
+        /* Breakpoints for dynamic iframe height to crop footer */
+        @media (max-width: 639px) {
+          .dsa-iframe {
+            height: 4400px;
+          }
+        }
+        @media (min-width: 640px) and (max-width: 1023px) {
+          .dsa-iframe {
+            height: 2900px;
+          }
+        }
+        @media (min-width: 1024px) and (max-width: 1279px) {
+          .dsa-iframe {
+            height: 2200px;
+          }
+        }
+        @media (min-width: 1280px) and (max-width: 1535px) {
+          .dsa-iframe {
+            height: 1800px;
+          }
+        }
+        @media (min-width: 1536px) {
+          .dsa-iframe {
+            height: 1650px;
+          }
+        }
+      `}</style>
       
       {/* Source Toggle Selector */}
       <div className="section-header" style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
@@ -120,45 +326,65 @@ export default function Visualizer() {
           <h2 style={{ fontSize: '1.4rem' }}>Interactive Algorithm Visualizer</h2>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.82rem', marginTop: '4px' }}>Analyze structures, execution flow and complex dry-runs.</p>
         </div>
-        <div style={{ display: 'flex', background: 'var(--bg-input)', border: '1px solid var(--border-glass)', borderRadius: '50px', padding: '4px', gap: '4px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', background: 'var(--bg-input)', border: '1px solid var(--border-glass)', borderRadius: '50px', padding: '4px', gap: '4px' }}>
+            <button 
+              className="btn" 
+              onClick={() => setSource('visualgo')} 
+              style={{ 
+                padding: '6px 16px', 
+                fontSize: '0.8rem', 
+                borderRadius: '50px',
+                background: source === 'visualgo' ? 'var(--accent-purple)' : 'transparent',
+                color: source === 'visualgo' ? '#fff' : 'var(--text-secondary)'
+              }}
+            >
+              🌐 VisuAlgo (Enriched)
+            </button>
+            <button 
+              className="btn" 
+              onClick={() => setSource('native')} 
+              style={{ 
+                padding: '6px 16px', 
+                fontSize: '0.8rem', 
+                borderRadius: '50px',
+                background: source === 'native' ? 'var(--accent-purple)' : 'transparent',
+                color: source === 'native' ? '#fff' : 'var(--text-secondary)'
+              }}
+            >
+              💻 dsa.flow (Native)
+            </button>
+            <button 
+              className="btn" 
+              onClick={() => setSource('dsavisualizer')} 
+              style={{ 
+                padding: '6px 16px', 
+                fontSize: '0.8rem', 
+                borderRadius: '50px',
+                background: source === 'dsavisualizer' ? 'var(--accent-purple)' : 'transparent',
+                color: source === 'dsavisualizer' ? '#fff' : 'var(--text-secondary)'
+              }}
+            >
+              🌐 DSA Visualizer
+            </button>
+          </div>
+          
           <button 
-            className="btn" 
-            onClick={() => setSource('visualgo')} 
+            className="btn btn-secondary" 
+            onClick={() => setIsFullscreen(!isFullscreen)} 
             style={{ 
               padding: '6px 16px', 
               fontSize: '0.8rem', 
               borderRadius: '50px',
-              background: source === 'visualgo' ? 'var(--accent-purple)' : 'transparent',
-              color: source === 'visualgo' ? '#fff' : 'var(--text-secondary)'
+              border: '1px solid var(--border-glass)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              background: isFullscreen ? 'var(--accent-purple)' : 'var(--bg-input)',
+              color: isFullscreen ? '#fff' : 'var(--text-primary)'
             }}
           >
-            🌐 VisuAlgo (Enriched)
-          </button>
-          <button 
-            className="btn" 
-            onClick={() => setSource('native')} 
-            style={{ 
-              padding: '6px 16px', 
-              fontSize: '0.8rem', 
-              borderRadius: '50px',
-              background: source === 'native' ? 'var(--accent-purple)' : 'transparent',
-              color: source === 'native' ? '#fff' : 'var(--text-secondary)'
-            }}
-          >
-            💻 dsa.flow (Native)
-          </button>
-          <button 
-            className="btn" 
-            onClick={() => setSource('dsavisualizer')} 
-            style={{ 
-              padding: '6px 16px', 
-              fontSize: '0.8rem', 
-              borderRadius: '50px',
-              background: source === 'dsavisualizer' ? 'var(--accent-purple)' : 'transparent',
-              color: source === 'dsavisualizer' ? '#fff' : 'var(--text-secondary)'
-            }}
-          >
-            🌐 DSA Visualizer
+            {isFullscreen ? '🗗 Exit Full' : '🗖 Fullscreen'}
           </button>
         </div>
       </div>
@@ -198,7 +424,7 @@ export default function Visualizer() {
               src={`https://visualgo.net/en/${visualgoAlgo}`} 
               style={{ 
                 width: '100%', 
-                height: 'calc(100vh - var(--header-height) - 180px)', 
+                height: workspaceHeight, 
                 border: 'none'
               }}
               title="VisuAlgo Enriched"
@@ -210,7 +436,7 @@ export default function Visualizer() {
 
       {source === 'native' && (
         /* Native Visualizer Section */
-        <div className="visualizer-workspace">
+        <div className="visualizer-workspace" style={{ height: workspaceHeight }}>
           <div className="canvas-container">
             <div className="canvas-header">
               <h2 id="visualizer-title">Bubble Sort</h2>
@@ -286,20 +512,22 @@ export default function Visualizer() {
           <div style={{ 
             position: 'relative', 
             width: '100%', 
-            height: 'calc(100vh - var(--header-height) - 180px)', 
-            overflow: 'hidden',
+            height: workspaceHeight, 
+            overflowY: 'auto',
+            overflowX: 'hidden',
             borderRadius: 'var(--radius-lg)',
             border: '1px solid var(--border-glass)',
             background: 'var(--bg-card)'
           }}>
             <iframe 
               src="https://www.dsavisualizer.in/visualizer" 
+              scrolling="no"
+              className="dsa-iframe"
               style={{ 
                 position: 'absolute',
                 top: '-76px', // Hide the top navigation bar
                 left: '0',
                 width: '100%', 
-                height: 'calc(100% + 76px + 300px)', // Shift up by 76px to hide header, and add 300px at bottom to crop the footer
                 border: 'none',
                 colorScheme: theme === 'dark' ? 'dark' : 'light'
               }}
