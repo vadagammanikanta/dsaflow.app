@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { DSAQuizEngine } from '../../../modules/learning/gemini-code-1780222651558';
 
 
 // Mappings of standard problems to files in vineethm1627/SDE_Sheet_Striver repository
@@ -256,16 +257,26 @@ function InteractiveQuiz({ lesson }) {
   const [quizCompleted, setQuizCompleted] = useState(false);
   const [answersHistory, setAnswersHistory] = useState([]);
   const [hoveredOpt, setHoveredOpt] = useState(null);
+  const [results, setResults] = useState(null);
+
+  const engine = useMemo(() => {
+    return new DSAQuizEngine(lesson, (res) => {
+      setResults(res);
+    });
+  }, [lesson]);
 
   const handleOptionClick = (optIdx) => {
     if (answered) return;
+    const ansResult = engine.submitAnswer(optIdx);
+    if (!ansResult) return;
+
     setAnswered(true);
     setSelectedOpt(optIdx);
-    const correctIdx = lesson.questions[currentIdx].answer;
-    const isCorrect = optIdx === correctIdx;
-    if (isCorrect) {
-      setScore(s => s + 1);
-    }
+    setScore(engine.score);
+
+    const isCorrect = ansResult.isCorrect;
+    const correctIdx = ansResult.correctIndex;
+    
     setAnswersHistory(prev => [...prev, {
       questionIdx: currentIdx,
       selected: optIdx,
@@ -275,8 +286,9 @@ function InteractiveQuiz({ lesson }) {
   };
 
   const handleNext = () => {
-    if (currentIdx < lesson.questions.length - 1) {
-      setCurrentIdx(currentIdx + 1);
+    const hasNext = engine.next();
+    if (hasNext) {
+      setCurrentIdx(engine.currentIndex);
       setAnswered(false);
       setSelectedOpt(null);
       setHoveredOpt(null);
@@ -287,6 +299,7 @@ function InteractiveQuiz({ lesson }) {
   };
 
   const handleRestart = () => {
+    engine.reset();
     setCurrentIdx(0);
     setSelectedOpt(null);
     setAnswered(false);
@@ -294,6 +307,7 @@ function InteractiveQuiz({ lesson }) {
     setQuizCompleted(false);
     setAnswersHistory([]);
     setHoveredOpt(null);
+    setResults(null);
   };
 
   const currentQuestion = lesson.questions[currentIdx];
@@ -309,9 +323,14 @@ function InteractiveQuiz({ lesson }) {
         <h2 style={{ fontSize: '2rem', color: 'var(--text-primary)', marginBottom: '8px' }}>
           Quiz Completed!
         </h2>
-        <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem', marginBottom: '24px' }}>
+        <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem', marginBottom: '16px' }}>
           You scored <strong style={{ color: scorePercent >= 60 ? 'var(--accent-emerald)' : 'var(--accent-rose)', fontSize: '1.6rem' }}>{score}</strong> out of {lesson.questions.length}
         </p>
+        {results?.feedback && (
+          <p style={{ color: 'var(--text-secondary)', fontSize: '1.05rem', marginBottom: '24px', fontWeight: '500', fontStyle: 'italic' }}>
+            {results.feedback}
+          </p>
+        )}
 
         <div style={{ 
           background: 'rgba(255, 255, 255, 0.02)', 
@@ -476,10 +495,6 @@ export default function LessonViewer({ lesson }) {
   const navigate = useNavigate();
   const contentRef = useRef(null);
 
-  if (lesson && lesson.type === 'quiz') {
-    return <InteractiveQuiz lesson={lesson} />;
-  }
-
 
 
   // Dynamically parse Time and Space complexity from the HTML curriculum details
@@ -612,6 +627,10 @@ export default function LessonViewer({ lesson }) {
       contentRef.current.innerHTML = `<p>${lesson.summary || ''}</p>`;
     }
   }, [lesson]);
+
+  if (lesson && lesson.type === 'quiz') {
+    return <InteractiveQuiz lesson={lesson} />;
+  }
 
   return (
     <div className="card" style={{ padding: '30px', maxWidth: '800px', margin: '0 auto', background: 'var(--bg-card)', borderRadius: '12px', border: '1px solid var(--border-glass)' }}>
