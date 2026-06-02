@@ -1,6 +1,6 @@
 export const resourceLibrary = {
   "language-syntax": {
-    youtubeId: "zOjov-2OZ0E",
+    youtubeId: "kqtD5dpn9C8",
     creator: "Programming with Mosh",
     primaryLink: {
       title: "Python for Beginners – Official Docs",
@@ -88,8 +88,8 @@ export const resourceLibrary = {
     }
   },
   "recursion-intro": {
-    youtubeId: "IJDJ0kBx2LM",
-    creator: "freeCodeCamp",
+    youtubeId: "yVdKa8dnKiE",
+    creator: "Take U Forward (Striver)",
     primaryLink: {
       title: "Recursion – GeeksforGeeks",
       url: "https://www.geeksforgeeks.org/recursion/"
@@ -136,8 +136,8 @@ export const resourceLibrary = {
     }
   },
   "asymptotic-notation": {
-    youtubeId: "0oDAlMwTrLo",
-    creator: "MIT OpenCourseWare",
+    youtubeId: "A03oI0znAoc",
+    creator: "Abdul Bari",
     primaryLink: {
       title: "Asymptotic Analysis – GeeksforGeeks",
       url: "https://www.geeksforgeeks.org/analysis-of-algorithms-set-3asymptotic-notations/"
@@ -156,8 +156,8 @@ export const resourceLibrary = {
     }
   },
   arrays: {
-    youtubeId: "Qmt0QwzEmh0",
-    creator: "William Fiset",
+    youtubeId: "PEnFFiQe1pM",
+    creator: "WilliamFiset",
     primaryLink: {
       title: "Arrays – LeetCode Explore Card",
       url: "https://leetcode.com/explore/learn/card/fun-with-arrays/"
@@ -180,7 +180,7 @@ export const resourceLibrary = {
     }
   },
   strings: {
-    youtubeId: "Yyf9bWz7G2E",
+    youtubeId: "wiGpQwVHdE0",
     creator: "NeetCode",
     primaryLink: {
       title: "Strings – LeetCode Explore Card",
@@ -324,7 +324,7 @@ export const resourceLibrary = {
     }
   },
   matrices: {
-    youtubeId: "A_LkGd0SiKg",
+    youtubeId: "BJnMZNwUk1M",
     creator: "NeetCode",
     primaryLink: {
       title: "Matrix Problems – LeetCode",
@@ -368,8 +368,8 @@ export const resourceLibrary = {
     }
   },
   "tree-traversal": {
-    youtubeId: "WLvU5ZuwqIk",
-    creator: "William Fiset",
+    youtubeId: "gm8DUJJhmY4",
+    creator: "mycodeschool",
     primaryLink: {
       title: "Binary Tree – LeetCode Explore Card",
       url: "https://leetcode.com/explore/learn/card/data-structure-tree/"
@@ -556,8 +556,8 @@ export const resourceLibrary = {
     }
   },
   "divide-conquer": {
-    youtubeId: "2FShdqn-Oz8",
-    creator: "William Fiset",
+    youtubeId: "2Rr2tW9zvRg",
+    creator: "Abdul Bari",
     primaryLink: {
       title: "Divide & Conquer – GeeksforGeeks",
       url: "https://www.geeksforgeeks.org/divide-and-conquer/"
@@ -580,8 +580,8 @@ export const resourceLibrary = {
     }
   },
   "disjoint-set": {
-    youtubeId: "ibjEGG7q3Mk",
-    creator: "William Fiset",
+    youtubeId: "ibjEGG7ylHk",
+    creator: "WilliamFiset",
     primaryLink: {
       title: "Disjoint Set Union – CP-Algorithms",
       url: "https://cp-algorithms.com/data_structures/disjoint_set_union.html"
@@ -676,8 +676,8 @@ export const resourceLibrary = {
     }
   },
   "bitwise-trie": {
-    youtubeId: "oSWTXtMglKE",
-    creator: "William Fiset",
+    youtubeId: "oobqoCJlHA0",
+    creator: "NeetCode",
     primaryLink: {
       title: "Maximum XOR – LeetCode",
       url: "https://leetcode.com/problems/maximum-xor-of-two-numbers-in-an-array/"
