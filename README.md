@@ -1,39 +1,42 @@
 <div align="center">
 
-<img src="public/favicon.svg" alt="dsa.flow logo" width="80" height="80" />
+<img src="public/favicon.svg" alt="dsa.flow logo" width="90" height="90" />
 
-# dsa.flow (DSA Learning Hub)
+# dsa.flow
 
 ### 🚀 Master Data Structures & Algorithms — The Smart Way
 
-[![Live Demo](https://img.shields.io/badge/🌐_Live_Demo-dsa.flow-7c4dff?style=for-the-badge&logoColor=white)](https://dsa-learning-hub-delta.vercel.app)
+[![Live Demo](https://img.shields.io/badge/🌐_Live_App-dsa.flow-7c4dff?style=for-the-badge&logoColor=white)](https://dsa-learning-hub-delta.vercel.app)
 [![React](https://img.shields.io/badge/React_19-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev)
 [![Vite](https://img.shields.io/badge/Vite_8-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev)
 [![Firebase](https://img.shields.io/badge/Firebase-FF6F00?style=for-the-badge&logo=firebase&logoColor=white)](https://firebase.google.com)
 [![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://vercel.com)
+[![Resend](https://img.shields.io/badge/Resend-000000?style=for-the-badge&logo=mail&logoColor=white)](https://resend.com)
 
-*An elite, structured DSA platform built for FAANG placement preparation — with a 3D visualizer, Monaco IDE, roadmap tracker, and placement quiz engine.*
+*An elite, full-stack DSA platform built for FAANG placement preparation — featuring a 3D algorithm visualizer, Monaco IDE, AI tutor, curriculum tracker, placement quiz engine, and a complete admin system with Resend-powered email broadcasting.*
 
 </div>
 
 ---
 
-## ✨ Features
+## ✨ Feature Overview
 
 | Feature | Description |
 |---|---|
-| 🗺️ **Elite A-Z Roadmap** | 450+ curated problems across 16 learning steps, organized by pattern |
-| 🧠 **Interactive 3D Visualizers** | Animated visual representations of Sorting, Trees, Graphs, and more |
-| 💻 **Monaco Code Editor** | VS Code-powered IDE with multi-language support (C++, Python, Java, JS, Go…) |
-| ⚡ **Live Code Execution** | Run and test code instantly via sandboxed cloud compilation |
-| 🎨 **Premium UI Themes** | Refined modern dark theme and a redesigned, accessible light theme using a soft violet-indigo system |
-| 📝 **Prism Syntax Highlighter** | High-performance code tokenization with VS Code vscDarkPlus styling and a copy-code utility |
-| 🎯 **Placement Quiz Engine** | Test your knowledge with timed quizzes and track high scores |
-| 📈 **Progress Tracking** | Lessons completed, quiz scores, and learning history synced to cloud |
-| 🔐 **Firebase Auth** | Secure email/password authentication with a 24-hour free trial |
+| 🗺️ **Elite A-Z Roadmap** | 450+ curated problems across 35 DSA modules organized by topic and pattern |
+| 📚 **Learning Hub** | 35 topic modules with embedded YouTube videos (verified working), theory, and resources |
+| 🧠 **3D Algorithm Visualizer** | Real-time animated visual representations of Sorting, Trees, Graphs, and more |
+| 💻 **Monaco Coding Arena** | VS Code-powered IDE with multi-language support — C++, Python, Java, JavaScript, Go |
+| ⚡ **Live Code Execution** | Run and test code instantly via sandboxed cloud compilation (Wandbox API) |
+| 🤖 **AI Tutor (Gemini)** | Personalized DSA interview coaching powered by Google Gemini |
+| 🎯 **Placement Quiz Engine** | Timed quizzes with high-score tracking, mirroring real company assessments |
+| 📈 **Progress Tracking** | Module completion, quiz scores, and learning streaks synced to Firebase |
+| 🔐 **Firebase Auth** | Secure email/password authentication with 24-hour free trial system |
 | 💳 **Razorpay Payments** | One-click ₹99 lifetime premium upgrade with instant email confirmation |
-| 📧 **Automated Emails** | Welcome and upgrade notifications via Gmail SMTP |
-| 📊 **Admin Dashboard** | Secure API to view all users, revenue, and trial status |
+| 📧 **Resend Email System** | Welcome, upgrade, and admin broadcast emails via Resend API |
+| 📊 **Admin Dashboard** | Full CRUD user management, support tickets, broadcast emails, and analytics |
+| 🎫 **Support Ticket System** | Users submit tickets; admin resolves them from the dashboard |
+| 📱 **Mobile-Ready** | Capacitor integration for Android deployment |
 
 ---
 
@@ -43,15 +46,17 @@
 
 | Layer | Technology |
 |---|---|
-| **Frontend** | React 19, React Router, React Syntax Highlighter |
+| **Frontend** | React 19, React Router v7, React Syntax Highlighter |
 | **Build Tool** | Vite 8 |
 | **Code Editor** | Monaco Editor (`@monaco-editor/react`) |
 | **Database** | Firebase Firestore |
 | **Authentication** | Firebase Auth (Email/Password) |
-| **Backend API** | Vercel Serverless Functions |
-| **Email** | Nodemailer + Gmail SMTP |
+| **Backend API** | Vercel Serverless Functions (Node.js) |
+| **Transactional Email** | Resend API |
 | **Payments** | Razorpay (Live) |
 | **Code Execution** | Wandbox API (sandboxed) |
+| **AI** | Google Gemini API |
+| **Mobile** | Capacitor (Android) |
 | **Deployment** | Vercel |
 
 </div>
@@ -62,29 +67,42 @@
 
 ```
 dsa-learning-hub/
-├── api/                      # Vercel Serverless Functions
-│   ├── send-email.js         # Welcome & upgrade email handler
-│   ├── send-bulk-emails.js   # Admin bulk email endpoint
-│   ├── admin-stats.js        # Admin dashboard data API
-│   └── execute.js            # Code compilation proxy (Wandbox)
+├── api/                          # Vercel Serverless Functions
+│   ├── route.js                  # Resend test/reference email route
+│   ├── send-email.js             # Welcome & upgrade emails via Resend
+│   ├── send-bulk-emails.js       # Admin broadcast with Resend + targeting
+│   ├── admin-stats.js            # Admin dashboard data API
+│   ├── admin-action.js           # User upgrade & ticket resolution
+│   ├── ai-chat.js                # Gemini AI tutor endpoint
+│   ├── execute.js                # Code compilation proxy (Wandbox)
+│   └── support-ticket.js         # Support ticket submission
 │
-├── modules/                  # Core application modules
-│   ├── auth/auth.js          # Firebase Auth + localStorage fallback
-│   ├── learning/             # A-Z DSA curriculum content
-│   ├── payment/payment.js    # Razorpay checkout integration
-│   ├── visualizers/          # 3D algorithm animations
-│   ├── arena/                # Coding arena (IDE + execution)
-│   └── ide/                  # Monaco editor config
+├── modules/                      # Core application logic
+│   ├── auth/auth.js              # Firebase Auth + support ticket helpers
+│   ├── learning/                 # A-Z DSA curriculum content & video links
+│   ├── payment/payment.js        # Razorpay checkout integration
+│   ├── visualizers/              # 3D algorithm animations
+│   ├── arena/                    # Coding arena (IDE + execution)
+│   └── ide/                      # Monaco editor configuration
 │
 ├── src/
-│   ├── components/           # Reusable React components
-│   ├── context/AuthContext.jsx  # Global auth state provider
-│   ├── App.jsx               # Main app with routing
-│   └── main.jsx              # Entry point
+│   ├── components/
+│   │   ├── Admin/                # Admin Dashboard (users, tickets, broadcast)
+│   │   ├── AI/                   # AI Tutor interface
+│   │   ├── Arena/                # Coding Arena UI
+│   │   ├── IDE/                  # Monaco editor component
+│   │   ├── Learning/             # Learning Hub + resource library
+│   │   ├── Quiz/                 # Placement quiz engine
+│   │   ├── Support/              # Support ticket UI
+│   │   └── Visualizer/           # Algorithm visualizer UI
+│   ├── context/AuthContext.jsx   # Global auth state provider
+│   ├── App.jsx                   # Main app with routing
+│   └── main.jsx                  # Entry point
 │
-├── public/                   # Static assets and favicon
-├── index.html                # Root HTML with Firebase CDN scripts
-└── vite.config.js            # Vite config with dev email simulation
+├── public/                       # Static assets & favicon
+├── index.html                    # Root HTML
+├── vercel.json                   # Vercel routing config
+└── vite.config.js                # Vite build config
 ```
 
 ---
@@ -93,12 +111,13 @@ dsa-learning-hub/
 
 ### Prerequisites
 - Node.js 18+
-- A Firebase project ([create one here](https://console.firebase.google.com))
+- A Firebase project — [create one here](https://console.firebase.google.com)
+- A Resend account — [create one here](https://resend.com) *(free tier available)*
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/vadagammanikanta/DSA-Learning-Hub.git
-cd DSA-Learning-Hub
+git clone https://github.com/vadagammanikanta/dsa.flow.git
+cd dsa.flow
 ```
 
 ### 2. Install dependencies
@@ -113,7 +132,9 @@ const FIREBASE_CONFIG = {
   apiKey: "YOUR_API_KEY",
   authDomain: "YOUR_PROJECT.firebaseapp.com",
   projectId: "YOUR_PROJECT_ID",
-  // ...
+  storageBucket: "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
 };
 ```
 
@@ -121,70 +142,103 @@ const FIREBASE_CONFIG = {
 ```bash
 npm run dev
 ```
-
-The app will start at `http://localhost:5173`.
+The app starts at `http://localhost:5173`.
 
 ---
 
 ## 🌍 Deployment (Vercel)
 
 ### Environment Variables
-Add the following environment variables in your [Vercel Project Settings](https://vercel.com/docs/environment-variables):
+
+Add these in your [Vercel Project Settings → Environment Variables](https://vercel.com/docs/environment-variables):
 
 | Variable | Description |
 |---|---|
-| `EMAIL_USER` | Gmail address for sending emails (e.g. `noreply.yourapp@gmail.com`) |
-| `EMAIL_PASS` | Gmail App Password (16-character code from Google Account) |
-| `FIREBASE_SERVICE_ACCOUNT` | Full JSON content of your Firebase service account key |
-| `ADMIN_SECRET` | A strong secret key to protect the admin API endpoints |
+| `RESEND_API_KEY` | Your Resend API key — get it from [resend.com/api-keys](https://resend.com/api-keys) |
+| `FIREBASE_SERVICE_ACCOUNT` | Full JSON content of your Firebase service account key (minified) |
+| `ADMIN_SECRET` | A strong secret passphrase to protect admin API endpoints |
+| `VITE_RAZORPAY_KEY_ID` | Your Razorpay **public** key (client-side) |
+| `VITE_GEMINI_API_KEY` | Google Gemini API key for the AI Tutor |
 
 ### Deploy
 ```bash
-# Push to GitHub — Vercel auto-deploys on every push to main
+# Vercel auto-deploys on every push to main
 git push origin main
 ```
 
 ---
 
-## 🔒 Security Highlights
+## 📧 Email System (Resend)
 
-- **No secrets in source code** — All API keys and passwords use environment variables
-- **`service-account.json` and `scratch/` are gitignored** — Private credentials never reach GitHub
-- **Admin endpoints protected** — `/api/admin-stats` and `/api/send-bulk-emails` require a secret key
-- **Sandboxed code execution** — User code runs in isolated Wandbox containers, not on your server
-- **Firestore Security Rules** — User documents are read/write only by their authenticated owner
-- **Razorpay Key ID** — Only the public key is used client-side; the secret key stays server-side
+All transactional and broadcast emails are powered by **Resend API** — replacing the previous SMTP setup.
+
+| Trigger | Recipient | Email Content |
+|---|---|---|
+| User signs up | User | Welcome email with account details & trial info |
+| User signs up | Admin | New registration notification |
+| User upgrades to Premium | User | Payment confirmation with receipt ID & benefits |
+| User upgrades to Premium | Admin | New upgrade notification |
+| Admin broadcast | All / Premium / Free users | Custom announcement (Update / Promotion / Alert) |
+
+### ⚠️ Resend Domain Requirement
+On Resend's free plan, you can **only send to your own email** without a verified domain.  
+To broadcast to all users:
+1. Add your domain at [resend.com/domains](https://resend.com/domains)
+2. Complete DNS verification (~5 minutes)
+3. Update `FROM_ADDRESS` in `api/send-bulk-emails.js` to `noreply@yourdomain.com`
+4. Redeploy — broadcasting works instantly
+
+> **Tip:** Use the **🧪 Test Send** button in the Admin Dashboard to preview emails to your own inbox without domain verification.
 
 ---
 
-## 📬 Email Automation
+## 🎛️ Admin Dashboard
 
-dsa.flow sends automated emails at key moments:
+Access at `/admin` after logging in with the admin key.
 
-| Trigger | Recipients | Content |
-|---|---|---|
-| New user signs up | User + Admin | Welcome email with trial details |
-| User upgrades to Premium | User + Admin | Payment confirmation with transaction ID |
-| Admin bulk send | All users | Custom announcement / updates |
+| Tab | Features |
+|---|---|
+| 📊 **Overview** | Total users, premium count, revenue, trial expirations, system health |
+| 👥 **User Management** | Full user list with premium/free status, manual free upgrade action |
+| 🎫 **Support Tickets** | View & resolve all user-submitted support tickets |
+| ✉️ **Broadcast Emails** | Compose and send to All / Premium / Free users via Resend with type selector, preview mode, quick templates, and delivery results |
+| 🧠 **Intellectual AI** | Admin AI assistant for drafting emails and analyzing stats |
 
-All emails are sent from `noreply.dsa.flow@gmail.com` with support replies routed to `dsa.flow@outlook.com`.
+---
+
+## 🔒 Security Highlights
+
+- **No secrets in source code** — All API keys use Vercel environment variables
+- **`service-account.json` is gitignored** — Firebase private credentials never reach GitHub
+- **Admin endpoints protected** — All `/api/admin-*` routes require `ADMIN_SECRET` key validation
+- **Sandboxed code execution** — User code runs in isolated Wandbox containers
+- **Firestore Security Rules** — User documents are read/write only by their authenticated owner
+- **Razorpay** — Only the public `KEY_ID` is used client-side; no secret key in frontend code
 
 ---
 
 ## 📊 Firebase Free Tier Capacity
 
-| Limit | Value | Users Supported |
+| Limit | Value | Supported Scale |
 |---|---|---|
-| Firestore Storage | 1 GB | ~2,000,000 users |
+| Firestore Storage | 1 GB | ~2,000,000 user profiles |
 | Daily Writes | 20,000/day | 20,000 signups/day |
 | Daily Reads | 50,000/day | 50,000 logins/day |
-| Firebase Auth | Unlimited | No limit on accounts |
+| Firebase Auth | Unlimited | No account limit |
+
+---
+
+## 🎓 DSA Curriculum — 35 Verified Modules
+
+All 35 modules have been validated with working YouTube embeds (June 2026):
+
+> Arrays · Strings · Searching · Linked Lists · Stacks & Queues · Hash Tables · Heaps · Matrices · Trees & BST · Tree Traversal · AVL Trees · Tries · Graphs · Dynamic Programming · Greedy · Recursion & Backtracking · Bit Manipulation · Divide & Conquer · Disjoint Set (Union-Find) · Segment Tree · Fenwick Tree · Dijkstra · Bellman-Ford · Floyd-Warshall · Kruskal MST · Prim MST · LRU Cache · Bitwise Trie · Big-O · Asymptotic Notation · OOP Basics · Recursion Intro · Language Syntax · Control Structures · Functions
 
 ---
 
 ## 📄 License
 
-This project is private and proprietary. All rights reserved © dsa.flow.
+This project is private and proprietary. All rights reserved © 2026 dsa.flow.
 
 ---
 
