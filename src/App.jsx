@@ -99,6 +99,7 @@ function AppLayout() {
   // Payment error
   const [paymentError, setPaymentError] = useState('');
   const [paymentLoading, setPaymentLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   if (loading) return <div style={{ display: 'flex', height: '100vh', justifyContent: 'center', alignItems: 'center', color: 'white', background: '#070810' }}>Loading...</div>;
 
@@ -152,178 +153,274 @@ function AppLayout() {
     };
 
     return (
-      <div className="overlay-fullscreen auth-overlay" style={{ display: 'flex' }}>
+      <div className="auth-page-container">
         <div className="auth-glow-bg"></div>
-        <div className="auth-card">
-          <div className="auth-brand">
-            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-            <span>dsa.flow</span>
-          </div>
-          <p className="auth-subtitle">India's #1 DSA Learning Platform for Placements</p>
-
-          <div className="trial-promo-badge">
-            🎯 <strong>1-Day FREE Trial</strong> — Then ₹99 for Lifetime Access
-          </div>
-
-          <div className="auth-tabs">
-            <button 
-              className={`auth-tab ${authTab === 'signin' ? 'active' : ''}`}
-              onClick={() => { setAuthTab('signin'); setAuthError(''); setForgotSuccess(''); }}
-            >
-              Sign In
-            </button>
-            <button 
-              className={`auth-tab ${authTab === 'signup' ? 'active' : ''}`}
-              onClick={() => { setAuthTab('signup'); setAuthError(''); setForgotSuccess(''); }}
-            >
-              Sign Up Free
-            </button>
+        
+        {/* Left Side: Brand Promo Panels */}
+        <div className="auth-side-promo">
+          <div className="promo-grid-lines"></div>
+          <div className="promo-glow-spot"></div>
+          
+          <div className="promo-header">
+            <div className="auth-brand">
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+              <span>dsa.flow</span>
+            </div>
+            <span className="promo-edition-badge">Premium v2.4</span>
           </div>
 
-          {authTab === 'forgot_password' ? (
-            <form className="auth-form" onSubmit={handleForgotPasswordSubmit}>
-              <h3 style={{ margin: '0 0 8px 0', fontSize: '1.25rem', color: '#ffffff' }}>Reset Password</h3>
-              <p style={{ margin: '0 0 20px 0', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                Enter your email address and we'll send you a recovery link to reset your password.
-              </p>
-              
-              <div className="form-group">
-                <label>Email Address</label>
-                <div className="input-with-icon">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-                  <input 
-                    type="email" 
-                    placeholder="your@email.com" 
-                    value={forgotEmail} 
-                    onChange={e => setForgotEmail(e.target.value)} 
-                    required 
-                  />
-                </div>
-              </div>
+          <div className="promo-main">
+            <h1 className="promo-headline">
+              Master DSA. <br />
+              <span className="gradient-text">Ace Your Placements.</span>
+            </h1>
+            <p className="promo-subtext">
+              The smart, interactive learning environment tailored for Indian students aiming for product-based roles. Learn concepts visually and code in real-time.
+            </p>
 
-              {authError && <div className="auth-error">{authError}</div>}
-              {forgotSuccess && <div style={{ color: '#10b981', background: 'rgba(16, 185, 129, 0.1)', padding: '10px 14px', borderRadius: '6px', fontSize: '0.82rem', marginBottom: '16px', border: '1px solid rgba(16, 185, 129, 0.2)' }}>{forgotSuccess}</div>}
+            {/* Micro Stats Row */}
+            <div className="promo-stats">
+              <div className="promo-stat-card">
+                <span className="stat-value">35+</span>
+                <span className="stat-label">Modules</span>
+              </div>
+              <div className="promo-stat-card">
+                <span className="stat-value">4</span>
+                <span className="stat-label">Languages</span>
+              </div>
+              <div className="promo-stat-card">
+                <span className="stat-value">100%</span>
+                <span className="stat-label">Visual</span>
+              </div>
+            </div>
 
-              <button type="submit" className="btn btn-primary auth-submit-btn" disabled={authLoading}>
-                <span className="btn-text">{authLoading ? '⏳ Processing...' : 'Send Reset Link'}</span>
-              </button>
-              
-              <p style={{ textAlign: 'center', fontSize: '0.82rem', color: 'var(--text-muted)', marginTop: '16px' }}>
-                Remembered your password? <span onClick={() => { setAuthTab('signin'); setAuthError(''); setForgotSuccess(''); }} style={{ color: 'var(--accent-cyan)', cursor: 'pointer' }}>Sign In →</span>
-              </p>
-            </form>
-          ) : authTab === 'signin' ? (
-            <form className="auth-form" onSubmit={handleSignInSubmit}>
-              <div className="form-group">
-                <label>Email Address</label>
-                <div className="input-with-icon">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-                  <input 
-                    type="email" 
-                    placeholder="your@email.com" 
-                    value={signInEmail} 
-                    onChange={e => setSignInEmail(e.target.value)} 
-                    required 
-                  />
+            {/* Checklist */}
+            <div className="promo-features-list">
+              <div className="promo-feature-card">
+                <span className="feature-icon">🧩</span>
+                <div className="feature-card-body">
+                  <h4>Interactive Visualizers</h4>
+                  <p>Step through code execution and watch structures update dynamically.</p>
                 </div>
               </div>
-              <div className="form-group">
-                <label style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
-                  <span>Password</span>
-                  <span 
-                    onClick={() => { setAuthTab('forgot_password'); setAuthError(''); setForgotSuccess(''); }} 
-                    style={{ color: 'var(--accent-cyan)', cursor: 'pointer', fontSize: '0.78rem', fontWeight: 'normal' }}
-                  >
-                    Forgot Password?
-                  </span>
-                </label>
-                <div className="input-with-icon">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                  <input 
-                    type="password" 
-                    placeholder="Your password" 
-                    value={signInPassword} 
-                    onChange={e => setSignInPassword(e.target.value)} 
-                    required 
-                  />
+              <div className="promo-feature-card">
+                <span className="feature-icon">💻</span>
+                <div className="feature-card-body">
+                  <h4>Built-in Coding Arena</h4>
+                  <p>Solve problems in Javascript, C++, Java, or Python with testcases.</p>
                 </div>
               </div>
-              {authError && <div className="auth-error">{authError}</div>}
-              <button type="submit" className="btn btn-primary auth-submit-btn" disabled={authLoading}>
-                <span className="btn-text">{authLoading ? '⏳ Processing...' : 'Sign In'}</span>
-              </button>
-              <p style={{ textAlign: 'center', fontSize: '0.82rem', color: 'var(--text-muted)', marginTop: '12px' }}>
-                Don't have an account? <span onClick={() => setAuthTab('signup')} style={{ color: 'var(--accent-cyan)', cursor: 'pointer' }}>Sign up free →</span>
-              </p>
-            </form>
-          ) : (
-            <form className="auth-form" onSubmit={handleSignUpSubmit}>
-              <div className="form-group">
-                <label>Full Name</label>
-                <div className="input-with-icon">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>
-                  <input 
-                    type="text" 
-                    placeholder="Aniketh Reddy" 
-                    value={signUpName} 
-                    onChange={e => setSignUpName(e.target.value)} 
-                    required 
-                  />
+              <div className="promo-feature-card">
+                <span className="feature-icon">🧠</span>
+                <div className="feature-card-body">
+                  <h4>AI Tutor Integration</h4>
+                  <p>Resolve doubts instantly with your personalized Gemini-powered chat agent.</p>
                 </div>
               </div>
-              <div className="form-group">
-                <label>Email Address</label>
-                <div className="input-with-icon">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-                  <input 
-                    type="email" 
-                    placeholder="your@email.com" 
-                    value={signUpEmail} 
-                    onChange={e => setSignUpEmail(e.target.value)} 
-                    required 
-                  />
-                </div>
-              </div>
-              <div className="form-group">
-                <label>WhatsApp Number <span style={{ color: 'var(--text-muted)', fontSize: '0.78rem' }}>(for placement alerts)</span></label>
-                <div className="input-with-icon">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.56 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-                  <input 
-                    type="tel" 
-                    placeholder="+91 98765 43210" 
-                    value={signUpPhone} 
-                    onChange={e => setSignUpPhone(e.target.value)} 
-                    required 
-                  />
-                </div>
-              </div>
-              <div className="form-group">
-                <label>Password <span style={{ color: 'var(--text-muted)', fontSize: '0.78rem' }}>(min 6 characters)</span></label>
-                <div className="input-with-icon">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                  <input 
-                    type="password" 
-                    placeholder="Create a strong password" 
-                    value={signUpPassword} 
-                    onChange={e => setSignUpPassword(e.target.value)} 
-                    required 
-                    minLength={6} 
-                  />
-                </div>
-              </div>
-              {authError && <div className="auth-error">{authError}</div>}
-              <button type="submit" className="btn btn-accent auth-submit-btn" disabled={authLoading}>
-                <span className="btn-text">{authLoading ? '⏳ Processing...' : '🚀 Start Free Trial'}</span>
-              </button>
-              <p className="auth-terms">By signing up, you agree to our Terms of Service. Your data is securely stored and will only be used to contact you about placement opportunities.</p>
-            </form>
-          )}
+            </div>
+          </div>
 
-          <div className="auth-features">
-            <div className="auth-feature-item">✅ 16 DSA modules — Beginner to Advanced</div>
-            <div className="auth-feature-item">✅ 4 languages — JS, C++, Java, Python</div>
-            <div className="auth-feature-item">✅ Live visualizations + placement quiz</div>
-            <div className="auth-feature-item">✅ LeetCode, HackerRank, CodeChef guides</div>
+          <div className="promo-footer">
+            <p>Trusted by thousands of tech aspirants nationwide</p>
+          </div>
+        </div>
+
+        {/* Right Side: Auth Form Container */}
+        <div className="auth-side-form">
+          <div className="auth-card">
+            {/* Brand Header (Visible on Mobile Only) */}
+            <div className="auth-brand-mobile">
+              <div className="auth-brand">
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                <span>dsa.flow</span>
+              </div>
+              <p className="auth-subtitle">India's #1 DSA Learning Platform for Placements</p>
+            </div>
+
+            <div className="trial-promo-badge">
+              <span className="trial-badge-dot"></span>
+              🎯 <strong>1-Day FREE Trial</strong> — Then ₹99 for Lifetime Access
+            </div>
+
+            {authTab !== 'forgot_password' && (
+              <div className="auth-tabs-pill">
+                <button 
+                  className={`auth-tab-pill-btn ${authTab === 'signin' ? 'active' : ''}`}
+                  onClick={() => { setAuthTab('signin'); setAuthError(''); setForgotSuccess(''); }}
+                >
+                  Sign In
+                </button>
+                <button 
+                  className={`auth-tab-pill-btn ${authTab === 'signup' ? 'active' : ''}`}
+                  onClick={() => { setAuthTab('signup'); setAuthError(''); setForgotSuccess(''); }}
+                >
+                  Sign Up Free
+                </button>
+              </div>
+            )}
+
+            {authTab === 'forgot_password' ? (
+              <form className="auth-form" onSubmit={handleForgotPasswordSubmit}>
+                <h3 className="auth-form-title">Reset Password</h3>
+                <p className="auth-form-desc">
+                  Enter your email address and we'll send you a recovery link to reset your password.
+                </p>
+                
+                <div className="form-group">
+                  <label>Email Address</label>
+                  <div className="input-with-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                    <input 
+                      type="email" 
+                      placeholder="your@email.com" 
+                      value={forgotEmail} 
+                      onChange={e => setForgotEmail(e.target.value)} 
+                      required 
+                    />
+                  </div>
+                </div>
+
+                {authError && <div className="auth-error">{authError}</div>}
+                {forgotSuccess && <div className="auth-success-alert">{forgotSuccess}</div>}
+
+                <button type="submit" className="btn btn-primary auth-submit-btn" disabled={authLoading}>
+                  <span className="btn-text">{authLoading ? '⏳ Sending...' : 'Send Reset Link'}</span>
+                </button>
+                
+                <p className="auth-form-footer-link">
+                  Remembered your password? <span onClick={() => { setAuthTab('signin'); setAuthError(''); setForgotSuccess(''); }}>Sign In →</span>
+                </p>
+              </form>
+            ) : authTab === 'signin' ? (
+              <form className="auth-form" onSubmit={handleSignInSubmit}>
+                <div className="form-group">
+                  <label>Email Address</label>
+                  <div className="input-with-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                    <input 
+                      type="email" 
+                      placeholder="your@email.com" 
+                      value={signInEmail} 
+                      onChange={e => setSignInEmail(e.target.value)} 
+                      required 
+                    />
+                  </div>
+                </div>
+                <div className="form-group">
+                  <label style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+                    <span>Password</span>
+                    <span 
+                      onClick={() => { setAuthTab('forgot_password'); setAuthError(''); setForgotSuccess(''); }} 
+                      className="auth-forgot-link"
+                    >
+                      Forgot Password?
+                    </span>
+                  </label>
+                  <div className="input-with-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    <input 
+                      type={showPassword ? 'text' : 'password'} 
+                      placeholder="Your password" 
+                      value={signInPassword} 
+                      onChange={e => setSignInPassword(e.target.value)} 
+                      required 
+                    />
+                    <button
+                      type="button"
+                      className="password-toggle-btn"
+                      onClick={() => setShowPassword(!showPassword)}
+                      title={showPassword ? 'Hide Password' : 'Show Password'}
+                    >
+                      {showPassword ? (
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+                      ) : (
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                      )}
+                    </button>
+                  </div>
+                </div>
+                {authError && <div className="auth-error">{authError}</div>}
+                <button type="submit" className="btn btn-primary auth-submit-btn" disabled={authLoading}>
+                  <span className="btn-text">{authLoading ? '⏳ Signing In...' : 'Sign In'}</span>
+                </button>
+                <p className="auth-form-footer-link">
+                  Don't have an account? <span onClick={() => setAuthTab('signup')}>Sign up free →</span>
+                </p>
+              </form>
+            ) : (
+              <form className="auth-form" onSubmit={handleSignUpSubmit}>
+                <div className="form-group">
+                  <label>Full Name</label>
+                  <div className="input-with-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>
+                    <input 
+                      type="text" 
+                      placeholder="Aniketh Reddy" 
+                      value={signUpName} 
+                      onChange={e => setSignUpName(e.target.value)} 
+                      required 
+                    />
+                  </div>
+                </div>
+                <div className="form-group">
+                  <label>Email Address</label>
+                  <div className="input-with-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                    <input 
+                      type="email" 
+                      placeholder="your@email.com" 
+                      value={signUpEmail} 
+                      onChange={e => setSignUpEmail(e.target.value)} 
+                      required 
+                    />
+                  </div>
+                </div>
+                <div className="form-group">
+                  <label>WhatsApp Number <span className="label-helper">(for placement alerts)</span></label>
+                  <div className="input-with-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.56 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                    <input 
+                      type="tel" 
+                      placeholder="+91 98765 43210" 
+                      value={signUpPhone} 
+                      onChange={e => setSignUpPhone(e.target.value)} 
+                      required 
+                    />
+                  </div>
+                </div>
+                <div className="form-group">
+                  <label>Password <span className="label-helper">(min 6 characters)</span></label>
+                  <div className="input-with-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    <input 
+                      type={showPassword ? 'text' : 'password'} 
+                      placeholder="Create a strong password" 
+                      value={signUpPassword} 
+                      onChange={e => setSignUpPassword(e.target.value)} 
+                      required 
+                      minLength={6} 
+                    />
+                    <button
+                      type="button"
+                      className="password-toggle-btn"
+                      onClick={() => setShowPassword(!showPassword)}
+                      title={showPassword ? 'Hide Password' : 'Show Password'}
+                    >
+                      {showPassword ? (
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+                      ) : (
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                      )}
+                    </button>
+                  </div>
+                </div>
+                {authError && <div className="auth-error">{authError}</div>}
+                <button type="submit" className="btn btn-accent auth-submit-btn" disabled={authLoading}>
+                  <span className="btn-text">{authLoading ? '⏳ Creating...' : '🚀 Start Free Trial'}</span>
+                </button>
+                <p className="auth-terms">By signing up, you agree to our Terms of Service. Your data is securely stored and will only be used to contact you about placement opportunities.</p>
+              </form>
+            )}
           </div>
         </div>
       </div>
