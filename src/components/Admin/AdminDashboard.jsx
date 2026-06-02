@@ -147,9 +147,46 @@ export default function AdminDashboard() {
       if (!res.ok) throw new Error(data.error || 'Failed to send broadcast');
       
       setBroadcastResult(data);
-      setActionStatus(`✅ Sent ${data.sentCount} of ${data.totalUsers} emails!`);
-      setEmailSubject('');
-      setEmailBody('');
+      if (data.domainError) {
+        setActionStatus('⚠️ Domain not verified — see instructions below.');
+      } else {
+        setActionStatus(`✅ Sent ${data.sentCount} of ${data.totalUsers} emails!`);
+        if (data.sentCount > 0) { setEmailSubject(''); setEmailBody(''); }
+      }
+    } catch (err) {
+      setActionStatus(`❌ Error: ${err.message}`);
+    } finally {
+      setEmailSending(false);
+      setTimeout(() => setActionStatus(''), 10000);
+    }
+  };
+
+  const handleTestSend = async () => {
+    if (!emailSubject || !emailBody) {
+      setActionStatus('⚠️ Fill in Subject and Message first.');
+      setTimeout(() => setActionStatus(''), 3000);
+      return;
+    }
+    setEmailSending(true);
+    setBroadcastResult(null);
+    setActionStatus('📧 Sending test preview to your email...');
+    try {
+      const res = await fetch('/api/send-bulk-emails', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          key: adminKey,
+          subject: emailSubject,
+          message: emailBody,
+          emailType,
+          target: 'all',
+          test_mode: true,
+        })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Test send failed');
+      setBroadcastResult(data);
+      setActionStatus('✅ Test email sent! Check vadagammanikanta2006@gmail.com');
     } catch (err) {
       setActionStatus(`❌ Error: ${err.message}`);
     } finally {
@@ -389,6 +426,51 @@ export default function AdminDashboard() {
           {activeTab === 'broadcast' && (
             <div className="admin-broadcast">
 
+              {/* ── Domain Verification Warning Banner ── */}
+              <div style={{
+                background: 'rgba(245,158,11,0.08)',
+                border: '1px solid rgba(245,158,11,0.3)',
+                borderRadius: '12px',
+                padding: '16px 20px',
+                marginBottom: '20px',
+                display: 'flex',
+                gap: '14px',
+                alignItems: 'flex-start',
+              }}>
+                <span style={{ fontSize: '1.4rem', flexShrink: 0 }}>⚠️</span>
+                <div style={{ flex: 1 }}>
+                  <p style={{ color: '#f59e0b', fontWeight: 700, margin: '0 0 4px', fontSize: '0.95rem' }}>
+                    Resend Domain Verification Required for Broadcasting
+                  </p>
+                  <p style={{ color: '#94a3b8', fontSize: '0.83rem', margin: '0 0 10px', lineHeight: 1.6 }}>
+                    On Resend's free plan you can only send to <strong style={{ color: '#fbbf24' }}>your own email</strong> (vadagammanikanta2006@gmail.com).
+                    To broadcast to all users, verify a domain at Resend first.
+                  </p>
+                  <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                    <a
+                      href="https://resend.com/domains"
+                      target="_blank"
+                      rel="noreferrer"
+                      style={{
+                        display: 'inline-block',
+                        background: '#f59e0b',
+                        color: '#0f172a',
+                        fontWeight: 700,
+                        fontSize: '0.8rem',
+                        padding: '6px 14px',
+                        borderRadius: '6px',
+                        textDecoration: 'none',
+                      }}
+                    >
+                      🔗 Add Domain on Resend →
+                    </a>
+                    <span style={{ color: '#475569', fontSize: '0.78rem', alignSelf: 'center' }}>
+                      Then update FROM_ADDRESS in send-bulk-emails.js to noreply@yourdomain.com
+                    </span>
+                  </div>
+                </div>
+              </div>
+
               {/* ── Compose Card ── */}
               <div className="broadcast-card">
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
@@ -522,46 +604,104 @@ export default function AdminDashboard() {
                     </div>
                   </div>
 
-                  {/* Send Button */}
-                  <button
-                    type="submit"
-                    className="admin-btn-primary"
-                    disabled={emailSending}
-                    style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}
-                  >
-                    {emailSending ? (
-                      <><span style={{ display: 'inline-block', width: 16, height: 16, border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} /> Broadcasting via Resend...</>
-                    ) : (
-                      `🚀 Send to ${emailTarget === 'all' ? 'All Users' : emailTarget === 'premium' ? 'Premium Members' : 'Free Users'}`
-                    )}
-                  </button>
+                  {/* Send Buttons Row */}
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '10px' }}>
+                    <button
+                      type="submit"
+                      className="admin-btn-primary"
+                      disabled={emailSending}
+                      style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}
+                    >
+                      {emailSending ? (
+                        <><span style={{ display: 'inline-block', width: 16, height: 16, border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} /> Broadcasting...</>
+                      ) : (
+                        `🚀 Send to ${emailTarget === 'all' ? 'All Users' : emailTarget === 'premium' ? 'Premium Members' : 'Free Users'}`
+                      )}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleTestSend}
+                      disabled={emailSending}
+                      title="Send a preview to your own email (vadagammanikanta2006@gmail.com) — works without domain verification"
+                      style={{
+                        background: 'rgba(245,158,11,0.1)',
+                        border: '1px solid rgba(245,158,11,0.35)',
+                        color: '#f59e0b',
+                        borderRadius: '8px',
+                        padding: '12px 18px',
+                        fontWeight: 700,
+                        fontSize: '0.85rem',
+                        cursor: emailSending ? 'not-allowed' : 'pointer',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      🧪 Test Send
+                    </button>
+                  </div>
+                  <p style={{ color: '#475569', fontSize: '0.75rem', marginTop: '6px', marginBottom: 0 }}>
+                    💡 <strong>Test Send</strong> previews the email to your own address without needing domain verification.
+                  </p>
                 </form>
               </div>
 
               {/* ── Result Panel ── */}
               {broadcastResult && (
                 <div style={{
-                  background: broadcastResult.sentCount > 0 ? 'rgba(74,222,128,0.05)' : 'rgba(239,68,68,0.05)',
-                  border: `1px solid ${broadcastResult.sentCount > 0 ? 'rgba(74,222,128,0.2)' : 'rgba(239,68,68,0.2)'}`,
+                  background: broadcastResult.test_mode
+                    ? 'rgba(245,158,11,0.05)'
+                    : broadcastResult.sentCount > 0 ? 'rgba(74,222,128,0.05)' : 'rgba(239,68,68,0.05)',
+                  border: `1px solid ${
+                    broadcastResult.test_mode
+                      ? 'rgba(245,158,11,0.25)'
+                      : broadcastResult.sentCount > 0 ? 'rgba(74,222,128,0.2)' : 'rgba(239,68,68,0.2)'
+                  }`,
                   borderRadius: '12px',
                   padding: '20px 24px',
                   marginTop: '20px',
                 }}>
-                  <h4 style={{ margin: '0 0 14px', color: broadcastResult.sentCount > 0 ? '#4ade80' : '#ef4444' }}>
-                    {broadcastResult.sentCount > 0 ? '✅ Broadcast Complete' : '❌ Broadcast Failed'}
+                  <h4 style={{ margin: '0 0 10px', color: broadcastResult.test_mode ? '#f59e0b' : broadcastResult.sentCount > 0 ? '#4ade80' : '#ef4444' }}>
+                    {broadcastResult.test_mode
+                      ? '🧪 Test Email Sent Successfully'
+                      : broadcastResult.domainError
+                        ? '🔒 Domain Verification Needed'
+                        : broadcastResult.sentCount > 0 ? '✅ Broadcast Complete' : '❌ Broadcast Failed'}
                   </h4>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '14px' }}>
-                    {[{ label: 'Total Audience', val: broadcastResult.totalUsers },
-                      { label: 'Sent ✅', val: broadcastResult.sentCount },
-                      { label: 'Failed ❌', val: broadcastResult.failures?.length || 0 },
-                    ].map(s => (
-                      <div key={s.label} style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '8px', padding: '12px', textAlign: 'center' }}>
-                        <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#f1f5f9' }}>{s.val}</div>
-                        <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '4px' }}>{s.label}</div>
+
+                  {broadcastResult.test_mode ? (
+                    <p style={{ color: '#94a3b8', fontSize: '0.88rem', margin: '0 0 10px' }}>
+                      Preview sent to <strong style={{ color: '#fbbf24' }}>vadagammanikanta2006@gmail.com</strong>.
+                      Would reach <strong style={{ color: '#f1f5f9' }}>{broadcastResult.totalUsers}</strong> users once your domain is verified.
+                    </p>
+                  ) : broadcastResult.domainError ? (
+                    <div>
+                      <p style={{ color: '#94a3b8', fontSize: '0.88rem', margin: '0 0 12px', lineHeight: 1.6 }}>
+                        All <strong style={{ color: '#f1f5f9' }}>{broadcastResult.totalUsers}</strong> emails failed because Resend requires a verified domain to send to external addresses.
+                      </p>
+                      <div style={{ background: 'rgba(0,0,0,0.2)', borderRadius: '8px', padding: '14px', fontSize: '0.82rem', color: '#94a3b8' }}>
+                        <p style={{ color: '#f59e0b', fontWeight: 700, margin: '0 0 8px' }}>🔧 How to fix this:</p>
+                        <ol style={{ margin: 0, paddingLeft: '18px', lineHeight: 2 }}>
+                          <li>Go to <a href="https://resend.com/domains" target="_blank" rel="noreferrer" style={{ color: '#06b6d4' }}>resend.com/domains</a> and add your domain</li>
+                          <li>Follow DNS verification steps (takes ~5 minutes)</li>
+                          <li>Update <code style={{ color: '#a78bfa' }}>FROM_ADDRESS</code> in <code style={{ color: '#a78bfa' }}>api/send-bulk-emails.js</code> to <code>noreply@yourdomain.com</code></li>
+                          <li>Redeploy to Vercel — broadcasting will work instantly</li>
+                        </ol>
                       </div>
-                    ))}
-                  </div>
-                  {broadcastResult.failures?.length > 0 && (
+                    </div>
+                  ) : (
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '14px' }}>
+                      {[{ label: 'Total Audience', val: broadcastResult.totalUsers },
+                        { label: 'Sent ✅', val: broadcastResult.sentCount },
+                        { label: 'Failed ❌', val: broadcastResult.failures?.length || 0 },
+                      ].map(s => (
+                        <div key={s.label} style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '8px', padding: '12px', textAlign: 'center' }}>
+                          <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#f1f5f9' }}>{s.val}</div>
+                          <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '4px' }}>{s.label}</div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {!broadcastResult.test_mode && !broadcastResult.domainError && broadcastResult.failures?.length > 0 && (
                     <details style={{ fontSize: '0.8rem', color: '#94a3b8' }}>
                       <summary style={{ cursor: 'pointer', color: '#f87171', marginBottom: '8px' }}>View {broadcastResult.failures.length} failed deliveries</summary>
                       {broadcastResult.failures.map((f, i) => (

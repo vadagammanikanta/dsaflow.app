@@ -2,7 +2,11 @@ import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 import { Resend } from 'resend';
 
-const FROM_ADDRESS = 'dsa.flow <onboarding@resend.dev>';
+const FROM_ADDRESS   = 'dsa.flow <onboarding@resend.dev>';
+// This is the Resend account owner email — the only address you can send TO
+// on the free plan without a verified domain.
+const OWNER_EMAIL    = 'vadagammanikanta2006@gmail.com';
+const DOMAIN_ERROR_HINT = 'RESEND_DOMAIN_NOT_VERIFIED';
 
 function getAdminDb() {
   if (getApps().length === 0) {
@@ -100,7 +104,7 @@ export default async function handler(req, res) {
 
   // ── Security ─────────────────────────────────────────────────────────
   const adminSecret = process.env.ADMIN_SECRET;
-  const { key, subject, message, emailType = 'update', target = 'all' } = req.body;
+  const { key, subject, message, emailType = 'update', target = 'all', test_mode = false } = req.body;
 
   if (!adminSecret || key !== adminSecret) {
     return res.status(401).json({ error: 'Unauthorized. Invalid admin key.' });
@@ -143,7 +147,30 @@ export default async function handler(req, res) {
     let successCount = 0;
     const failures = [];
 
-    // Send with a small delay to respect Resend rate limits (2 emails/sec on free plan)
+    // ── Test Mode: send only to owner's verified Resend email ──────────
+    if (test_mode) {
+      const html = buildBroadcastHtml('Admin', subject, message, emailType);
+      const { error } = await resend.emails.send({
+        from: FROM_ADDRESS,
+        to: OWNER_EMAIL,
+        subject: `[TEST PREVIEW] ${subject}`,
+        html,
+      });
+      if (error) {
+        return res.status(500).json({ error: error.message || JSON.stringify(error) });
+      }
+      return res.status(200).json({
+        success: true,
+        test_mode: true,
+        sentCount: 1,
+        totalUsers: users.length,
+        message: `Test email sent to ${OWNER_EMAIL}. Verify your domain to broadcast to all ${users.length} users.`,
+      });
+    }
+
+    // ── Full Broadcast ─────────────────────────────────────────────────
+    let domainVerificationError = false;
+
     for (const user of users) {
       try {
         const html = buildBroadcastHtml(user.name, subject, message, emailType);
@@ -154,7 +181,14 @@ export default async function handler(req, res) {
           html,
         });
 
-        if (error) throw new Error(error.message || JSON.stringify(error));
+        if (error) {
+          const msg = error.message || JSON.stringify(error);
+          // Detect Resend's domain restriction error
+          if (msg.includes('verify a domain') || msg.includes('testing emails') || msg.includes('your own email')) {
+            domainVerificationError = true;
+          }
+          throw new Error(msg);
+        }
         successCount++;
       } catch (sendErr) {
         console.error(`[broadcast] Failed to send to ${user.email}:`, sendErr.message);
@@ -162,14 +196,16 @@ export default async function handler(req, res) {
       }
 
       // Brief delay to avoid rate-limiting on Resend free tier
-      await new Promise(r => setTimeout(r, 600));
+      await new Promise(r => setTimeout(r, 300));
     }
 
     return res.status(200).json({
-      success: true,
+      success: successCount > 0,
       totalUsers: users.length,
       sentCount: successCount,
       failures,
+      // Flag so the UI can show the domain verification CTA
+      domainError: domainVerificationError ? DOMAIN_ERROR_HINT : null,
     });
 
   } catch (err) {
