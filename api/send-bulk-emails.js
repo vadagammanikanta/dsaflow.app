@@ -1,8 +1,8 @@
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 
-const ADMIN_EMAIL = 'dsa.flow@outlook.com';
+const FROM_ADDRESS = 'dsa.flow <onboarding@resend.dev>';
 
 function getAdminDb() {
   if (getApps().length === 0) {
@@ -10,6 +10,84 @@ function getAdminDb() {
     initializeApp({ credential: cert(serviceAccount) });
   }
   return getFirestore();
+}
+
+function buildBroadcastHtml(userName, subject, message, emailType) {
+  const accentColor = emailType === 'announcement' ? '#06b6d4'
+    : emailType === 'promotion'  ? '#a78bfa'
+    : emailType === 'alert'      ? '#f59e0b'
+    : '#4ade80'; // default: update/green
+
+  const badgeText = emailType === 'announcement' ? '📢 Announcement'
+    : emailType === 'promotion' ? '🎉 Special Offer'
+    : emailType === 'alert'     ? '⚠️ Important Alert'
+    : '🔔 Platform Update';
+
+  return `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin:0; padding:0; background:#0f172a; font-family:'Segoe UI',Arial,sans-serif;">
+  <div style="max-width:600px; margin:0 auto; padding:40px 20px;">
+
+    <!-- Header -->
+    <div style="text-align:center; margin-bottom:32px;">
+      <h1 style="color:${accentColor}; font-size:28px; margin:0; letter-spacing:-1px;">dsa.flow</h1>
+      <p style="color:#475569; font-size:13px; margin:4px 0 0;">FAANG Placement Prep</p>
+    </div>
+
+    <!-- Main Card -->
+    <div style="background:#1e293b; border-radius:16px; padding:40px; border:1px solid #334155;">
+
+      <!-- Badge -->
+      <div style="text-align:center; margin-bottom:24px;">
+        <span style="background:rgba(0,0,0,0.3); color:${accentColor};
+                     padding:8px 20px; border-radius:999px;
+                     font-size:13px; font-weight:600;
+                     border:1px solid ${accentColor}33;">
+          ${badgeText}
+        </span>
+      </div>
+
+      <!-- Greeting -->
+      <h2 style="color:#f1f5f9; font-size:20px; margin:0 0 8px;">Hi ${userName}! 👋</h2>
+      <h3 style="color:${accentColor}; font-size:22px; margin:0 0 24px;">${subject}</h3>
+
+      <!-- Divider -->
+      <div style="height:1px; background:#334155; margin:24px 0;"></div>
+
+      <!-- Message Body -->
+      <div style="color:#cbd5e1; font-size:15px; line-height:1.8;">
+        ${message}
+      </div>
+
+      <!-- CTA Button -->
+      <div style="text-align:center; margin-top:32px;">
+        <a href="https://dsa-learning-hub-delta.vercel.app"
+           style="display:inline-block; background:${accentColor};
+                  color:#0f172a; font-weight:700; font-size:15px;
+                  padding:14px 40px; border-radius:8px;
+                  text-decoration:none; letter-spacing:0.3px;">
+          Open dsa.flow →
+        </a>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div style="text-align:center; margin-top:32px;">
+      <p style="color:#334155; font-size:12px; margin:0 0 8px;">
+        You're receiving this because you're a dsa.flow member.
+      </p>
+      <p style="color:#475569; font-size:12px; margin:0;">
+        © 2026 dsa.flow · All rights reserved
+      </p>
+    </div>
+
+  </div>
+</body>
+</html>`;
 }
 
 export default async function handler(req, res) {
@@ -20,99 +98,82 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST')    return res.status(405).json({ error: 'Method not allowed. Use POST.' });
 
-  // ── Security Check ──────────────────────────────────────────────────
+  // ── Security ─────────────────────────────────────────────────────────
   const adminSecret = process.env.ADMIN_SECRET;
-  const { key, subject, message } = req.body;
+  const { key, subject, message, emailType = 'update', target = 'all' } = req.body;
 
   if (!adminSecret || key !== adminSecret) {
-    return res.status(401).json({ error: 'Unauthorized. Provide valid key in body.' });
+    return res.status(401).json({ error: 'Unauthorized. Invalid admin key.' });
   }
 
   if (!subject || !message) {
-    return res.status(400).json({ error: 'Missing subject or message content.' });
+    return res.status(400).json({ error: 'Missing subject or message.' });
   }
 
-  // ── Credentials Check ───────────────────────────────────────────────
+  if (!process.env.RESEND_API_KEY) {
+    return res.status(500).json({ error: 'RESEND_API_KEY environment variable is not set.' });
+  }
+
   if (!process.env.FIREBASE_SERVICE_ACCOUNT) {
-    return res.status(500).json({ error: 'FIREBASE_SERVICE_ACCOUNT env variable not set.' });
-  }
-
-  const emailUser = process.env.EMAIL_USER;
-  const emailPass = process.env.EMAIL_PASS;
-
-  if (!emailUser || !emailPass) {
-    return res.status(500).json({ error: 'EMAIL_USER or EMAIL_PASS SMTP environment variables not set.' });
+    return res.status(500).json({ error: 'FIREBASE_SERVICE_ACCOUNT environment variable is not set.' });
   }
 
   try {
     const db = getAdminDb();
     const snapshot = await db.collection('users').get();
-    
+
     if (snapshot.empty) {
-      return res.status(200).json({ success: true, count: 0, message: 'No registered users found.' });
+      return res.status(200).json({ success: true, sentCount: 0, message: 'No users found.' });
     }
 
-    const users = snapshot.docs.map(doc => {
+    // Filter by target audience
+    let users = snapshot.docs.map(doc => {
       const d = doc.data();
-      return {
-        name: d.name || 'Student',
-        email: d.email || ''
-      };
+      return { name: d.name || 'Student', email: d.email || '', isPaid: !!d.isPaid };
     }).filter(u => u.email !== '');
 
-    // Setup transporter
-    const transporter = nodemailer.createTransport({
-      host: 'smtp.gmail.com',
-      port: 465,
-      secure: true, // SSL/TLS
-      auth: {
-        user: emailUser,
-        pass: emailPass
-      }
-    });
+    if (target === 'premium') users = users.filter(u => u.isPaid);
+    if (target === 'free')    users = users.filter(u => !u.isPaid);
 
+    if (users.length === 0) {
+      return res.status(200).json({ success: true, sentCount: 0, message: `No ${target} users to email.` });
+    }
+
+    const resend = new Resend(process.env.RESEND_API_KEY);
     let successCount = 0;
-    let errors = [];
+    const failures = [];
 
-    // Send emails sequentially to respect SMTP rate limits
+    // Send with a small delay to respect Resend rate limits (2 emails/sec on free plan)
     for (const user of users) {
       try {
-        const personalizedHtml = `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px; background: #0b0f19; color: #f3f4f6;">
-            <h2 style="color: #00e5ff; border-bottom: 2px solid #00e5ff; padding-bottom: 8px;">Hello ${user.name}! 👋</h2>
-            <div style="font-size: 1.05rem; line-height: 1.6; margin: 18px 0; color: #d1d5db;">
-              ${message}
-            </div>
-            <p style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 12px; font-size: 0.85rem; color: #9ca3af; margin-bottom: 0;">
-              Best regards,<br/><strong>dsa.flow Team</strong><br/>
-              Support: <a href="mailto:${ADMIN_EMAIL}" style="color: #00e5ff;">${ADMIN_EMAIL}</a>
-            </p>
-          </div>
-        `;
-
-        await transporter.sendMail({
-          from: `"dsa.flow" <${emailUser}>`,
+        const html = buildBroadcastHtml(user.name, subject, message, emailType);
+        const { error } = await resend.emails.send({
+          from: FROM_ADDRESS,
           to: user.email,
           subject: subject,
-          html: personalizedHtml
+          html,
         });
 
+        if (error) throw new Error(error.message || JSON.stringify(error));
         successCount++;
       } catch (sendErr) {
-        console.error(`Failed to send bulk email to ${user.email}:`, sendErr.message);
-        errors.push({ email: user.email, error: sendErr.message });
+        console.error(`[broadcast] Failed to send to ${user.email}:`, sendErr.message);
+        failures.push({ email: user.email, error: sendErr.message });
       }
+
+      // Brief delay to avoid rate-limiting on Resend free tier
+      await new Promise(r => setTimeout(r, 600));
     }
 
     return res.status(200).json({
       success: true,
       totalUsers: users.length,
       sentCount: successCount,
-      failures: errors
+      failures,
     });
 
   } catch (err) {
     console.error('[send-bulk-emails] Error:', err);
-    return res.status(500).json({ error: `Internal execution error: ${err.message}` });
+    return res.status(500).json({ error: `Internal error: ${err.message}` });
   }
 }

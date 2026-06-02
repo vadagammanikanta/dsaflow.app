@@ -17,7 +17,11 @@ export default function AdminDashboard() {
   // Email form state
   const [emailSubject, setEmailSubject] = useState('');
   const [emailBody, setEmailBody] = useState('');
+  const [emailType, setEmailType] = useState('update');
+  const [emailTarget, setEmailTarget] = useState('all');
   const [emailSending, setEmailSending] = useState(false);
+  const [broadcastResult, setBroadcastResult] = useState(null);
+  const [previewMode, setPreviewMode] = useState(false);
 
   // AI chat state
   const [aiInput, setAiInput] = useState('');
@@ -121,27 +125,36 @@ export default function AdminDashboard() {
 
   const handleSendBulkEmail = async (e) => {
     e.preventDefault();
-    if (!window.confirm(`Broadcast email to ALL users? This action cannot be undone.`)) return;
+    const targetLabel = emailTarget === 'all' ? 'ALL users' : emailTarget === 'premium' ? 'Premium members only' : 'Free/Trial users only';
+    if (!window.confirm(`Send "${emailSubject}" to ${targetLabel}? This cannot be undone.`)) return;
     
     setEmailSending(true);
-    setActionStatus('Sending broadcast...');
+    setBroadcastResult(null);
+    setActionStatus('📤 Broadcasting via Resend...');
     try {
       const res = await fetch('/api/send-bulk-emails', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ key: adminKey, subject: emailSubject, message: emailBody })
+        body: JSON.stringify({
+          key: adminKey,
+          subject: emailSubject,
+          message: emailBody,
+          emailType,
+          target: emailTarget,
+        })
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed to send bulk emails');
+      if (!res.ok) throw new Error(data.error || 'Failed to send broadcast');
       
-      setActionStatus(`Success: Sent ${data.sentCount} emails.`);
+      setBroadcastResult(data);
+      setActionStatus(`✅ Sent ${data.sentCount} of ${data.totalUsers} emails!`);
       setEmailSubject('');
       setEmailBody('');
     } catch (err) {
-      setActionStatus(`Error: ${err.message}`);
+      setActionStatus(`❌ Error: ${err.message}`);
     } finally {
       setEmailSending(false);
-      setTimeout(() => setActionStatus(''), 5000);
+      setTimeout(() => setActionStatus(''), 8000);
     }
   };
 
@@ -375,37 +388,192 @@ export default function AdminDashboard() {
 
           {activeTab === 'broadcast' && (
             <div className="admin-broadcast">
+
+              {/* ── Compose Card ── */}
               <div className="broadcast-card">
-                <h3>Compose Mass Email</h3>
-                <p className="broadcast-desc">This will send an email to all registered users via SMTP.</p>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                  <h3 style={{ margin: 0 }}>📧 Compose Broadcast Email</h3>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--accent-cyan)', background: 'rgba(6,182,212,0.08)', padding: '4px 10px', borderRadius: '999px', border: '1px solid rgba(6,182,212,0.2)' }}>
+                    Powered by Resend
+                  </span>
+                </div>
+                <p className="broadcast-desc">Send professional emails to your users via Resend API. Choose audience, type, and compose your message.</p>
+
                 <form onSubmit={handleSendBulkEmail}>
+
+                  {/* Email Type + Audience Row */}
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }}>
+                    <div className="form-group" style={{ margin: 0 }}>
+                      <label>📂 Email Type</label>
+                      <select
+                        value={emailType}
+                        onChange={e => setEmailType(e.target.value)}
+                        className="admin-input"
+                        style={{ cursor: 'pointer' }}
+                      >
+                        <option value="update">🔔 Platform Update</option>
+                        <option value="announcement">📢 Announcement</option>
+                        <option value="promotion">🎉 Promotion / Offer</option>
+                        <option value="alert">⚠️ Important Alert</option>
+                      </select>
+                    </div>
+                    <div className="form-group" style={{ margin: 0 }}>
+                      <label>🎯 Target Audience</label>
+                      <select
+                        value={emailTarget}
+                        onChange={e => setEmailTarget(e.target.value)}
+                        className="admin-input"
+                        style={{ cursor: 'pointer' }}
+                      >
+                        <option value="all">👥 All Users</option>
+                        <option value="premium">⭐ Premium Members Only</option>
+                        <option value="free">🆓 Free / Trial Users Only</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Subject */}
                   <div className="form-group">
-                    <label>Email Subject</label>
-                    <input 
-                      type="text" 
-                      value={emailSubject} 
-                      onChange={e => setEmailSubject(e.target.value)} 
-                      placeholder="e.g. New AI Features Released!" 
+                    <label>✉️ Email Subject</label>
+                    <input
+                      type="text"
+                      value={emailSubject}
+                      onChange={e => setEmailSubject(e.target.value)}
+                      placeholder="e.g. Exciting New Features Just Dropped! 🚀"
                       className="admin-input"
                       required
                     />
                   </div>
+
+                  {/* Body + Preview Toggle */}
                   <div className="form-group">
-                    <label>Email HTML Body</label>
-                    <textarea 
-                      value={emailBody} 
-                      onChange={e => setEmailBody(e.target.value)} 
-                      placeholder="<p>Write your message here in HTML...</p>" 
-                      className="admin-textarea"
-                      rows={8}
-                      required
-                    />
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                      <label style={{ margin: 0 }}>📝 Message Body (HTML supported)</label>
+                      <button
+                        type="button"
+                        onClick={() => setPreviewMode(p => !p)}
+                        style={{
+                          background: previewMode ? 'rgba(6,182,212,0.15)' : 'rgba(255,255,255,0.05)',
+                          border: '1px solid rgba(6,182,212,0.3)',
+                          color: '#06b6d4',
+                          borderRadius: '6px',
+                          padding: '4px 12px',
+                          fontSize: '0.78rem',
+                          cursor: 'pointer',
+                          fontWeight: 600,
+                        }}
+                      >
+                        {previewMode ? '✏️ Edit' : '👁️ Preview'}
+                      </button>
+                    </div>
+
+                    {previewMode ? (
+                      <div
+                        style={{
+                          background: '#0f172a',
+                          border: '1px solid #334155',
+                          borderRadius: '8px',
+                          padding: '20px',
+                          minHeight: '180px',
+                          color: '#cbd5e1',
+                          fontSize: '14px',
+                          lineHeight: '1.7',
+                        }}
+                        dangerouslySetInnerHTML={{ __html: emailBody || '<em style="color:#475569">Nothing to preview yet...</em>' }}
+                      />
+                    ) : (
+                      <textarea
+                        value={emailBody}
+                        onChange={e => setEmailBody(e.target.value)}
+                        placeholder={`Write your message here. HTML is supported.\n\nExample:\n<p>We just launched our new AI Interview Trainer! 🎯</p>\n<p><strong>Click below to try it now.</strong></p>`}
+                        className="admin-textarea"
+                        rows={9}
+                        required
+                      />
+                    )}
                   </div>
-                  <button type="submit" className="admin-btn-primary" disabled={emailSending}>
-                    {emailSending ? 'Broadcasting...' : '🚀 Send Broadcast to All Users'}
+
+                  {/* Template Chips */}
+                  <div style={{ marginBottom: '20px' }}>
+                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.78rem', margin: '0 0 8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Quick Templates:</p>
+                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                      {[
+                        { label: '🎯 New Feature', subject: '🎯 New Feature Just Launched on dsa.flow!', body: '<p>We are thrilled to announce a brand new feature on <strong>dsa.flow</strong>. Log in now to experience it firsthand and level up your DSA prep!</p>\n<p>As always, your feedback helps us grow. 🚀</p>' },
+                        { label: '📅 Weekly Tip', subject: '💡 Your Weekly DSA Tip', body: '<p>Here is your weekly DSA interview tip from the dsa.flow team:</p>\n<blockquote style="border-left:3px solid #06b6d4; padding-left:14px; color:#94a3b8;">Always define your DP state in one clear English sentence before writing any code.</blockquote>\n<p>Keep grinding — FAANG is within reach! 🔥</p>' },
+                        { label: '🎉 Offer', subject: '🎉 Limited Offer: Upgrade to Premium Today!', body: '<p>For a <strong>limited time</strong>, we are offering exclusive access to dsa.flow Premium at a special rate.</p>\n<p>Get lifetime access to 450+ curated problems, AI tutor, code arena, and more. Do not miss out!</p>' },
+                      ].map(t => (
+                        <button
+                          key={t.label}
+                          type="button"
+                          onClick={() => { setEmailSubject(t.subject); setEmailBody(t.body); }}
+                          style={{
+                            background: 'rgba(255,255,255,0.04)',
+                            border: '1px solid rgba(255,255,255,0.1)',
+                            color: 'var(--text-secondary)',
+                            borderRadius: '6px',
+                            padding: '5px 12px',
+                            fontSize: '0.78rem',
+                            cursor: 'pointer',
+                          }}
+                        >
+                          {t.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Send Button */}
+                  <button
+                    type="submit"
+                    className="admin-btn-primary"
+                    disabled={emailSending}
+                    style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}
+                  >
+                    {emailSending ? (
+                      <><span style={{ display: 'inline-block', width: 16, height: 16, border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} /> Broadcasting via Resend...</>
+                    ) : (
+                      `🚀 Send to ${emailTarget === 'all' ? 'All Users' : emailTarget === 'premium' ? 'Premium Members' : 'Free Users'}`
+                    )}
                   </button>
                 </form>
               </div>
+
+              {/* ── Result Panel ── */}
+              {broadcastResult && (
+                <div style={{
+                  background: broadcastResult.sentCount > 0 ? 'rgba(74,222,128,0.05)' : 'rgba(239,68,68,0.05)',
+                  border: `1px solid ${broadcastResult.sentCount > 0 ? 'rgba(74,222,128,0.2)' : 'rgba(239,68,68,0.2)'}`,
+                  borderRadius: '12px',
+                  padding: '20px 24px',
+                  marginTop: '20px',
+                }}>
+                  <h4 style={{ margin: '0 0 14px', color: broadcastResult.sentCount > 0 ? '#4ade80' : '#ef4444' }}>
+                    {broadcastResult.sentCount > 0 ? '✅ Broadcast Complete' : '❌ Broadcast Failed'}
+                  </h4>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '14px' }}>
+                    {[{ label: 'Total Audience', val: broadcastResult.totalUsers },
+                      { label: 'Sent ✅', val: broadcastResult.sentCount },
+                      { label: 'Failed ❌', val: broadcastResult.failures?.length || 0 },
+                    ].map(s => (
+                      <div key={s.label} style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '8px', padding: '12px', textAlign: 'center' }}>
+                        <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#f1f5f9' }}>{s.val}</div>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '4px' }}>{s.label}</div>
+                      </div>
+                    ))}
+                  </div>
+                  {broadcastResult.failures?.length > 0 && (
+                    <details style={{ fontSize: '0.8rem', color: '#94a3b8' }}>
+                      <summary style={{ cursor: 'pointer', color: '#f87171', marginBottom: '8px' }}>View {broadcastResult.failures.length} failed deliveries</summary>
+                      {broadcastResult.failures.map((f, i) => (
+                        <div key={i} style={{ padding: '4px 0', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                          <strong style={{ color: '#f87171' }}>{f.email}</strong>: {f.error}
+                        </div>
+                      ))}
+                    </details>
+                  )}
+                </div>
+              )}
+
             </div>
           )}
 
