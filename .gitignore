@@ -28,3 +28,28 @@ repo_tree.json
 scratch/
 service-account.json
 
+# PDF and raw source data
+Dsa.pdf
+a2z_clean.json
+a2z_raw.json
+textbook_notes.json
+
+# PDF extraction & data preparation scripts
+build_textbook_notes.cjs
+extract.js
+extract_all.js
+extract_clean.js
+extract_pdf.cjs
+extract_pdf2.cjs
+generate_a2z.js
+
+# Temporary/test/backup files
+modules/learning/Untitled.txt
+modules/learning/gemini-code-1780222491385.js
+modules/learning/test modules/
+modules/learning/test_modules_curriculum.js
+modules/learning/quiz.js
+modules/learning/content_extended.js
+modules/learning/code_library.js
+modules/learning/dsa-modules-resources.js
+modules/learning/dsa_curriculum_youtube_links.html
