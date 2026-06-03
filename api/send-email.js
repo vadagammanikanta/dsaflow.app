@@ -1,6 +1,6 @@
 import { Resend } from 'resend';
 
-const FROM_ADDRESS  = 'dsa.flow <onboarding@resend.dev>';
+const FROM_ADDRESS  = 'dsa.flow <noreply@dsaflow.app>';
 const ADMIN_EMAIL   = 'vadagammanikanta2006@gmail.com';
 
 export default async function handler(req, res) {

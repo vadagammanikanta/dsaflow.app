@@ -4,7 +4,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function GET() {
   const { data, error } = await resend.emails.send({
-    from: 'onboarding@resend.dev',
+    from: 'dsa.flow <noreply@dsaflow.app>',
     to: 'vadagammanikanta2006@gmail.com',
     subject: '✅ You completed Dynamic Programming — keep going!',
     html: `

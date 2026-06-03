@@ -2,7 +2,7 @@ import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 import { Resend } from 'resend';
 
-const FROM_ADDRESS   = 'dsa.flow <onboarding@resend.dev>';
+const FROM_ADDRESS   = 'dsa.flow <noreply@dsaflow.app>';
 // This is the Resend account owner email — the only address you can send TO
 // on the free plan without a verified domain.
 const OWNER_EMAIL    = 'vadagammanikanta2006@gmail.com';
