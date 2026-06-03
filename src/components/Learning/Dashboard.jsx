@@ -23,6 +23,13 @@ export default function Dashboard() {
   };
 
   const isPremium = trial?.isPaid;
+  const completedCount = appState.completedLessons.length;
+  const nextLesson = curriculum.find(lesson => !appState.completedLessons.includes(lesson.id)) || curriculum[0];
+  const progressPercent = curriculum.length ? ((completedCount / curriculum.length) * 100).toFixed(1) : 0;
+  
+  // Dynamic or Default data for others
+  const dayStreak = 0;
+  const problemsSolved = 0;
 
   return (
     <section className="tab-pane active" id="dashboard" style={{ display: 'grid', gap: '20px' }}>
@@ -33,6 +40,12 @@ export default function Dashboard() {
           🚀 {isPremium ? 'Premium Account Active' : 'Placement Ready • Free Trial Active'}
         </div>
         <h1>Master DSA with <span className="gradient-text">dsa.flow</span></h1>
+        
+        {/* Motivational Quote */}
+        <p className="hero-quote" style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontStyle: 'italic', marginBottom: '16px' }}>
+          "An algorithm must be seen to be believed." — Donald Knuth
+        </p>
+
         <p>The most comprehensive, interactive DSA platform built for cracking FAANG, product-based &amp; service-based company interviews. Learn, visualize, and solve.</p>
         
         <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
@@ -46,29 +59,69 @@ export default function Dashboard() {
             🌐 Platform Guides
           </button>
         </div>
+      </div>
 
-        <div className="hero-stats">
-          <div className="hero-stat">
-            <span>{curriculum.length}</span>
-            <small>Modules</small>
+      {/* Personal Progress Stats Row */}
+      <div className="progress-stats-row">
+        <div className="progress-stat-card">
+          <div className="stat-header">
+            <span className="stat-icon">📚</span>
+            <span className="stat-title">Modules Done</span>
           </div>
-          <div className="hero-stat">
-            <span>4</span>
-            <small>Languages</small>
-          </div>
-          <div className="hero-stat">
-            <span>20</span>
-            <small>Quiz Q&As</small>
-          </div>
-          <div className="hero-stat">
-            <span>5</span>
-            <small>Platforms</small>
-          </div>
-          <div className="hero-stat">
-            <span>∞</span>
-            <small>Visualizations</small>
+          <div className="stat-value">{completedCount} <span className="stat-total">/ {curriculum.length}</span></div>
+          <div className="thin-progress-bar">
+            <div className="thin-progress-fill" style={{ width: `${progressPercent}%` }}></div>
           </div>
         </div>
+        
+        <div className="progress-stat-card">
+          <div className="stat-header">
+            <span className="stat-icon">🔥</span>
+            <span className="stat-title">Day Streak</span>
+          </div>
+          <div className="stat-value">{dayStreak}</div>
+          <div className="stat-action" onClick={() => navigate('/learn')}>Start today ↗</div>
+        </div>
+        
+        <div className="progress-stat-card">
+          <div className="stat-header">
+            <span className="stat-icon">💻</span>
+            <span className="stat-title">Problems Solved</span>
+          </div>
+          <div className="stat-value">{problemsSolved}</div>
+          <div className="difficulty-mini-bar">
+            {problemsSolved > 0 ? (
+              <>
+                <div className="diff-segment easy" style={{ width: '50%' }} title="Easy"></div>
+                <div className="diff-segment medium" style={{ width: '35%' }} title="Medium"></div>
+                <div className="diff-segment hard" style={{ width: '15%' }} title="Hard"></div>
+              </>
+            ) : (
+              <div style={{ width: '100%', background: 'var(--border-glass)' }}></div>
+            )}
+          </div>
+        </div>
+        
+        <div className="progress-stat-card">
+          <div className="stat-header">
+            <span className="stat-icon">🎯</span>
+            <span className="stat-title">Interview Readiness</span>
+          </div>
+          <div className="stat-value" style={{ fontSize: '1.2rem' }}>In Progress</div>
+          <button className="btn btn-secondary stat-btn" style={{ padding: '4px 10px', fontSize: '0.75rem', marginTop: '6px' }}>Set a target date</button>
+        </div>
+      </div>
+
+      {/* Continue Where You Left Off */}
+      <div className="continue-learning-card card" onClick={() => handleCardClick(nextLesson.id)}>
+        <div className="continue-content">
+          <span className="continue-label">{completedCount === 0 ? 'START LEARNING' : 'CONTINUE LEARNING'}</span>
+          <h3 className="continue-title">{nextLesson.title}</h3>
+          <p className="continue-meta">{nextLesson.category} • {nextLesson.readTime || '5 mins'}</p>
+        </div>
+        <button className="btn btn-primary continue-btn">
+          {completedCount === 0 ? 'Start Learning ↗' : 'Resume Learning ↗'}
+        </button>
       </div>
 
       {/* Grid Section Header */}

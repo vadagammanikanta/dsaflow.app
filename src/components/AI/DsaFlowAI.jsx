@@ -183,7 +183,7 @@ function StatsBar({ messageCount }) {
       <div className="ai-stat-divider" />
       <div className="ai-stat">
         <span className="ai-stat-icon">🔥</span>
-        <span>Llama 3.3 70B</span>
+        <span>Grok AI</span>
       </div>
       <div className="ai-stat-divider" />
       <div className="ai-stat">
@@ -196,10 +196,15 @@ function StatsBar({ messageCount }) {
 
 /* ── Main Component ── */
 export default function DsaFlowAI() {
-  const [messages, setMessages] = useState([
-    {
-      role: 'assistant',
-      content: `👋 Hey there! I'm **dsa.flow AI** — your personal DSA tutor, powered by Llama 3.3 70B.
+  const [messages, setMessages] = useState(() => {
+    const saved = localStorage.getItem('dsaflow_ai_history');
+    if (saved) {
+      try { return JSON.parse(saved); } catch (e) {}
+    }
+    return [
+      {
+        role: 'assistant',
+        content: `👋 Hey there! I'm **dsa.flow AI** — your personal DSA tutor, powered by Grok.
 
 I can help you with:
 - 🧠 **Solving** any DSA problem with step-by-step explanations
@@ -209,8 +214,23 @@ I can help you with:
 - 🏆 **Preparing** for FAANG & placement interviews
 
 Ask me anything about DSA — let's crack those placements! 🚀`
-    }
-  ]);
+      }
+    ];
+  });
+
+  useEffect(() => {
+    localStorage.setItem('dsaflow_ai_history', JSON.stringify(messages));
+  }, [messages]);
+
+  const [customApiKey, setCustomApiKey] = useState(() => {
+    return localStorage.getItem('dsaflow_custom_api_key') || '';
+  });
+
+  const handleSaveKey = (key) => {
+    setCustomApiKey(key);
+    localStorage.setItem('dsaflow_custom_api_key', key);
+  };
+
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [activeCategory, setActiveCategory] = useState(0);
@@ -245,15 +265,38 @@ Ask me anything about DSA — let's crack those placements! 🚀`
         content: m.content
       }));
 
-      const res = await fetch('/api/ai-chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: historyToSend })
-      });
+      let replyText = '';
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed to get response from AI.');
-      setMessages(prev => [...prev, { role: 'assistant', content: data.reply }]);
+      if (customApiKey.trim()) {
+        // Direct call to xAI Grok API using the user's custom key
+        const grokRes = await fetch('https://api.x.ai/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${customApiKey.trim()}`
+          },
+          body: JSON.stringify({
+            messages: historyToSend,
+            model: 'grok-2-latest',
+            stream: false
+          })
+        });
+        const grokData = await grokRes.json();
+        if (!grokRes.ok) throw new Error(grokData.error?.message || 'Failed to get response from Grok API.');
+        replyText = grokData.choices[0].message.content;
+      } else {
+        // Default proxy call
+        const res = await fetch('/api/ai-chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ messages: historyToSend })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to get response from AI.');
+        replyText = data.reply;
+      }
+      
+      setMessages(prev => [...prev, { role: 'assistant', content: replyText }]);
     } catch (err) {
       setMessages(prev => [...prev, {
         role: 'assistant',
@@ -280,6 +323,7 @@ Ask me anything about DSA — let's crack those placements! 🚀`
   };
 
   const userMsgCount = messages.filter(m => m.role === 'user').length;
+  const isLimitReached = userMsgCount >= 10 && !customApiKey.trim();
 
   return (
     <div className="aipage-root">
@@ -325,12 +369,31 @@ Ask me anything about DSA — let's crack those placements! 🚀`
 
         <div className="aisidebar-model-card">
           <div className="aisidebar-model-badge">AI Model</div>
-          <div className="aisidebar-model-name">Llama 3.3 70B</div>
-          <div className="aisidebar-model-meta">via Together AI • 14,400 req/day free</div>
+          <div className="aisidebar-model-name">Grok AI</div>
+          <div className="aisidebar-model-meta">Powered by xAI API</div>
           <div className="aisidebar-model-bar">
-            <div className="aisidebar-model-fill" style={{ width: `${Math.min((userMsgCount / 144) * 100, 100)}%` }} />
+            <div className="aisidebar-model-fill" style={{ width: `${Math.min((userMsgCount / 10) * 100, 100)}%` }} />
           </div>
-          <div className="aisidebar-model-count">{userMsgCount} / 144 today</div>
+          <div className="aisidebar-model-count">{userMsgCount} / 10 today</div>
+        </div>
+
+        {/* Bring Your Own Key Widget */}
+        <div className="aisidebar-byok-card">
+          <div className="byok-header">🚀 Unlock Unlimited AI</div>
+          <div className="byok-desc">
+            You've reached your free daily limit! Enter your own Grok API key below to continue chatting for free.
+          </div>
+          <input 
+            type="password" 
+            className="byok-input" 
+            placeholder="xai-..." 
+            value={customApiKey}
+            onChange={(e) => handleSaveKey(e.target.value)}
+          />
+          <div className="byok-footer">
+            Stored securely in your browser. <br/>
+            <a href="https://console.x.ai" target="_blank" rel="noreferrer" style={{ color: 'var(--accent-cyan)' }}>Get a free key here</a>
+          </div>
         </div>
 
         <button className="aisidebar-clear-btn" onClick={clearChat}>
@@ -352,7 +415,7 @@ Ask me anything about DSA — let's crack those placements! 🚀`
               <div className="ai-topbar-name">dsa.flow AI</div>
               <div className="ai-topbar-status">
                 <span className="ai-status-dot" />
-                Online · Llama 3.3 70B
+                Online · Grok AI
               </div>
             </div>
           </div>
@@ -366,7 +429,7 @@ Ask me anything about DSA — let's crack those placements! 🚀`
           <div className="ai-welcome-banner">
             <div className="ai-welcome-glyph">✦</div>
             <h2 className="ai-welcome-heading">Your Personal DSA Tutor</h2>
-            <p className="ai-welcome-sub">Powered by Llama 3.3 70B · Specialized in algorithms, data structures & placement prep</p>
+            <p className="ai-welcome-sub">Powered by Grok · Specialized in algorithms, data structures & placement prep</p>
             <StatsBar messageCount={messages.length} />
           </div>
         )}
@@ -416,20 +479,20 @@ Ask me anything about DSA — let's crack those placements! 🚀`
               <textarea
                 ref={inputRef}
                 className="ai-input-textarea"
-                placeholder="Ask about any DSA topic, problem, or algorithm…"
+                placeholder={isLimitReached ? "Daily limit reached. Add your API key in the sidebar to continue." : "Ask about any DSA topic, problem, or algorithm…"}
                 value={input}
                 onChange={e => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
                 rows={1}
-                disabled={loading}
+                disabled={loading || isLimitReached}
               />
             </div>
             <div className="ai-input-actions">
               <div className="ai-input-char-count">{input.length > 0 ? `${input.length} chars` : ''}</div>
               <button
-                className={`ai-send-btn ${(!input.trim() || loading) ? 'ai-send-btn--disabled' : 'ai-send-btn--active'}`}
+                className={`ai-send-btn ${(!input.trim() || loading || isLimitReached) ? 'ai-send-btn--disabled' : 'ai-send-btn--active'}`}
                 onClick={() => sendMessage()}
-                disabled={!input.trim() || loading}
+                disabled={!input.trim() || loading || isLimitReached}
                 title="Send message (Enter)"
               >
                 {loading ? (

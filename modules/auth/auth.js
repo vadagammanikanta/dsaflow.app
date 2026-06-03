@@ -144,6 +144,38 @@ export async function signIn({ email, password }) {
   return stored;
 }
 
+/* ═══ CUSTOM TOKEN LOGIN ════════════════════════════════════════════ */
+export async function loginWithCustomToken(token) {
+  if (tryInitFirebase()) {
+    try {
+      const cred = await _auth.signInWithCustomToken(token);
+      const uid = cred.user.uid;
+      
+      const snap = await _db.collection('users').doc(uid).get();
+      if (snap.exists) {
+        const data = snap.data();
+        saveLocalUser(data);
+        return data;
+      }
+      
+      // Fallback data if Firestore read fails
+      const fallbackData = {
+        uid,
+        name: cred.user.displayName || 'Student',
+        email: cred.user.email,
+        trialExpiry: Date.now() + TRIAL_DURATION_MS,
+        isPaid: false
+      };
+      saveLocalUser(fallbackData);
+      return fallbackData;
+    } catch (e) {
+      console.error('[dsa.flow] Custom token login failed:', e);
+      throw new Error('Failed to securely login. Please try again.');
+    }
+  }
+  throw new Error('Database connection required for secure OTP login.');
+}
+
 /* ═══ SIGN OUT ════════════════════════════════════════════════════════ */
 export async function signOut() {
   if (_firebaseReady && _auth) {

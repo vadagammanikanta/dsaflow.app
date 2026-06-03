@@ -77,7 +77,7 @@ function QuotesTicker() {
 }
 
 function AppLayout() {
-  const { user, trial, loading, login, register, logout, payAndUnlock, sendPasswordReset } = useAuth();
+  const { user, trial, loading, login, loginWithToken, register, logout, payAndUnlock, sendPasswordReset } = useAuth();
   
   // Auth Form tabs and inputs
   const [authTab, setAuthTab] = useState('signin'); // 'signin', 'signup', or 'forgot_password'
@@ -92,6 +92,13 @@ function AppLayout() {
   const [signUpEmail, setSignUpEmail] = useState('');
   const [signUpPhone, setSignUpPhone] = useState('');
   const [signUpPassword, setSignUpPassword] = useState('');
+
+  const [showOtpScreen, setShowOtpScreen] = useState(false);
+  const [otpCode, setOtpCode] = useState('');
+
+  const [showForgotOtpScreen, setShowForgotOtpScreen] = useState(false);
+  const [forgotOtpCode, setForgotOtpCode] = useState('');
+  const [forgotNewPassword, setForgotNewPassword] = useState('');
 
   const [forgotEmail, setForgotEmail] = useState('');
   const [forgotSuccess, setForgotSuccess] = useState('');
@@ -123,12 +130,36 @@ function AppLayout() {
       setAuthError('');
       setAuthLoading(true);
       try {
-        await register({
-          name: signUpName,
-          email: signUpEmail,
-          phone: signUpPhone,
-          password: signUpPassword
-        });
+        if (!showOtpScreen) {
+          // Step 1: Request OTP
+          const res = await fetch('/api/send-otp', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: signUpEmail })
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || 'Failed to send OTP.');
+          
+          setShowOtpScreen(true);
+        } else {
+          // Step 2: Verify OTP and securely create account via backend
+          const res = await fetch('/api/verify-otp-signup', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+              email: signUpEmail, 
+              otp: otpCode, 
+              password: signUpPassword, 
+              name: signUpName, 
+              phone: signUpPhone 
+            })
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || 'Failed to verify OTP.');
+          
+          // Use the custom token returned by the backend to log in securely
+          await loginWithToken(data.token);
+        }
       } catch (err) {
         setAuthError(err.message || 'Registration failed.');
       } finally {
@@ -142,11 +173,42 @@ function AppLayout() {
       setForgotSuccess('');
       setAuthLoading(true);
       try {
-        await sendPasswordReset(forgotEmail);
-        setForgotSuccess('Password reset link sent! Check your inbox.');
-        setForgotEmail('');
+        if (!showForgotOtpScreen) {
+          // Step 1: Request OTP
+          const res = await fetch('/api/send-otp', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: forgotEmail })
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || 'Failed to send OTP.');
+          
+          setShowForgotOtpScreen(true);
+          setForgotSuccess('OTP sent to your email.');
+        } else {
+          // Step 2: Verify OTP and reset password
+          const res = await fetch('/api/reset-password-otp', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+              email: forgotEmail, 
+              otp: forgotOtpCode, 
+              newPassword: forgotNewPassword 
+            })
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || 'Failed to verify OTP.');
+          
+          setForgotSuccess('Password reset successfully! Logging you in...');
+          if (data.token) {
+             await loginWithToken(data.token);
+          } else {
+             setAuthTab('signin');
+             setShowForgotOtpScreen(false);
+          }
+        }
       } catch (err) {
-        setAuthError(err.message || 'Failed to send password reset email.');
+        setAuthError(err.message || 'Failed to reset password.');
       } finally {
         setAuthLoading(false);
       }
@@ -263,32 +325,85 @@ function AppLayout() {
               <form className="auth-form" onSubmit={handleForgotPasswordSubmit}>
                 <h3 className="auth-form-title">Reset Password</h3>
                 <p className="auth-form-desc">
-                  Enter your email address and we'll send you a recovery link to reset your password.
+                  {!showForgotOtpScreen 
+                    ? "Enter your email address and we'll send you a 6-digit recovery code."
+                    : `Enter the code sent to ${forgotEmail} and your new password.`}
                 </p>
                 
-                <div className="form-group">
-                  <label>Email Address</label>
-                  <div className="input-with-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-                    <input 
-                      type="email" 
-                      placeholder="your@email.com" 
-                      value={forgotEmail} 
-                      onChange={e => setForgotEmail(e.target.value)} 
-                      required 
-                    />
+                {!showForgotOtpScreen ? (
+                  <div className="form-group">
+                    <label>Email Address</label>
+                    <div className="input-with-icon">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                      <input 
+                        type="email" 
+                        placeholder="your@email.com" 
+                        value={forgotEmail} 
+                        onChange={e => setForgotEmail(e.target.value)} 
+                        required 
+                      />
+                    </div>
                   </div>
-                </div>
+                ) : (
+                  <>
+                    <div className="form-group">
+                      <label>6-Digit Code</label>
+                      <div className="input-with-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                        <input 
+                          type="text" 
+                          placeholder="000000" 
+                          value={forgotOtpCode} 
+                          onChange={e => setForgotOtpCode(e.target.value.replace(/\\D/g, '').slice(0, 6))}
+                          required 
+                          pattern="\\d{6}"
+                          maxLength="6"
+                          style={{ letterSpacing: '4px', textAlign: 'center', fontSize: '1.2rem', fontWeight: 'bold' }}
+                        />
+                      </div>
+                    </div>
+                    <div className="form-group">
+                      <label>New Password <span className="label-helper">(min 6 characters)</span></label>
+                      <div className="input-with-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                        <input 
+                          type={showPassword ? 'text' : 'password'} 
+                          placeholder="Create a strong password" 
+                          value={forgotNewPassword} 
+                          onChange={e => setForgotNewPassword(e.target.value)} 
+                          required 
+                          minLength={6} 
+                        />
+                        <button
+                          type="button"
+                          className="password-toggle-btn"
+                          onClick={() => setShowPassword(!showPassword)}
+                          title={showPassword ? 'Hide Password' : 'Show Password'}
+                        >
+                          {showPassword ? (
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+                          ) : (
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                )}
 
                 {authError && <div className="auth-error">{authError}</div>}
                 {forgotSuccess && <div className="auth-success-alert">{forgotSuccess}</div>}
 
                 <button type="submit" className="btn btn-primary auth-submit-btn" disabled={authLoading}>
-                  <span className="btn-text">{authLoading ? '⏳ Sending...' : 'Send Reset Link'}</span>
+                  <span className="btn-text">{authLoading ? '⏳ Processing...' : (!showForgotOtpScreen ? 'Send Reset Code' : 'Reset & Log In')}</span>
                 </button>
                 
                 <p className="auth-form-footer-link">
-                  Remembered your password? <span onClick={() => { setAuthTab('signin'); setAuthError(''); setForgotSuccess(''); }}>Sign In →</span>
+                  {!showForgotOtpScreen ? (
+                    <>Remembered your password? <span onClick={() => { setAuthTab('signin'); setAuthError(''); setForgotSuccess(''); }}>Sign In →</span></>
+                  ) : (
+                    <span onClick={() => { setShowForgotOtpScreen(false); setAuthError(''); setForgotSuccess(''); }}>← Try a different email</span>
+                  )}
                 </p>
               </form>
             ) : authTab === 'signin' ? (
@@ -349,8 +464,10 @@ function AppLayout() {
               </form>
             ) : (
               <form className="auth-form" onSubmit={handleSignUpSubmit}>
-                <div className="form-group">
-                  <label>Full Name</label>
+                {!showOtpScreen ? (
+                  <>
+                    <div className="form-group">
+                      <label>Full Name</label>
                   <div className="input-with-icon">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>
                     <input 
@@ -415,10 +532,46 @@ function AppLayout() {
                   </div>
                 </div>
                 {authError && <div className="auth-error">{authError}</div>}
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', marginBottom: '16px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                  <input type="checkbox" id="terms-checkbox" required style={{ marginTop: '4px', cursor: 'pointer', accentColor: 'var(--accent-cyan)' }} />
+                  <label htmlFor="terms-checkbox" style={{ cursor: 'pointer', lineHeight: '1.4' }}>
+                    I agree to the <span style={{ color: 'var(--accent-cyan)' }}>Terms of Service</span> and <span style={{ color: 'var(--accent-cyan)' }}>Privacy Policy</span>. My data will only be used for placement opportunities.
+                  </label>
+                </div>
                 <button type="submit" className="btn btn-accent auth-submit-btn" disabled={authLoading}>
-                  <span className="btn-text">{authLoading ? '⏳ Creating...' : '🚀 Start Free Trial'}</span>
+                  <span className="btn-text">{authLoading ? '⏳ Sending OTP...' : '🚀 Start Free Trial'}</span>
                 </button>
-                <p className="auth-terms">By signing up, you agree to our Terms of Service. Your data is securely stored and will only be used to contact you about placement opportunities.</p>
+                  </>
+                ) : (
+                  <>
+                    <div className="form-group" style={{ textAlign: 'center', marginBottom: '24px' }}>
+                      <label style={{ fontSize: '1.1rem', color: '#f8fafc', marginBottom: '8px' }}>Verify Your Email</label>
+                      <p style={{ fontSize: '0.85rem', color: '#94a3b8', margin: 0 }}>We've sent a 6-digit code to <strong>{signUpEmail}</strong></p>
+                    </div>
+                    <div className="form-group">
+                      <div className="input-with-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                        <input 
+                          type="text" 
+                          placeholder="Enter 6-digit code" 
+                          value={otpCode} 
+                          onChange={e => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                          required 
+                          pattern="\d{6}"
+                          maxLength="6"
+                          style={{ letterSpacing: '4px', textAlign: 'center', fontSize: '1.2rem', fontWeight: 'bold' }}
+                        />
+                      </div>
+                    </div>
+                    {authError && <div className="auth-error">{authError}</div>}
+                    <button type="submit" className="btn btn-accent auth-submit-btn" disabled={authLoading}>
+                      <span className="btn-text">{authLoading ? '⏳ Verifying...' : 'Verify & Create Account'}</span>
+                    </button>
+                    <p className="auth-form-footer-link" style={{ marginTop: '16px', textAlign: 'center' }}>
+                      Didn't receive code? <span onClick={() => { setShowOtpScreen(false); setAuthError(''); }}>Go back</span>
+                    </p>
+                  </>
+                )}
               </form>
             )}
           </div>

@@ -2070,9 +2070,11 @@ main { padding-bottom: 56px; }
 /* Root layout: sidebar + main */
 .aipage-root {
   display: flex;
-  height: calc(100vh - 64px);
+  height: calc(100vh - 150px);
   position: relative;
   overflow: hidden;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-glass);
 }
 
 /* Ambient background orbs */
@@ -2291,6 +2293,55 @@ main { padding-bottom: 56px; }
   color: var(--text-muted);
   text-align: right;
 }
+
+/* Bring Your Own Key Widget */
+.aisidebar-byok-card {
+  margin: 14px 14px 0;
+  padding: 16px;
+  background: rgba(124, 77, 255, 0.05);
+  border: 1px solid rgba(124, 77, 255, 0.2);
+  border-radius: 14px;
+}
+.byok-header {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+.byok-desc {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+  margin-bottom: 10px;
+}
+.byok-input {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255,255,255,0.1);
+  padding: 8px 10px;
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-size: 0.8rem;
+  outline: none;
+  font-family: var(--font-code);
+  box-sizing: border-box;
+}
+.byok-input:focus {
+  border-color: var(--accent-purple);
+}
+.byok-footer {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  margin-top: 8px;
+  line-height: 1.3;
+}
+.byok-footer a {
+  text-decoration: none;
+}
+.byok-footer a:hover {
+  text-decoration: underline;
+}
+
 
 .aisidebar-clear-btn {
   margin: 14px 14px 20px;
@@ -3287,3 +3338,158 @@ main { padding-bottom: 56px; }
 
 /* Mobile sidebar overlay */
 [data-theme="light"] .aipage-sidebar--open { box-shadow: 4px 0 30px rgba(15,23,42,0.12); }
+
+/* ══ DASHBOARD UI UPGRADE ═══════════════════════════════════════════ */
+.progress-stats-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-top: 4px;
+}
+
+.progress-stat-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-lg);
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  transition: var(--transition);
+}
+
+.progress-stat-card:hover {
+  border-color: rgba(124, 77, 255, 0.3);
+  transform: translateY(-2px);
+}
+
+.stat-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+}
+
+.stat-icon {
+  font-size: 1.1rem;
+}
+
+.stat-value {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.stat-total {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+/* Thin Progress Bar */
+.thin-progress-bar {
+  width: 100%;
+  height: 4px;
+  background: var(--bg-input);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: auto;
+}
+
+.thin-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple));
+  border-radius: 4px;
+  transition: width 0.5s ease-out;
+}
+
+/* Nudge Action */
+.stat-action {
+  font-size: 0.8rem;
+  color: var(--accent-cyan);
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: auto;
+  transition: var(--transition);
+}
+
+.stat-action:hover {
+  text-decoration: underline;
+}
+
+/* Difficulty Mini Bar */
+.difficulty-mini-bar {
+  display: flex;
+  width: 100%;
+  height: 4px;
+  background: var(--bg-input);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: auto;
+  gap: 2px;
+}
+
+.diff-segment.easy { background: var(--accent-emerald); }
+.diff-segment.medium { background: var(--accent-amber); }
+.diff-segment.hard { background: var(--accent-rose); }
+
+/* Continue Learning Card */
+.continue-learning-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 28px;
+  background: linear-gradient(135deg, rgba(124, 77, 255, 0.08) 0%, rgba(0, 229, 255, 0.04) 100%);
+  border: 1px solid rgba(124, 77, 255, 0.2);
+  cursor: pointer;
+}
+
+.continue-learning-card:hover {
+  border-color: rgba(124, 77, 255, 0.4);
+  box-shadow: 0 8px 30px rgba(124, 77, 255, 0.15);
+}
+
+.continue-label {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--accent-cyan);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+  display: block;
+}
+
+.continue-title {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.continue-meta {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.continue-btn {
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  .continue-learning-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .continue-btn {
+    width: 100%;
+  }
+}

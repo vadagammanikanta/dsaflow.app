@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { curriculum } from '../../modules/learning/content_a2z';
 
 const AppContext = createContext();
 
@@ -6,14 +7,27 @@ export function AppProvider({ children }) {
   const [appState, setAppState] = useState(() => {
     const saved = localStorage.getItem('dsa_app_state');
     if (saved) {
-      try { return JSON.parse(saved); } catch (e) { }
+      try { 
+        const parsed = JSON.parse(saved);
+        
+        // Sanitize the completed lessons array to remove dummy or old data
+        const validLessonIds = new Set(curriculum.map(c => c.id));
+        parsed.completedLessons = (parsed.completedLessons || []).filter(id => validLessonIds.has(id));
+        
+        // Ensure activeLessonId points to a valid lesson (fallback to first lesson)
+        if (!validLessonIds.has(parsed.activeLessonId)) {
+          parsed.activeLessonId = 'language-syntax';
+        }
+
+        return parsed;
+      } catch (e) { }
     }
     return {
       completedLessons: [],
       quizHighScore: 0,
       selectedLanguage: 'javascript',
       activeDifficulty: 'all',
-      activeLessonId: 'a2z-s1-c499-p1'
+      activeLessonId: 'language-syntax'
     };
   });
 

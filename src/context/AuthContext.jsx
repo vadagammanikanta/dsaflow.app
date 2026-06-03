@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { signUp, signIn, signOut, getCurrentUser, getTrialInfo, markAsPaid, resetPassword } from '../../modules/auth/auth.js';
+import { signUp, signIn, signOut, getCurrentUser, getTrialInfo, markAsPaid, resetPassword, loginWithCustomToken } from '../../modules/auth/auth.js';
 
 const AuthContext = createContext();
 
@@ -32,6 +32,13 @@ export function AuthProvider({ children }) {
 
   const login = async (credentials) => {
     const u = await signIn(credentials);
+    setUser(u);
+    setTrial(getTrialInfo());
+    return u;
+  };
+
+  const loginWithToken = async (token) => {
+    const u = await loginWithCustomToken(token);
     setUser(u);
     setTrial(getTrialInfo());
     return u;
@@ -95,7 +102,7 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, trial, loading, login, register, logout, payAndUnlock, refreshTrial, sendPasswordReset }}>
+    <AuthContext.Provider value={{ user, trial, loading, login, loginWithToken, register, logout, payAndUnlock, refreshTrial, sendPasswordReset }}>
       {children}
     </AuthContext.Provider>
   );

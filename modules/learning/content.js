@@ -1812,5 +1812,95 @@ export const quizQuestions = [
     options: ["Quick Sort", "Bubble Sort", "Merge Sort", "Counting Sort"],
     answer: 2,
     explanation: "**Merge Sort** is preferred for Linked Lists because it doesn't require random access (unlike Quick Sort's partitioning). It naturally works by splitting lists and merging, achieving O(N log N) without extra O(N) space."
+  },
+  {
+    question: "Which of the following time complexities represents the fastest algorithm for extremely large inputs?",
+    options: ["O(N log N)", "O(N)", "O(log N)", "O(1)"],
+    answer: 3,
+    explanation: "**O(1)** (Constant Time) is the fastest because the execution time remains exactly the same regardless of how massive the input data gets."
+  },
+  {
+    question: "What is the most efficient approach to find the maximum sum of a contiguous subarray of fixed size K?",
+    options: ["Sliding Window", "Two Pointers", "Dynamic Programming", "Binary Search"],
+    answer: 0,
+    explanation: "The **Sliding Window** technique maintains a running sum of the K elements. By sliding the window and adding the new element while subtracting the old one, it solves the problem in O(N) time."
+  },
+  {
+    question: "Which algorithm is highly optimal for finding a pattern string of length M inside a massive text of length N?",
+    options: ["Depth First Search", "KMP (Knuth-Morris-Pratt)", "Floyd's Algorithm", "Kadane's Algorithm"],
+    answer: 1,
+    explanation: "The **KMP algorithm** preprocesses the pattern to create an LPS (Longest Prefix Suffix) array. This avoids unnecessary re-evaluations and finds the substring in O(N + M) time."
+  },
+  {
+    question: "Which problem is ideally solved using a Monotonic Stack?",
+    options: ["Reversing a Linked List", "Validating Anagrams", "Finding the Next Greater Element", "Shortest Path in a Maze"],
+    answer: 2,
+    explanation: "A **Monotonic Stack** maintains elements in strict increasing or decreasing order. It is the optimal structure to find the 'Next Greater Element' or 'Next Smaller Element' in O(N) time."
+  },
+  {
+    question: "How can you find the exact middle node of a Singly Linked List in a single pass?",
+    options: ["By hashing all nodes", "By using a stack", "Fast (2 steps) and Slow (1 step) pointers", "It is impossible in one pass"],
+    answer: 2,
+    explanation: "Using the **Fast & Slow pointer** technique: when the fast pointer (moving 2 nodes at a time) reaches the end of the list, the slow pointer (moving 1 node at a time) will be exactly at the middle."
+  },
+  {
+    question: "What happens when two different keys map to the exact same hash index in a Hash Table?",
+    options: ["The program crashes", "The original key gets overwritten", "A Collision occurs and must be handled", "The table size is automatically doubled"],
+    answer: 2,
+    explanation: "A **Collision** occurs. This is normal and is typically handled by either **Chaining** (keeping a linked list at that index) or **Open Addressing** (finding the next available slot)."
+  },
+  {
+    question: "If you perform an Inorder traversal on a valid Binary Search Tree, what is special about the resulting output?",
+    options: ["The elements will be in random order", "The elements will be sorted in descending order", "The elements will be sorted in ascending order", "The root will always be printed first"],
+    answer: 2,
+    explanation: "An **Inorder Traversal** (Left-Root-Right) naturally visits the nodes of a BST from smallest to largest, resulting in an array sorted in **ascending order**."
+  },
+  {
+    question: "What is the theoretical time complexity to build a Heap from an unsorted array of N elements?",
+    options: ["O(1)", "O(N)", "O(log N)", "O(N log N)"],
+    answer: 1,
+    explanation: "While inserting elements one by one takes O(N log N), the bottom-up **'Heapify'** algorithm mathematically converges to a strict **O(N)** time complexity to build the entire heap."
+  },
+  {
+    question: "A Trie data structure is most commonly used for which real-world application?",
+    options: ["Social network connections", "Shortest path routing", "Database indexing", "Auto-complete and spell-checking"],
+    answer: 3,
+    explanation: "**Tries** (Prefix Trees) store characters on paths. Because they allow you to instantly find all words sharing a common prefix, they are incredibly efficient for **auto-complete** features."
+  },
+  {
+    question: "In a Graph, which traversal algorithm is guaranteed to find the shortest path (fewest edges) between two nodes in an unweighted graph?",
+    options: ["Depth First Search (DFS)", "Breadth First Search (BFS)", "Kruskal's Algorithm", "Topological Sort"],
+    answer: 1,
+    explanation: "**BFS** explores the graph layer by layer, radiating outward from the start. This guarantees that the first time you reach a destination node, it is via the shortest path in terms of edges."
+  },
+  {
+    question: "When is Binary Search applicable on a simple array?",
+    options: ["Always", "Only when the array has unique elements", "Only when the array is sorted", "Only when the array size is a power of 2"],
+    answer: 2,
+    explanation: "Binary search works by comparing the target to the middle element and mathematically discarding half the search space. This logic only holds true if the array is **sorted**."
+  },
+  {
+    question: "Which of these sorting algorithms natively utilizes a Divide and Conquer methodology?",
+    options: ["Selection Sort", "Merge Sort", "Bubble Sort", "Insertion Sort"],
+    answer: 1,
+    explanation: "**Merge Sort** recursively *divides* the array in half until single elements remain, and then *conquers* by merging the sorted halves back together."
+  },
+  {
+    question: "What is a 'Base Case' in a recursive function?",
+    options: ["The most complex part of the function", "A memory cache to store results", "The condition under which the function stops calling itself", "A variable that tracks recursion depth"],
+    answer: 2,
+    explanation: "A **Base Case** is the escape hatch. Without a condition that stops the recursion from calling itself, it would run infinitely and result in a Stack Overflow error."
+  },
+  {
+    question: "The 'Bottom-Up' approach to Dynamic Programming is also formally known as:",
+    options: ["Memoization", "Tabulation", "Branch and Bound", "Recursion"],
+    answer: 1,
+    explanation: "**Tabulation** solves DP problems iteratively by filling up an array or table starting from the smallest base cases, moving 'bottom-up' to the final answer."
+  },
+  {
+    question: "A Greedy Algorithm makes choices based exclusively on:",
+    options: ["The locally optimal choice at that specific moment", "Exploring all possible future outcomes", "Random selection to average out performance", "Looking back at previous mistakes"],
+    answer: 0,
+    explanation: "**Greedy algorithms** pick the best immediate (local) choice without worrying about the future, hoping that these local maximums lead to a globally optimal solution (e.g., giving change with the largest coins first)."
   }
 ];

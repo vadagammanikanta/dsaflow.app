@@ -175,30 +175,33 @@ export default function Header() {
         </div>
 
         {/* Language Picker */}
-        <div 
-          ref={langRef}
-          className={`lang-selector-pill ${langOpen ? 'open' : ''}`} 
-          onClick={() => setLangOpen(!langOpen)}
-        >
-          <span>{labelsMap[appState.selectedLanguage] || appState.selectedLanguage}</span>
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
-            <path d="m6 9 6 6 6-6"/>
-          </svg>
-          
-          <div className="lang-dropdown">
-            {Object.keys(labelsMap).map(lang => (
-              <div 
-                key={lang} 
-                className={`lang-option ${appState.selectedLanguage === lang ? 'active' : ''}`}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  updateAppState({ selectedLanguage: lang });
-                  setLangOpen(false);
-                }}
-              >
-                {lang === 'javascript' ? '⚡ JavaScript' : lang === 'cpp' ? '⚙️ C++' : lang === 'java' ? '☕ Java' : '🐍 Python'}
-              </div>
-            ))}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: '600' }}>Practice in</span>
+          <div 
+            ref={langRef}
+            className={`lang-selector-pill ${langOpen ? 'open' : ''}`} 
+            onClick={() => setLangOpen(!langOpen)}
+          >
+            <span>{labelsMap[appState.selectedLanguage] || appState.selectedLanguage}</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+              <path d="m6 9 6 6 6-6"/>
+            </svg>
+            
+            <div className="lang-dropdown">
+              {Object.keys(labelsMap).map(lang => (
+                <div 
+                  key={lang} 
+                  className={`lang-option ${appState.selectedLanguage === lang ? 'active' : ''}`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    updateAppState({ selectedLanguage: lang });
+                    setLangOpen(false);
+                  }}
+                >
+                  {lang === 'javascript' ? '⚡ JavaScript' : lang === 'cpp' ? '⚙️ C++' : lang === 'java' ? '☕ Java' : '🐍 Python'}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 

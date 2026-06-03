@@ -1,6 +1,7 @@
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 import { Resend } from 'resend';
+import nodemailer from 'nodemailer';
 
 const FROM_ADDRESS   = 'dsa.flow <noreply@dsaflow.app>';
 // This is the Resend account owner email — the only address you can send TO
@@ -144,6 +145,19 @@ export default async function handler(req, res) {
     }
 
     const resend = new Resend(process.env.RESEND_API_KEY);
+    
+    // Setup Nodemailer fallback using Gmail
+    let transporter = null;
+    if (process.env.GMAIL_APP_PASSWORD) {
+      transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: 'noreply.dsa.flow@gmail.com',
+          pass: process.env.GMAIL_APP_PASSWORD
+        }
+      });
+    }
+
     let successCount = 0;
     const failures = [];
 
@@ -183,8 +197,26 @@ export default async function handler(req, res) {
 
         if (error) {
           const msg = error.message || JSON.stringify(error);
-          // Detect Resend's domain restriction error
-          if (msg.includes('verify a domain') || msg.includes('testing emails') || msg.includes('your own email')) {
+          // Detect Resend's domain restriction error or quota limit (e.g., 429 Too Many Requests)
+          const isQuotaOrDomainError = msg.toLowerCase().includes('rate limit') || 
+                                       msg.includes('429') || 
+                                       msg.includes('verify a domain') || 
+                                       msg.includes('testing emails') || 
+                                       msg.includes('your own email');
+                                       
+          if (isQuotaOrDomainError && transporter) {
+            console.log(`[broadcast] Resend failed for ${user.email} due to quota/domain. Falling back to Gmail...`);
+            await transporter.sendMail({
+              from: '"dsa.flow" <noreply.dsa.flow@gmail.com>',
+              to: user.email,
+              subject: subject,
+              html: html
+            });
+            successCount++;
+            continue; // Skip throwing error since fallback succeeded
+          }
+
+          if (isQuotaOrDomainError && !transporter) {
             domainVerificationError = true;
           }
           throw new Error(msg);
@@ -204,8 +236,8 @@ export default async function handler(req, res) {
       totalUsers: users.length,
       sentCount: successCount,
       failures,
-      // Flag so the UI can show the domain verification CTA
-      domainError: domainVerificationError ? DOMAIN_ERROR_HINT : null,
+      // Flag so the UI can show the domain verification CTA (if Resend failed and no fallback was available)
+      domainError: domainVerificationError && !process.env.GMAIL_APP_PASSWORD ? DOMAIN_ERROR_HINT : null,
     });
 
   } catch (err) {
