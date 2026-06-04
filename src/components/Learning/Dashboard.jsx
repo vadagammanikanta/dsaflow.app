@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
 import { useAuth } from '../../context/AuthContext';
 import { curriculum } from '../../../modules/learning/content_a2z';
+import ShareCard from '../Layout/ShareCard';
 
 const QUOTES = [
   { text: "An algorithm must be seen to be believed.", author: "Donald Knuth" },
@@ -20,12 +21,18 @@ const QUOTES = [
 // Pick a quote that rotates daily (same quote all day, changes tomorrow)
 const todayQuote = QUOTES[new Date().getDate() % QUOTES.length];
 
+const STREAK_MILESTONES = [3, 7, 14, 30];
+
 export default function Dashboard() {
   const { appState, updateAppState, setInterviewDate, interviewDaysLeft } = useApp();
-  const { trial } = useAuth();
+  const { trial, user } = useAuth();
   const navigate = useNavigate();
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [pickedDate, setPickedDate] = useState(appState.interviewDate || '');
+  const [shareCard, setShareCard] = useState(null); // { type, value }
+  const [sharedMilestones] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('dsaflow_shared_milestones') || '[]'); } catch { return []; }
+  });
 
   const filteredLessons = useMemo(() => {
     return curriculum.filter(lesson =>
@@ -46,6 +53,17 @@ export default function Dashboard() {
 
   // Streak
   const dayStreak = appState.dayStreak || 1;
+
+  // Check for streak milestone to show share card
+  const showStreakMilestone = () => {
+    const milestone = STREAK_MILESTONES.find(m => dayStreak >= m && !sharedMilestones.includes(`streak-${m}`));
+    if (milestone) {
+      const key = `streak-${milestone}`;
+      setShareCard({ type: 'streak', value: milestone });
+      const updated = [...sharedMilestones, key];
+      localStorage.setItem('dsaflow_shared_milestones', JSON.stringify(updated));
+    }
+  };
 
   // Problems solved = count of unique pattern problems marked done
   const problemsSolved = Object.values(appState.patternProgress || {})
@@ -72,8 +90,35 @@ export default function Dashboard() {
     }
   };
 
+  // WhatsApp share progress
+  const handleWhatsAppShare = () => {
+    const text = encodeURIComponent(
+      `🔥 I've completed ${completedCount} of ${curriculum.length} DSA modules on dsaflow.app with a ${dayStreak}-day streak! 💪\n\nJoin me and crack your placements too → https://dsaflow.app`
+    );
+    window.open(`https://wa.me/?text=${text}`, '_blank');
+  };
+
+  // Referral link
+  const referralCode = user?.uid ? user.uid.slice(0, 8).toUpperCase() : 'INVITE';
+  const referralLink = `https://dsaflow.app?ref=${referralCode}`;
+  const handleCopyReferral = () => {
+    navigator.clipboard.writeText(referralLink);
+    const btn = document.getElementById('referral-copy-btn');
+    if (btn) { btn.textContent = '✅ Copied!'; setTimeout(() => { btn.textContent = '📋 Copy Link'; }, 2000); }
+  };
+
   return (
     <section className="tab-pane active" id="dashboard" style={{ display: 'grid', gap: '20px' }}>
+
+      {/* Share Achievement Card Modal */}
+      {shareCard && (
+        <ShareCard
+          type={shareCard.type}
+          value={shareCard.value}
+          userName={user?.name || user?.displayName || ''}
+          onClose={() => setShareCard(null)}
+        />
+      )}
 
       {/* Welcome Hero Banner */}
       <div className="card welcome-hero">
@@ -93,6 +138,13 @@ export default function Dashboard() {
           <button className="btn btn-accent" onClick={() => navigate('/roadmap')}>🗺️ View Roadmap</button>
           <button className="btn btn-primary" onClick={() => navigate('/learn')}>📖 Start Learning</button>
           <button className="btn btn-secondary" onClick={() => navigate('/patterns')}>🧩 Interview Patterns</button>
+          <button
+            className="btn"
+            style={{ background: 'linear-gradient(135deg, #25D366, #128C7E)', color: '#fff', border: 'none' }}
+            onClick={handleWhatsAppShare}
+          >
+            📤 Share Progress
+          </button>
         </div>
       </div>
 
@@ -111,11 +163,17 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Day Streak */}
-        <div className="progress-stat-card">
+        {/* Day Streak — clickable to show share card */}
+        <div
+          className="progress-stat-card"
+          style={{ cursor: dayStreak >= 3 ? 'pointer' : 'default' }}
+          onClick={dayStreak >= 3 ? showStreakMilestone : undefined}
+          title={dayStreak >= 3 ? 'Click to share your streak!' : ''}
+        >
           <div className="stat-header">
             <span className="stat-icon">🔥</span>
             <span className="stat-title">Day Streak</span>
+            {dayStreak >= 3 && <span style={{ fontSize: '0.62rem', color: 'var(--accent-cyan)', marginLeft: 'auto' }}>tap to share</span>}
           </div>
           <div className="stat-value" style={{ color: dayStreak >= 7 ? 'var(--accent-amber)' : undefined }}>
             {dayStreak}
@@ -217,6 +275,70 @@ export default function Dashboard() {
           </div>
         </div>
       )}
+
+      {/* ── Invite Friends Card ── */}
+      <div className="card" style={{
+        background: 'linear-gradient(135deg, rgba(124,77,255,0.08) 0%, rgba(6,182,212,0.06) 100%)',
+        border: '1px solid rgba(124,77,255,0.25)',
+        borderRadius: '16px',
+        padding: '22px 24px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        gap: '16px',
+      }}>
+        <div style={{ flex: 1, minWidth: '220px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
+            <span style={{ fontSize: '1.6rem' }}>🎁</span>
+            <div>
+              <h3 style={{ margin: 0, fontSize: '1rem', color: '#f1f5f9', fontWeight: 700 }}>
+                Invite Friends — Earn Rewards!
+              </h3>
+              <p style={{ margin: '2px 0 0', fontSize: '0.8rem', color: '#94a3b8' }}>
+                Share your link. When a friend signs up, you both win!
+              </p>
+            </div>
+          </div>
+          <div style={{
+            background: 'rgba(0,0,0,0.3)', borderRadius: '8px', padding: '8px 12px',
+            display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.8rem',
+            border: '1px solid rgba(124,77,255,0.2)', marginTop: '10px',
+          }}>
+            <span style={{ color: '#94a3b8', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {referralLink}
+            </span>
+            <button
+              id="referral-copy-btn"
+              onClick={handleCopyReferral}
+              style={{
+                background: 'rgba(124,77,255,0.2)', border: '1px solid rgba(124,77,255,0.3)',
+                color: '#c4b5fd', borderRadius: '6px', padding: '4px 10px',
+                fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap',
+              }}
+            >
+              📋 Copy Link
+            </button>
+          </div>
+        </div>
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <a
+            href={`https://wa.me/?text=${encodeURIComponent(`🚀 Hey! I've been using dsaflow.app to prepare for placements and it's seriously awesome. Join me and get started for FREE → ${referralLink}`)}`}
+            target="_blank"
+            rel="noreferrer"
+            style={{
+              display: 'flex', alignItems: 'center', gap: '6px',
+              background: 'linear-gradient(135deg, #25D366, #128C7E)',
+              color: '#fff', fontWeight: 700, fontSize: '0.82rem',
+              padding: '10px 16px', borderRadius: '10px', textDecoration: 'none',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
+            WhatsApp Invite
+          </a>
+        </div>
+      </div>
 
       {/* Continue Where You Left Off */}
       <div className="continue-learning-card card" onClick={() => handleCardClick(nextLesson.id)}>

@@ -88,6 +88,24 @@ function QuotesTicker() {
   );
 }
 
+// Activity feed for social proof on auth page
+const ACTIVITY_FEED = [
+  { name: 'Rahul K.', city: 'Hyderabad', action: 'completed Arrays & Hashing', ago: '2 min ago' },
+  { name: 'Priya S.', city: 'Bangalore', action: 'solved 3 sliding window problems', ago: '5 min ago' },
+  { name: 'Arjun M.', city: 'Chennai', action: 'just unlocked Premium', ago: '8 min ago' },
+  { name: 'Sneha R.', city: 'Pune', action: 'hit a 7-day streak 🔥', ago: '12 min ago' },
+  { name: 'Vikram P.', city: 'Delhi', action: 'completed Binary Trees module', ago: '15 min ago' },
+  { name: 'Ananya T.', city: 'Mumbai', action: 'scored 95% on Mock Quiz', ago: '18 min ago' },
+  { name: 'Kiran B.', city: 'Coimbatore', action: 'started Dynamic Programming', ago: '22 min ago' },
+  { name: 'Deepa N.', city: 'Kolkata', action: 'solved N-Queens problem', ago: '28 min ago' },
+];
+
+const TESTIMONIALS = [
+  { name: 'Aditya R.', role: 'Placed at Amazon', text: 'Cracked SDE-1 at Amazon after 3 weeks on dsaflow.app. The patterns tab is a game changer!', avatar: '👨‍💻' },
+  { name: 'Pooja V.', role: 'Placed at Flipkart', text: 'Finally understood DP and Trees thanks to the visualizers. Got an offer in my first attempt!', avatar: '👩‍💻' },
+  { name: 'Santhosh K.', role: 'Placed at Infosys', text: 'The interview countdown timer kept me accountable. Completed all 42 modules in 30 days!', avatar: '🧑‍💻' },
+];
+
 function AppLayout() {
   const { user, trial, loading, login, loginWithToken, register, logout, payAndUnlock, sendPasswordReset } = useAuth();
   
@@ -119,6 +137,54 @@ function AppLayout() {
   const [paymentError, setPaymentError] = useState('');
   const [paymentLoading, setPaymentLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
+  // Social proof: live activity feed
+  const [activityIdx, setActivityIdx] = useState(0);
+  const [activityVisible, setActivityVisible] = useState(true);
+  const [testimonialIdx, setTestimonialIdx] = useState(0);
+
+  // FOMO countdown: 10-min timer starting from mount
+  const [fomoSeconds, setFomoSeconds] = useState(() => {
+    const stored = sessionStorage.getItem('fomo_timer_start');
+    if (stored) {
+      const elapsed = Math.floor((Date.now() - parseInt(stored)) / 1000);
+      return Math.max(0, 600 - elapsed);
+    }
+    sessionStorage.setItem('fomo_timer_start', Date.now().toString());
+    return 600;
+  });
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActivityVisible(false);
+      setTimeout(() => {
+        setActivityIdx(prev => (prev + 1) % ACTIVITY_FEED.length);
+        setActivityVisible(true);
+      }, 400);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTestimonialIdx(prev => (prev + 1) % TESTIMONIALS.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    if (fomoSeconds <= 0) return;
+    const interval = setInterval(() => {
+      setFomoSeconds(prev => {
+        if (prev <= 1) { clearInterval(interval); return 0; }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const fomoMins = String(Math.floor(fomoSeconds / 60)).padStart(2, '0');
+  const fomoSecs = String(fomoSeconds % 60).padStart(2, '0');
 
   if (loading) return <div style={{ display: 'flex', height: '100vh', justifyContent: 'center', alignItems: 'center', color: 'white', background: '#070810' }}>Loading...</div>;
 
@@ -255,16 +321,45 @@ function AppLayout() {
             {/* Micro Stats Row */}
             <div className="promo-stats">
               <div className="promo-stat-card">
-                <span className="stat-value">35+</span>
+                <span className="stat-value">1,200+</span>
+                <span className="stat-label">Students</span>
+              </div>
+              <div className="promo-stat-card">
+                <span className="stat-value">42</span>
                 <span className="stat-label">Modules</span>
               </div>
               <div className="promo-stat-card">
-                <span className="stat-value">4</span>
-                <span className="stat-label">Languages</span>
+                <span className="stat-value">₹99</span>
+                <span className="stat-label">Lifetime</span>
               </div>
-              <div className="promo-stat-card">
-                <span className="stat-value">100%</span>
-                <span className="stat-label">Visual</span>
+            </div>
+
+            {/* Live Activity Feed */}
+            <div style={{
+              background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.06)',
+              borderRadius: '12px', padding: '12px 16px', marginTop: '16px',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#4ade80', display: 'inline-block', boxShadow: '0 0 6px #4ade80', flexShrink: 0 }}></span>
+                <span style={{ fontSize: '0.72rem', color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Live Activity</span>
+              </div>
+              <div style={{ opacity: activityVisible ? 1 : 0, transition: 'opacity 0.4s ease', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{
+                  width: '32px', height: '32px', borderRadius: '50%', flexShrink: 0,
+                  background: 'linear-gradient(135deg, rgba(124,77,255,0.5), rgba(6,182,212,0.5))',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: '0.9rem', fontWeight: 700, color: '#fff',
+                }}>
+                  {ACTIVITY_FEED[activityIdx].name[0]}
+                </div>
+                <div>
+                  <p style={{ margin: 0, fontSize: '0.8rem', color: '#e2e8f0', lineHeight: 1.3 }}>
+                    <strong>{ACTIVITY_FEED[activityIdx].name}</strong> from {ACTIVITY_FEED[activityIdx].city}
+                  </p>
+                  <p style={{ margin: 0, fontSize: '0.75rem', color: '#64748b' }}>
+                    {ACTIVITY_FEED[activityIdx].action} • {ACTIVITY_FEED[activityIdx].ago}
+                  </p>
+                </div>
               </div>
             </div>
 
@@ -607,10 +702,38 @@ function AppLayout() {
       }
     };
 
+    const currentTestimonial = TESTIMONIALS[testimonialIdx];
+
     return (
       <div className="overlay-fullscreen payment-overlay" style={{ display: 'flex' }}>
         <div className="auth-glow-bg"></div>
-        <div className="payment-card">
+        <div className="payment-card" style={{ maxWidth: '480px' }}>
+          {/* FOMO Banner */}
+          {fomoSeconds > 0 && (
+            <div style={{
+              background: 'linear-gradient(135deg, rgba(244,63,94,0.15), rgba(251,146,60,0.12))',
+              border: '1px solid rgba(244,63,94,0.3)',
+              borderRadius: '10px', padding: '10px 16px', marginBottom: '16px',
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              flexWrap: 'wrap', gap: '8px',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '1rem' }}>⚡</span>
+                <div>
+                  <p style={{ margin: 0, fontSize: '0.78rem', fontWeight: 700, color: '#fca5a5' }}>80% Offer Expires In</p>
+                  <p style={{ margin: 0, fontSize: '0.7rem', color: '#94a3b8' }}>Price goes back to ₹499 after this</p>
+                </div>
+              </div>
+              <div style={{
+                fontFamily: 'monospace', fontSize: '1.5rem', fontWeight: 900,
+                color: '#f87171', letterSpacing: '2px',
+                textShadow: '0 0 20px rgba(248,113,113,0.5)',
+              }}>
+                {fomoMins}:{fomoSecs}
+              </div>
+            </div>
+          )}
+
           <div className="payment-icon">⏳</div>
           <h2 className="payment-title">Your Free Trial Has Ended</h2>
           <p className="payment-subtitle">Get <strong>lifetime access</strong> to dsaflow.app for just</p>
@@ -621,6 +744,18 @@ function AppLayout() {
           </div>
           <p className="payment-desc">One-time payment • Lifetime access • No subscription</p>
 
+          {/* Social Proof Counter */}
+          <div style={{
+            background: 'rgba(74,222,128,0.06)', border: '1px solid rgba(74,222,128,0.15)',
+            borderRadius: '8px', padding: '8px 14px', marginBottom: '16px',
+            display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.82rem',
+          }}>
+            <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#4ade80', display: 'inline-block', boxShadow: '0 0 6px #4ade80', flexShrink: 0 }}></span>
+            <span style={{ color: '#86efac' }}>
+              <strong>23 students</strong> upgraded to Premium in the last 24 hours
+            </span>
+          </div>
+
           <div className="payment-features">
             <div className="pf-item"><span className="pf-icon">🧩</span> 42 complete DSA modules</div>
             <div className="pf-item"><span className="pf-icon">🔄</span> 26 Grokking Coding Patterns (211+ problems)</div>
@@ -628,6 +763,34 @@ function AppLayout() {
             <div className="pf-item"><span className="pf-icon">🔥</span> Daily Streak Tracker &amp; Interview Target Countdown</div>
             <div className="pf-item"><span className="pf-icon">📊</span> Interactive code visualizers &amp; IDE sandbox</div>
             <div className="pf-item"><span className="pf-icon">🎯</span> Mock quizzes &amp; full placement roadmap</div>
+          </div>
+
+          {/* Rotating Testimonial */}
+          <div style={{
+            background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)',
+            borderRadius: '12px', padding: '14px 16px', marginBottom: '16px',
+            textAlign: 'left', transition: 'opacity 0.4s ease',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+              <div style={{
+                width: '36px', height: '36px', borderRadius: '50%', flexShrink: 0,
+                background: 'linear-gradient(135deg, rgba(124,77,255,0.4), rgba(6,182,212,0.4))',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: '1.1rem',
+              }}>
+                {currentTestimonial.avatar}
+              </div>
+              <div>
+                <p style={{ margin: 0, fontSize: '0.85rem', fontWeight: 700, color: '#f1f5f9' }}>{currentTestimonial.name}</p>
+                <p style={{ margin: 0, fontSize: '0.72rem', color: '#4ade80' }}>{currentTestimonial.role}</p>
+              </div>
+              <div style={{ marginLeft: 'auto', display: 'flex', gap: '2px' }}>
+                {[1,2,3,4,5].map(s => <span key={s} style={{ color: '#fbbf24', fontSize: '0.75rem' }}>★</span>)}
+              </div>
+            </div>
+            <p style={{ margin: 0, fontSize: '0.82rem', color: '#94a3b8', lineHeight: 1.5, fontStyle: 'italic' }}>
+              "{currentTestimonial.text}"
+            </p>
           </div>
 
           <button className="btn btn-accent payment-cta" onClick={handlePayNow} disabled={paymentLoading}>
