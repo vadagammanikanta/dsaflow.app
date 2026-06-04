@@ -4,7 +4,7 @@ import { useApp } from '../../context/AppContext';
 import { curriculum } from '../../../modules/learning/content_a2z';
 
 export default function Navbar() {
-  const { appState, updateAppState, resetProgress } = useApp();
+  const { appState, updateAppState, resetProgress, mobileMenuOpen, setMobileMenuOpen } = useApp();
   
   const handleDifficultyChange = (diff) => {
     updateAppState({ activeDifficulty: diff });
@@ -14,8 +14,10 @@ export default function Navbar() {
   const totalCount = curriculum.length;
 
   return (
-    <aside>
-      <div className="nav-menu">
+    <>
+      {mobileMenuOpen && <div className="sidebar-backdrop" onClick={() => setMobileMenuOpen(false)} />}
+      <aside className={mobileMenuOpen ? "open" : ""}>
+        <div className="nav-menu" onClick={() => setMobileMenuOpen(false)}>
         <div className="nav-section-title">Navigation</div>
         
         {/* 1. Home */}
@@ -137,6 +139,7 @@ export default function Navbar() {
           Reset Progress
         </button>
       </div>
-    </aside>
+      </aside>
+    </>
   );
 }

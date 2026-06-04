@@ -7,7 +7,7 @@ import { openRazorpayCheckout } from '../../../modules/payment/payment';
 
 export default function Header() {
   const { user, trial, logout, payAndUnlock, refreshTrial } = useAuth();
-  const { appState, updateAppState } = useApp();
+  const { appState, updateAppState, mobileMenuOpen, setMobileMenuOpen } = useApp();
   const navigate = useNavigate();
   
   const [langOpen, setLangOpen] = useState(false);
@@ -120,11 +120,27 @@ export default function Header() {
 
   return (
     <header>
-      <div className="logo" style={{ cursor: 'pointer' }} onClick={() => navigate('/')}>
-        <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-        </svg>
-        <span>dsaflow.app</span>
+      <div className="logo" style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+        <button 
+          className="mobile-hamburger-btn" 
+          onClick={(e) => {
+            e.stopPropagation();
+            setMobileMenuOpen(!mobileMenuOpen);
+          }}
+          title="Menu"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }} onClick={() => navigate('/')}>
+          <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+          </svg>
+          <span>dsaflow.app</span>
+        </div>
       </div>
 
       {/* Global Search */}
@@ -176,7 +192,7 @@ export default function Header() {
 
         {/* Language Picker */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: '600' }}>Practice in</span>
+          <span className="practice-in-label" style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: '600' }}>Practice in</span>
           <div 
             ref={langRef}
             className={`lang-selector-pill ${langOpen ? 'open' : ''}`} 

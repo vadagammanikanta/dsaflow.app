@@ -104,6 +104,7 @@ export function computeBadges(appState) {
 }
 
 export function AppProvider({ children }) {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [appState, setAppState] = useState(() => {
     const saved = localStorage.getItem('dsaflow_app_state')
       || localStorage.getItem('dsa_app_state'); // backwards compat
@@ -366,6 +367,8 @@ export function AppProvider({ children }) {
       markPOTDSolved,
       clearNewBadges,
       resetProgress,
+      mobileMenuOpen,
+      setMobileMenuOpen,
     }}>
       {children}
     </AppContext.Provider>
