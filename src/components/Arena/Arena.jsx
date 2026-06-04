@@ -192,7 +192,7 @@ export default function Arena() {
               </select>
             </div>
             <div style={{ display: 'flex', gap: '8px' }}>
-              <button className="btn btn-secondary btn-sm" onClick={handleExplainCode} style={{ padding: '4px 10px', fontSize: '0.8rem', background: 'rgba(124,77,255,0.1)', borderColor: 'rgba(124,77,255,0.3)', color: '#c4b5fd' }} disabled={!code.trim() || explainLoading}>
+              <button className="btn btn-secondary btn-sm" onClick={handleExplainCode} style={{ padding: '4px 10px', fontSize: '0.8rem', background: 'var(--accent-purple-glow)', borderColor: 'rgba(124,77,255,0.3)', color: 'var(--accent-purple)' }} disabled={!code.trim() || explainLoading}>
                 🧠 Explain Code
               </button>
               <button 

@@ -212,16 +212,16 @@ export default function Dashboard() {
                 </span>
               )}
             </div>
-            <h3 style={{ margin: '0 0 6px', fontSize: '1.1rem', color: '#f1f5f9', fontWeight: 800 }}>{todayPOTD.title}</h3>
+            <h3 style={{ margin: '0 0 6px', fontSize: '1.1rem', color: 'var(--text-primary)', fontWeight: 800 }}>{todayPOTD.title}</h3>
             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '10px' }}>
               <span style={{ fontSize: '0.72rem', fontWeight: 600, color: diffColors[todayPOTD.difficulty], background: `${diffColors[todayPOTD.difficulty]}18`, padding: '2px 8px', borderRadius: '99px', border: `1px solid ${diffColors[todayPOTD.difficulty]}30` }}>
                 {todayPOTD.difficulty}
               </span>
-              <span style={{ fontSize: '0.72rem', color: '#a78bfa', background: 'rgba(124,77,255,0.1)', padding: '2px 8px', borderRadius: '99px' }}>
+              <span style={{ fontSize: '0.72rem', color: 'var(--accent-purple)', background: 'var(--accent-purple-glow)', padding: '2px 8px', borderRadius: '99px' }}>
                 {todayPOTD.pattern}
               </span>
               {todayPOTD.companies.slice(0, 2).map(c => (
-                <span key={c} style={{ fontSize: '0.68rem', color: '#94a3b8', background: 'rgba(255,255,255,0.04)', padding: '2px 8px', borderRadius: '99px', border: '1px solid rgba(255,255,255,0.06)' }}>{c}</span>
+                <span key={c} style={{ fontSize: '0.68rem', color: 'var(--text-secondary)', background: 'var(--bg-input)', padding: '2px 8px', borderRadius: '99px', border: '1px solid var(--border-glass)' }}>{c}</span>
               ))}
             </div>
             <div style={{ fontSize: '0.75rem', color: '#475569' }}>
@@ -264,7 +264,7 @@ export default function Dashboard() {
               <span style={{ fontSize: '1.2rem' }}>📊</span>
               <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#a78bfa', textTransform: 'uppercase', letterSpacing: '0.8px' }}>Weekly Progress Report</span>
             </div>
-            <h3 style={{ margin: '0 0 8px', fontSize: '1.1rem', color: '#f1f5f9', fontWeight: 800 }}>Weekly Summary ({currentWeekKey})</h3>
+            <h3 style={{ margin: '0 0 8px', fontSize: '1.1rem', color: 'var(--text-primary)', fontWeight: 800 }}>Weekly Summary ({currentWeekKey})</h3>
             <p style={{ margin: '0 0 16px', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
               Track your weekly targets. Share your progress to stay motivated!
             </p>
@@ -362,9 +362,9 @@ export default function Dashboard() {
                 <div key={badge.id} title={`${badge.name}: ${badge.desc}`} style={{
                   display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px',
                   padding: '10px 12px', borderRadius: '12px', width: '72px',
-                  background: earned ? `${badge.color}12` : 'rgba(255,255,255,0.02)',
-                  border: `1px solid ${earned ? badge.color + '40' : 'rgba(255,255,255,0.06)'}`,
-                  opacity: earned ? 1 : 0.3, transition: 'all 0.2s', cursor: 'default',
+                  background: earned ? `${badge.color}18` : 'var(--bg-input)',
+                  border: `1px solid ${earned ? badge.color + '60' : 'var(--border-glass)'}`,
+                  opacity: earned ? 1 : 0.35, transition: 'all 0.2s', cursor: 'default',
                 }}>
                   <span style={{ fontSize: '1.5rem', filter: earned ? 'none' : 'grayscale(1)' }}>{badge.icon}</span>
                   <span style={{ fontSize: '0.6rem', color: earned ? badge.color : 'var(--text-muted)', fontWeight: 600, textAlign: 'center', lineHeight: 1.2 }}>{badge.name}</span>
@@ -397,13 +397,13 @@ export default function Dashboard() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
             <span style={{ fontSize: '1.6rem' }}>🎁</span>
             <div>
-              <h3 style={{ margin: 0, fontSize: '1rem', color: '#f1f5f9', fontWeight: 700 }}>Invite Friends — Earn Rewards!</h3>
-              <p style={{ margin: '2px 0 0', fontSize: '0.8rem', color: '#94a3b8' }}>Share your link. When a friend joins, you both win!</p>
+              <h3 style={{ margin: 0, fontSize: '1rem', color: 'var(--text-primary)', fontWeight: 700 }}>Invite Friends — Earn Rewards!</h3>
+              <p style={{ margin: '2px 0 0', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Share your link. When a friend joins, you both win!</p>
             </div>
           </div>
-          <div style={{ background: 'rgba(0,0,0,0.3)', borderRadius: '8px', padding: '8px 12px', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.8rem', border: '1px solid rgba(124,77,255,0.2)', marginTop: '10px' }}>
-            <span style={{ color: '#94a3b8', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{referralLink}</span>
-            <button id="referral-copy-btn" onClick={handleCopyReferral} style={{ background: 'rgba(124,77,255,0.2)', border: '1px solid rgba(124,77,255,0.3)', color: '#c4b5fd', borderRadius: '6px', padding: '4px 10px', fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}>📋 Copy Link</button>
+          <div style={{ background: 'var(--bg-input)', borderRadius: '8px', padding: '8px 12px', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.8rem', border: '1px solid var(--border-glass)', marginTop: '10px' }}>
+            <span style={{ color: 'var(--text-primary)', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{referralLink}</span>
+            <button id="referral-copy-btn" onClick={handleCopyReferral} style={{ background: 'var(--accent-purple-glow)', border: '1px solid rgba(124,77,255,0.3)', color: 'var(--accent-purple)', borderRadius: '6px', padding: '4px 10px', fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}>📋 Copy Link</button>
           </div>
         </div>
         <a href={`https://wa.me/?text=${encodeURIComponent(`🚀 Hey! Join dsaflow.app — India's best DSA platform for placements! Start FREE → ${referralLink}`)}`} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'linear-gradient(135deg, #25D366, #128C7E)', color: '#fff', fontWeight: 700, fontSize: '0.82rem', padding: '10px 16px', borderRadius: '10px', textDecoration: 'none', whiteSpace: 'nowrap' }}>
