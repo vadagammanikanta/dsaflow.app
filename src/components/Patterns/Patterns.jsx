@@ -392,6 +392,143 @@ const PATTERNS = [
       { name: 'Maximum XOR of Two Numbers in an Array', difficulty: 'Medium', leetcode: 'https://leetcode.com/problems/maximum-xor-of-two-numbers-in-an-array/' },
     ]
   },
+  {
+    id: 21,
+    name: 'Graph BFS & DFS',
+    icon: '🗺️',
+    color: '#f59e0b',
+    gradient: 'linear-gradient(135deg, #92400e, #f59e0b)',
+    difficulty: 'Intermediate',
+    description: 'Explore graphs using BFS (queue, shortest path) or DFS (recursion/stack, connected components). The single most asked pattern in FAANG rounds.',
+    useCases: ['Shortest path', 'Connected components', 'Island problems', 'Flood fill'],
+    problems: [
+      { name: 'Number of Islands', difficulty: 'Medium', leetcode: 'https://leetcode.com/problems/number-of-islands/' },
+      { name: 'Clone Graph', difficulty: 'Medium', leetcode: 'https://leetcode.com/problems/clone-graph/' },
+      { name: 'Max Area of Island', difficulty: 'Medium', leetcode: 'https://leetcode.com/problems/max-area-of-island/' },
+      { name: 'Pacific Atlantic Water Flow', difficulty: 'Medium', leetcode: 'https://leetcode.com/problems/pacific-atlantic-water-flow/' },
+      { name: 'Surrounded Regions', difficulty: 'Medium', leetcode: 'https://leetcode.com/problems/surrounded-regions/' },
+      { name: 'Rotting Oranges', difficulty: 'Medium', leetcode: 'https://leetcode.com/problems/rotting-oranges/' },
+      { name: 'Walls and Gates', difficulty: 'Medium', leetcode: 'https://leetcode.com/problems/walls-and-gates/' },
+      { name: 'Course Schedule (Cycle Detection)', difficulty: 'Medium', leetcode: 'https://leetcode.com/problems/course-schedule/' },
+      { name: 'Number of Connected Components in Undirected Graph', difficulty: 'Medium', leetcode: 'https://leetcode.com/problems/number-of-connected-components-in-an-undirected-graph/' },
+      { name: 'Graph Valid Tree', difficulty: 'Medium', leetcode: 'https://leetcode.com/problems/graph-valid-tree/' },
+      { name: 'Word Ladder (BFS Shortest Path)', difficulty: 'Hard', leetcode: 'https://leetcode.com/problems/word-ladder/' },
+      { name: 'Shortest Path in Binary Matrix', difficulty: 'Medium', leetcode: 'https://leetcode.com/problems/shortest-path-in-binary-matrix/' },
+      { name: 'Open the Lock', difficulty: 'Medium', leetcode: 'https://leetcode.com/problems/open-the-lock/' },
+      { name: "Dijkstra's — Network Delay Time", difficulty: 'Medium', leetcode: 'https://leetcode.com/problems/network-delay-time/' },
+      { name: 'Cheapest Flights Within K Stops', difficulty: 'Medium', leetcode: 'https://leetcode.com/problems/cheapest-flights-within-k-stops/' },
+    ]
+  },
+  {
+    id: 22,
+    name: 'Unbounded Knapsack (DP)',
+    icon: '♾️',
+    color: '#10b981',
+    gradient: 'linear-gradient(135deg, #064e3b, #10b981)',
+    difficulty: 'Advanced',
+    description: 'Like 0/1 Knapsack but items can be used unlimited times. Builds on basic DP with a subtle state transition change.',
+    useCases: ['Coin change', 'Rod cutting', 'Ribbon cutting', 'Max ribbon cut'],
+    problems: [
+      { name: 'Unbounded Knapsack', difficulty: 'Medium', leetcode: 'https://leetcode.com/problems/coin-change-ii/' },
+      { name: 'Coin Change (Min Coins)', difficulty: 'Medium', leetcode: 'https://leetcode.com/problems/coin-change/' },
+      { name: 'Coin Change II (Number of Ways)', difficulty: 'Medium', leetcode: 'https://leetcode.com/problems/coin-change-ii/' },
+      { name: 'Minimum Cost for Cutting Ribbon', difficulty: 'Medium', leetcode: 'https://leetcode.com/problems/minimum-cost-to-cut-a-stick/' },
+      { name: 'Rod Cutting Problem', difficulty: 'Medium', leetcode: 'https://leetcode.com/problems/minimum-cost-to-cut-a-stick/' },
+      { name: 'Maximum Ribbon Cut', difficulty: 'Medium', leetcode: 'https://leetcode.com/problems/coin-change-ii/' },
+      { name: 'Word Break', difficulty: 'Medium', leetcode: 'https://leetcode.com/problems/word-break/' },
+      { name: 'Integer Break', difficulty: 'Medium', leetcode: 'https://leetcode.com/problems/integer-break/' },
+      { name: 'Perfect Squares', difficulty: 'Medium', leetcode: 'https://leetcode.com/problems/perfect-squares/' },
+    ]
+  },
+  {
+    id: 23,
+    name: 'DP — Longest Common Subsequence',
+    icon: '🔀',
+    color: '#6366f1',
+    gradient: 'linear-gradient(135deg, #312e81, #6366f1)',
+    difficulty: 'Advanced',
+    description: 'Classic 2D DP for comparing two sequences. Build a table where each cell represents optimal solution for subproblems.',
+    useCases: ['Edit distance', 'Diff tools', 'DNA sequencing', 'Shortest common supersequence'],
+    problems: [
+      { name: 'Longest Common Subsequence', difficulty: 'Medium', leetcode: 'https://leetcode.com/problems/longest-common-subsequence/' },
+      { name: 'Longest Common Substring', difficulty: 'Medium', leetcode: 'https://leetcode.com/problems/maximum-length-of-repeated-subarray/' },
+      { name: 'Minimum Deletions & Insertions to Transform a String', difficulty: 'Medium', leetcode: 'https://leetcode.com/problems/delete-operation-for-two-strings/' },
+      { name: 'Edit Distance', difficulty: 'Hard', leetcode: 'https://leetcode.com/problems/edit-distance/' },
+      { name: 'Strings Interleaving', difficulty: 'Hard', leetcode: 'https://leetcode.com/problems/interleaving-string/' },
+      { name: 'Longest Increasing Subsequence', difficulty: 'Medium', leetcode: 'https://leetcode.com/problems/longest-increasing-subsequence/' },
+      { name: 'Maximum Sum Increasing Subsequence', difficulty: 'Medium', leetcode: 'https://leetcode.com/problems/maximum-sum-increasing-subsequence/' },
+      { name: 'Shortest Common Supersequence', difficulty: 'Hard', leetcode: 'https://leetcode.com/problems/shortest-common-supersequence/' },
+      { name: 'Minimum Deletions to Make a Sequence Sorted', difficulty: 'Medium', leetcode: 'https://leetcode.com/problems/longest-increasing-subsequence/' },
+    ]
+  },
+  {
+    id: 24,
+    name: 'DP — Palindromes',
+    icon: '🪞',
+    color: '#ec4899',
+    gradient: 'linear-gradient(135deg, #831843, #ec4899)',
+    difficulty: 'Advanced',
+    description: 'Find palindromic substrings/subsequences using interval DP or expanding around centers.',
+    useCases: ['Palindrome partitioning', 'Min cuts', 'Palindromic subsequence'],
+    problems: [
+      { name: 'Longest Palindromic Subsequence', difficulty: 'Medium', leetcode: 'https://leetcode.com/problems/longest-palindromic-subsequence/' },
+      { name: 'Longest Palindromic Substring', difficulty: 'Medium', leetcode: 'https://leetcode.com/problems/longest-palindromic-substring/' },
+      { name: 'Count of Palindromic Substrings', difficulty: 'Medium', leetcode: 'https://leetcode.com/problems/palindromic-substrings/' },
+      { name: 'Minimum Deletions to Make Palindrome', difficulty: 'Medium', leetcode: 'https://leetcode.com/problems/minimum-number-of-moves-to-make-palindrome/' },
+      { name: 'Palindrome Partitioning II (Min Cuts)', difficulty: 'Hard', leetcode: 'https://leetcode.com/problems/palindrome-partitioning-ii/' },
+      { name: 'Palindrome Partitioning (All ways)', difficulty: 'Medium', leetcode: 'https://leetcode.com/problems/palindrome-partitioning/' },
+      { name: 'Minimum Insertions to Make String Palindrome', difficulty: 'Hard', leetcode: 'https://leetcode.com/problems/minimum-insertion-steps-to-make-a-string-palindrome/' },
+    ]
+  },
+  {
+    id: 25,
+    name: 'Greedy Algorithms',
+    icon: '💰',
+    color: '#84cc16',
+    gradient: 'linear-gradient(135deg, #365314, #84cc16)',
+    difficulty: 'Intermediate',
+    description: 'Make the locally optimal choice at each step. No backtracking — trust that local greedy leads to global optimum.',
+    useCases: ['Activity selection', 'Jump game', 'Gas station', 'Interval scheduling'],
+    problems: [
+      { name: 'Jump Game', difficulty: 'Medium', leetcode: 'https://leetcode.com/problems/jump-game/' },
+      { name: 'Jump Game II (Min Jumps)', difficulty: 'Medium', leetcode: 'https://leetcode.com/problems/jump-game-ii/' },
+      { name: 'Gas Station', difficulty: 'Medium', leetcode: 'https://leetcode.com/problems/gas-station/' },
+      { name: 'Hand of Straights', difficulty: 'Medium', leetcode: 'https://leetcode.com/problems/hand-of-straights/' },
+      { name: 'Merge Triplets to Form Target Triplet', difficulty: 'Medium', leetcode: 'https://leetcode.com/problems/merge-triplets-to-form-target-triplet/' },
+      { name: 'Partition Labels', difficulty: 'Medium', leetcode: 'https://leetcode.com/problems/partition-labels/' },
+      { name: 'Valid Parenthesis String', difficulty: 'Medium', leetcode: 'https://leetcode.com/problems/valid-parenthesis-string/' },
+      { name: 'Minimum Number of Arrows to Burst Balloons', difficulty: 'Medium', leetcode: 'https://leetcode.com/problems/minimum-number-of-arrows-to-burst-balloons/' },
+      { name: 'Non-overlapping Intervals', difficulty: 'Medium', leetcode: 'https://leetcode.com/problems/non-overlapping-intervals/' },
+      { name: 'Assign Cookies', difficulty: 'Easy', leetcode: 'https://leetcode.com/problems/assign-cookies/' },
+      { name: 'Lemonade Change', difficulty: 'Easy', leetcode: 'https://leetcode.com/problems/lemonade-change/' },
+      { name: 'Task Scheduler', difficulty: 'Medium', leetcode: 'https://leetcode.com/problems/task-scheduler/' },
+    ]
+  },
+  {
+    id: 26,
+    name: 'Matrix / Grid Traversal',
+    icon: '🔲',
+    color: '#22d3ee',
+    gradient: 'linear-gradient(135deg, #164e63, #22d3ee)',
+    difficulty: 'Intermediate',
+    description: 'Treat a 2D matrix as a graph and traverse it using BFS or DFS. Identify connected regions, find shortest paths, or simulate movement.',
+    useCases: ['Flood fill', 'Shortest path in grid', 'Island counting', 'Matrix rotation'],
+    problems: [
+      { name: 'Flood Fill', difficulty: 'Easy', leetcode: 'https://leetcode.com/problems/flood-fill/' },
+      { name: 'Number of Islands', difficulty: 'Medium', leetcode: 'https://leetcode.com/problems/number-of-islands/' },
+      { name: 'Rotting Oranges', difficulty: 'Medium', leetcode: 'https://leetcode.com/problems/rotting-oranges/' },
+      { name: 'Walls and Gates', difficulty: 'Medium', leetcode: 'https://leetcode.com/problems/walls-and-gates/' },
+      { name: 'Spiral Matrix', difficulty: 'Medium', leetcode: 'https://leetcode.com/problems/spiral-matrix/' },
+      { name: 'Rotate Image', difficulty: 'Medium', leetcode: 'https://leetcode.com/problems/rotate-image/' },
+      { name: 'Set Matrix Zeroes', difficulty: 'Medium', leetcode: 'https://leetcode.com/problems/set-matrix-zeroes/' },
+      { name: 'Word Search in Grid', difficulty: 'Medium', leetcode: 'https://leetcode.com/problems/word-search/' },
+      { name: 'Unique Paths', difficulty: 'Medium', leetcode: 'https://leetcode.com/problems/unique-paths/' },
+      { name: 'Minimum Path Sum', difficulty: 'Medium', leetcode: 'https://leetcode.com/problems/minimum-path-sum/' },
+      { name: 'Dungeon Game', difficulty: 'Hard', leetcode: 'https://leetcode.com/problems/dungeon-game/' },
+      { name: 'Maximal Square', difficulty: 'Medium', leetcode: 'https://leetcode.com/problems/maximal-square/' },
+      { name: 'Maximal Rectangle', difficulty: 'Hard', leetcode: 'https://leetcode.com/problems/maximal-rectangle/' },
+    ]
+  },
 ];
 
 const DIFF_COLOR = { Easy: '#4ade80', Medium: '#fbbf24', Hard: '#f87171' };
@@ -423,7 +560,7 @@ export default function Patterns() {
             <span>📖</span> Grokking the Coding Interview
           </div>
           <h1 className="patterns-hero-title">
-            20 Coding <span className="patterns-gradient-text">Patterns</span>
+            26 Coding <span className="patterns-gradient-text">Patterns</span>
           </h1>
           <p className="patterns-hero-sub">
             Master the algorithmic patterns behind every FAANG interview question. Identify the pattern → Apply the template → Solve any variation.
