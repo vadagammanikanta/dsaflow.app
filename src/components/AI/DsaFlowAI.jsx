@@ -225,10 +225,27 @@ Ask me anything about DSA — let's crack those placements! 🚀`
   const [customApiKey, setCustomApiKey] = useState(() => {
     return localStorage.getItem('dsaflow_custom_api_key') || '';
   });
+  const [tempKey, setTempKey] = useState(() => {
+    return localStorage.getItem('dsaflow_custom_api_key') || '';
+  });
+  const [isKeyActive, setIsKeyActive] = useState(() => {
+    return !!localStorage.getItem('dsaflow_custom_api_key');
+  });
 
-  const handleSaveKey = (key) => {
+  const handleActivateKey = () => {
+    const key = tempKey.trim();
+    if (!key) return;
     setCustomApiKey(key);
+    setIsKeyActive(true);
     localStorage.setItem('dsaflow_custom_api_key', key);
+    alert('Grok Unlimited AI Activated! 🎉');
+  };
+
+  const handleDeactivateKey = () => {
+    setCustomApiKey('');
+    setTempKey('');
+    setIsKeyActive(false);
+    localStorage.removeItem('dsaflow_custom_api_key');
   };
 
   const [input, setInput] = useState('');
@@ -307,7 +324,7 @@ Ask me anything about DSA — let's crack those placements! 🚀`
   };
 
   const userMsgCount = messages.filter(m => m.role === 'user').length;
-  const isLimitReached = userMsgCount >= 10 && !customApiKey.trim();
+  const isLimitReached = userMsgCount >= 10 && !isKeyActive;
 
   return (
     <div className="aipage-root">
@@ -349,35 +366,70 @@ Ask me anything about DSA — let's crack those placements! 🚀`
           </div>
         ))}
 
-        <div className="aisidebar-divider" />
-
-        <div className="aisidebar-model-card">
-          <div className="aisidebar-model-badge">AI Model</div>
-          <div className="aisidebar-model-name">Grok AI</div>
-          <div className="aisidebar-model-meta">Powered by xAI API</div>
-          <div className="aisidebar-model-bar">
-            <div className="aisidebar-model-fill" style={{ width: `${Math.min((userMsgCount / 10) * 100, 100)}%` }} />
+        {!isKeyActive && (
+          <div className="aisidebar-model-card">
+            <div className="aisidebar-model-badge">AI Model</div>
+            <div className="aisidebar-model-name">Grok AI</div>
+            <div className="aisidebar-model-meta">Powered by xAI API</div>
+            <div className="aisidebar-model-bar">
+              <div className="aisidebar-model-fill" style={{ width: `${Math.min((userMsgCount / 10) * 100, 100)}%` }} />
+            </div>
+            <div className="aisidebar-model-count">{userMsgCount} / 10 today</div>
           </div>
-          <div className="aisidebar-model-count">{userMsgCount} / 10 today</div>
-        </div>
+        )}
 
         {/* Bring Your Own Key Widget */}
         <div className="aisidebar-byok-card">
-          <div className="byok-header">🚀 Unlock Unlimited AI</div>
-          <div className="byok-desc">
-            You've reached your free daily limit! Enter your own Grok API key below to continue chatting for free.
+          <div className="byok-header">
+            {isKeyActive ? '⚡ Grok Unlimited Active' : '🚀 Unlock Unlimited AI'}
           </div>
-          <input 
-            type="password" 
-            className="byok-input" 
-            placeholder="xai-..." 
-            value={customApiKey}
-            onChange={(e) => handleSaveKey(e.target.value)}
-          />
-          <div className="byok-footer">
-            Stored securely in your browser. <br/>
-            <a href="https://console.x.ai" target="_blank" rel="noreferrer" style={{ color: 'var(--accent-cyan)' }}>Get a free key here</a>
-          </div>
+          
+          {isKeyActive ? (
+            <div style={{ textAlign: 'center', marginTop: '10px' }}>
+              <div className="byok-desc" style={{ color: 'var(--accent-green)', fontWeight: '500', marginBottom: '12px' }}>
+                🎉 Custom Grok key is active. Enjoy unlimited requests!
+              </div>
+              <div style={{ fontSize: '0.82rem', fontFamily: 'monospace', background: 'rgba(255,255,255,0.05)', padding: '6px 12px', borderRadius: '6px', color: 'var(--text-muted)', marginBottom: '14px', wordBreak: 'break-all' }}>
+                {customApiKey.slice(0, 8)}••••••••••••••••
+              </div>
+              <button 
+                className="btn btn-secondary" 
+                style={{ width: '100%', padding: '6px 12px', fontSize: '0.8rem' }}
+                onClick={handleDeactivateKey}
+              >
+                Deactivate / Change Key
+              </button>
+            </div>
+          ) : (
+            <>
+              <div className="byok-desc">
+                Enter your own Grok API key below to continue chatting for free and unlock unlimited requests.
+              </div>
+              <input 
+                type="password" 
+                className="byok-input" 
+                placeholder="Paste xai-..." 
+                value={tempKey}
+                onChange={(e) => setTempKey(e.target.value)}
+                style={{ marginBottom: '10px' }}
+              />
+              
+              {tempKey.trim().length > 0 && (
+                <button
+                  className="btn btn-primary"
+                  style={{ width: '100%', marginBottom: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '8px 12px', fontSize: '0.85rem' }}
+                  onClick={handleActivateKey}
+                >
+                  🚀 Activate Key
+                </button>
+              )}
+
+              <div className="byok-footer">
+                Stored securely in your browser. <br/>
+                <a href="https://console.x.ai" target="_blank" rel="noreferrer" style={{ color: 'var(--accent-cyan)' }}>Get a free key here</a>
+              </div>
+            </>
+          )}
         </div>
 
         <button className="aisidebar-clear-btn" onClick={clearChat}>
