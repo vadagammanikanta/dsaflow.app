@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import { VitePWA } from 'vite-plugin-pwa'
 
 // Custom Vite plugin to handle code execution locally in dev mode via Wandbox
 function localCompilerPlugin() {
@@ -272,7 +273,34 @@ function localCompilerPlugin() {
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react(), localCompilerPlugin()],
+  plugins: [
+    react(),
+    localCompilerPlugin(),
+    VitePWA({
+      registerType: 'autoUpdate',
+      includeAssets: ['favicon.svg', 'apple-touch-icon.png', 'pwa-192x192.png', 'pwa-512x512.png'],
+      manifest: {
+        name: 'dsaflow',
+        short_name: 'dsaflow',
+        description: 'Master DSA visually.',
+        theme_color: '#1E1E2E',
+        background_color: '#1E1E2E',
+        icons: [
+          {
+            src: 'pwa-192x192.png',
+            sizes: '192x192',
+            type: 'image/png'
+          },
+          {
+            src: 'pwa-512x512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'any maskable'
+          }
+        ]
+      }
+    })
+  ],
   // NOTE: No server.proxy — the localCompilerPlugin middleware handles all
   // /api/execute and /api/send-email routes locally. On Vercel, the
   // serverless functions in /api/ handle production requests natively.
