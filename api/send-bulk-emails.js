@@ -3,7 +3,7 @@ import { getFirestore } from 'firebase-admin/firestore';
 import { Resend } from 'resend';
 import nodemailer from 'nodemailer';
 
-const FROM_ADDRESS   = 'dsa.flow <noreply@dsaflow.app>';
+const FROM_ADDRESS   = 'dsaflow.app <noreply@dsaflow.app>';
 // This is the Resend account owner email — the only address you can send TO
 // on the free plan without a verified domain.
 const OWNER_EMAIL    = 'vadagammanikanta2006@gmail.com';
@@ -39,7 +39,7 @@ function buildBroadcastHtml(userName, subject, message, emailType) {
 
     <!-- Header -->
     <div style="text-align:center; margin-bottom:32px;">
-      <h1 style="color:${accentColor}; font-size:28px; margin:0; letter-spacing:-1px;">dsa.flow</h1>
+      <h1 style="color:${accentColor}; font-size:28px; margin:0; letter-spacing:-1px;">dsaflow.app</h1>
       <p style="color:#475569; font-size:13px; margin:4px 0 0;">FAANG Placement Prep</p>
     </div>
 
@@ -75,7 +75,7 @@ function buildBroadcastHtml(userName, subject, message, emailType) {
                   color:#0f172a; font-weight:700; font-size:15px;
                   padding:14px 40px; border-radius:8px;
                   text-decoration:none; letter-spacing:0.3px;">
-          Open dsa.flow →
+          Open dsaflow.app →
         </a>
       </div>
     </div>
@@ -83,10 +83,10 @@ function buildBroadcastHtml(userName, subject, message, emailType) {
     <!-- Footer -->
     <div style="text-align:center; margin-top:32px;">
       <p style="color:#334155; font-size:12px; margin:0 0 8px;">
-        You're receiving this because you're a dsa.flow member.
+        You're receiving this because you're a dsaflow.app member.
       </p>
       <p style="color:#475569; font-size:12px; margin:0;">
-        © 2026 dsa.flow · All rights reserved
+        © 2026 dsaflow.app · All rights reserved
       </p>
     </div>
 
@@ -152,7 +152,7 @@ export default async function handler(req, res) {
       transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
-          user: 'noreply.dsa.flow@gmail.com',
+          user: 'noreply.dsaflow@gmail.com',
           pass: process.env.GMAIL_APP_PASSWORD
         }
       });
@@ -207,7 +207,7 @@ export default async function handler(req, res) {
           if (isQuotaOrDomainError && transporter) {
             console.log(`[broadcast] Resend failed for ${user.email} due to quota/domain. Falling back to Gmail...`);
             await transporter.sendMail({
-              from: '"dsa.flow" <noreply.dsa.flow@gmail.com>',
+              from: '"dsaflow.app" <noreply.dsaflow@gmail.com>',
               to: user.email,
               subject: subject,
               html: html

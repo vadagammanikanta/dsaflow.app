@@ -1,6 +1,6 @@
 import { Resend } from 'resend';
 
-const FROM_ADDRESS  = 'dsa.flow <noreply@dsaflow.app>';
+const FROM_ADDRESS  = 'dsaflow.app <noreply@dsaflow.app>';
 const ADMIN_EMAIL   = 'vadagammanikanta2006@gmail.com';
 
 export default async function handler(req, res) {
@@ -27,8 +27,8 @@ export default async function handler(req, res) {
 
   // ── Member Email ──────────────────────────────────────────────────────
   const memberSubject = isWelcome
-    ? '🚀 Welcome to dsa.flow — Your DSA Journey Begins!'
-    : '🎉 dsa.flow Premium Activated — You Are In!';
+    ? '🚀 Welcome to dsaflow.app — Your DSA Journey Begins!'
+    : '🎉 dsaflow.app Premium Activated — You Are In!';
 
   const memberHtml = isWelcome ? `
 <!DOCTYPE html>
@@ -39,7 +39,7 @@ export default async function handler(req, res) {
 
     <!-- Header -->
     <div style="text-align:center; margin-bottom:32px;">
-      <h1 style="color:#06b6d4; font-size:28px; margin:0; letter-spacing:-1px;">dsa.flow</h1>
+      <h1 style="color:#06b6d4; font-size:28px; margin:0; letter-spacing:-1px;">dsaflow.app</h1>
       <p style="color:#475569; font-size:13px; margin:4px 0 0;">FAANG Placement Prep</p>
     </div>
 
@@ -90,9 +90,9 @@ export default async function handler(req, res) {
     <!-- Footer -->
     <div style="text-align:center; margin-top:32px;">
       <p style="color:#334155; font-size:12px; margin:0 0 8px;">
-        You're receiving this because you signed up at dsa.flow.
+        You're receiving this because you signed up at dsaflow.app.
       </p>
-      <p style="color:#475569; font-size:12px; margin:0;">© 2026 dsa.flow · All rights reserved</p>
+      <p style="color:#475569; font-size:12px; margin:0;">© 2026 dsaflow.app · All rights reserved</p>
     </div>
 
   </div>
@@ -107,7 +107,7 @@ export default async function handler(req, res) {
 
     <!-- Header -->
     <div style="text-align:center; margin-bottom:32px;">
-      <h1 style="color:#a78bfa; font-size:28px; margin:0; letter-spacing:-1px;">dsa.flow</h1>
+      <h1 style="color:#a78bfa; font-size:28px; margin:0; letter-spacing:-1px;">dsaflow.app</h1>
       <p style="color:#475569; font-size:13px; margin:4px 0 0;">FAANG Placement Prep · Premium</p>
     </div>
 
@@ -126,7 +126,7 @@ export default async function handler(req, res) {
         Congratulations, ${name}! 🎉
       </h2>
       <p style="color:#94a3b8; text-align:center; font-size:15px; margin:0 0 24px;">
-        You are now an official lifetime premium member of dsa.flow.
+        You are now an official lifetime premium member of dsaflow.app.
       </p>
 
       <div style="height:1px; background:#334155; margin:24px 0;"></div>
@@ -178,12 +178,12 @@ export default async function handler(req, res) {
     <!-- Footer -->
     <div style="text-align:center; margin-top:32px;">
       <p style="color:#334155; font-size:12px; margin:0 0 8px;">
-        You're receiving this because you upgraded to dsa.flow Premium.
+        You're receiving this because you upgraded to dsaflow.app Premium.
       </p>
       <p style="color:#475569; font-size:12px; margin:0;">
         Support: <a href="mailto:${ADMIN_EMAIL}" style="color:#a78bfa;">${ADMIN_EMAIL}</a>
       </p>
-      <p style="color:#334155; font-size:11px; margin:6px 0 0;">© 2026 dsa.flow · All rights reserved</p>
+      <p style="color:#334155; font-size:11px; margin:6px 0 0;">© 2026 dsaflow.app · All rights reserved</p>
     </div>
 
   </div>

@@ -352,7 +352,7 @@ export default function Visualizer() {
                 color: source === 'native' ? '#fff' : 'var(--text-secondary)'
               }}
             >
-              💻 dsa.flow (Native)
+              💻 dsaflow.app (Native)
             </button>
             <button 
               className="btn" 

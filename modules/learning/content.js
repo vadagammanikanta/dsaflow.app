@@ -1,4 +1,4 @@
-// dsa.flow — Full Roadmap Curriculum & Quiz Database
+// dsaflow.app — Full Roadmap Curriculum & Quiz Database
 // Covers: Big O, Arrays, Strings, Stacks, Queues, Linked Lists, Hash Tables,
 //         Trees, Heaps, Tries, Graphs, Searching, Sorting, Recursion,
 //         Backtracking, Dynamic Programming, Greedy, Divide & Conquer

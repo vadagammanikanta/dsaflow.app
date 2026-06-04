@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { createSupportTicket } from '../../../modules/auth/auth.js';
 
-const SUPPORT_EMAIL = 'dsa.flow@outlook.com';
+const SUPPORT_EMAIL = 'dsaflow@outlook.com';
 
 const FAQ = [
   {
@@ -18,8 +18,8 @@ const FAQ = [
     a: 'This can happen if your browser lost session data. Sign out, sign back in, and your paid status should restore. If not, email us with your payment ID and we will manually activate it.'
   },
   {
-    q: 'Can I access dsa.flow on mobile?',
-    a: 'Yes! dsa.flow is fully responsive. The Online IDE and Visualizer work best on larger screens, but learning modules and roadmap work perfectly on mobile.'
+    q: 'Can I access dsaflow.app on mobile?',
+    a: 'Yes! dsaflow.app is fully responsive. The Online IDE and Visualizer work best on larger screens, but learning modules and roadmap work perfectly on mobile.'
   },
   {
     q: 'Which programming languages are supported in the IDE?',
@@ -27,7 +27,7 @@ const FAQ = [
   },
   {
     q: 'Is there a refund policy?',
-    a: 'Since this is a one-time lifetime access fee of ₹99, refunds are evaluated case by case. Contact us at dsa.flow@outlook.com within 7 days of payment.'
+    a: 'Since this is a one-time lifetime access fee of ₹99, refunds are evaluated case by case. Contact us at dsaflow@outlook.com within 7 days of payment.'
   },
   {
     q: 'How do I track my learning progress?',
@@ -35,7 +35,7 @@ const FAQ = [
   },
   {
     q: 'Which companies\' interview patterns are covered?',
-    a: 'dsa.flow covers FAANG (Google, Amazon, Meta, Apple, Netflix), Microsoft, Flipkart, Razorpay, Swiggy, Zepto, and other top product companies.'
+    a: 'dsaflow.app covers FAANG (Google, Amazon, Meta, Apple, Netflix), Microsoft, Flipkart, Razorpay, Swiggy, Zepto, and other top product companies.'
   }
 ];
 
@@ -51,7 +51,7 @@ export default function Support() {
 
     const ticketData = {
       name: user?.name || 'Anonymous User',
-      email: user?.email || 'no-email@dsa.flow',
+      email: user?.email || 'no-email@dsaflow.app',
       userId: user?.uid || 'anonymous',
       subject: form.subject,
       message: form.message

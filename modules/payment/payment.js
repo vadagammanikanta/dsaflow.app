@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════════
-//  dsa.flow — Razorpay Payment Module
+//  dsaflow.app — Razorpay Payment Module
 //  ► Replace RAZORPAY_KEY_ID with your actual Razorpay Key ID
 //  ► Create a Razorpay account at https://razorpay.com
 //  ► For testing, use test keys from Razorpay dashboard
@@ -11,7 +11,7 @@ const RAZORPAY_KEY_ID = 'rzp_live_StXUp3supvsh2Y'; // ← LIVE Key
 
 const AMOUNT_PAISE   = 9900;  // ₹99 in paise
 const CURRENCY       = 'INR';
-const PRODUCT_NAME   = 'dsa.flow — Lifetime Access';
+const PRODUCT_NAME   = 'dsaflow.app — Lifetime Access';
 const DESCRIPTION    = 'Unlock unlimited DSA learning, visualizations & placement prep';
 
 /**
@@ -46,7 +46,7 @@ export function openRazorpayCheckout(user) {
       key:         RAZORPAY_KEY_ID,
       amount:      AMOUNT_PAISE,
       currency:    CURRENCY,
-      name:        'dsa.flow',
+      name:        'dsaflow.app',
       description: DESCRIPTION,
       image:       '', // add your logo URL here
       prefill: {

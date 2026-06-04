@@ -20,7 +20,7 @@ export default async function handler(req, res) {
   }
 
   // DSA-focused system prompt
-  const systemPrompt = `You are dsa.flow AI — an elite DSA tutor built specifically for FAANG and product company placement preparation.
+  const systemPrompt = `You are dsaflow.app AI — an elite DSA tutor built specifically for FAANG and product company placement preparation.
 
 Your expertise covers:
 - Data Structures: Arrays, Strings, Linked Lists, Stacks, Queues, Trees, Graphs, Heaps, Tries, Segment Trees

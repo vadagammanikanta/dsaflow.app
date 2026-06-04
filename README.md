@@ -1,12 +1,12 @@
 <div align="center">
 
-<img src="public/favicon.svg" alt="dsa.flow logo" width="90" height="90" />
+<img src="public/favicon.svg" alt="dsaflow.app logo" width="90" height="90" />
 
-# dsa.flow
+# dsaflow.app
 
 ### 🚀 Master Data Structures & Algorithms — The Smart Way
 
-[![Live Demo](https://img.shields.io/badge/🌐_Live_App-dsa.flow-7c4dff?style=for-the-badge&logoColor=white)](https://dsa-learning-hub-delta.vercel.app)
+[![Live Demo](https://img.shields.io/badge/🌐_Live_App-dsaflow.app-7c4dff?style=for-the-badge&logoColor=white)](https://dsa-learning-hub-delta.vercel.app)
 [![React](https://img.shields.io/badge/React_19-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev)
 [![Vite](https://img.shields.io/badge/Vite_8-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev)
 [![Firebase](https://img.shields.io/badge/Firebase-FF6F00?style=for-the-badge&logo=firebase&logoColor=white)](https://firebase.google.com)
@@ -116,8 +116,8 @@ dsa-learning-hub/
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/vadagammanikanta/dsa.flow.git
-cd dsa.flow
+git clone https://github.com/vadagammanikanta/dsaflow.app.git
+cd dsaflow.app
 ```
 
 ### 2. Install dependencies
@@ -238,12 +238,12 @@ All 35 modules have been validated with working YouTube embeds (June 2026):
 
 ## 📄 License
 
-This project is private and proprietary. All rights reserved © 2026 dsa.flow.
+This project is private and proprietary. All rights reserved © 2026 dsaflow.app.
 
 ---
 
 <div align="center">
 
-Built with ❤️ by **V S S S Manikanta** &nbsp;|&nbsp; [Live App](https://dsa-learning-hub-delta.vercel.app) &nbsp;|&nbsp; Support: dsa.flow@outlook.com
+Built with ❤️ by **V S S S Manikanta** &nbsp;|&nbsp; [Live App](https://dsa-learning-hub-delta.vercel.app) &nbsp;|&nbsp; Support: dsaflow@outlook.com
 
 </div>

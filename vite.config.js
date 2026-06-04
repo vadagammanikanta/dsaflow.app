@@ -143,11 +143,11 @@ function localCompilerPlugin() {
               console.log("=========================================");
               console.log("📨 [LOCAL MAIL TRIGGERED]");
               if (isWelcome) {
-                console.log(`To New Member (${email}): "Welcome to dsa.flow! Onboarding started."`);
-                console.log(`To Admin (dsa.flow@outlook.com): "New User Registered: ${name} - WhatsApp: ${whatsapp}"`);
+                console.log(`To New Member (${email}): "Welcome to dsaflow.app! Onboarding started."`);
+                console.log(`To Admin (dsaflow@outlook.com): "New User Registered: ${name} - WhatsApp: ${whatsapp}"`);
               } else {
-                console.log(`To Upgraded Member (${email}): "Welcome to dsa.flow Premium!"`);
-                console.log(`To Admin (dsa.flow@outlook.com): "New Premium Member: ${name} - WhatsApp: ${whatsapp} - Payment ID: ${paymentId}"`);
+                console.log(`To Upgraded Member (${email}): "Welcome to dsaflow.app Premium!"`);
+                console.log(`To Admin (dsaflow@outlook.com): "New Premium Member: ${name} - WhatsApp: ${whatsapp} - Payment ID: ${paymentId}"`);
               }
               res.writeHead(200, { 'Content-Type': 'application/json' });
               return res.end(JSON.stringify({ success: true, message: 'Local email simulated' }));

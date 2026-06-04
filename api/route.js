@@ -4,7 +4,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function GET() {
   const { data, error } = await resend.emails.send({
-    from: 'dsa.flow <noreply@dsaflow.app>',
+    from: 'dsaflow.app <noreply@dsaflow.app>',
     to: 'vadagammanikanta2006@gmail.com',
     subject: '✅ You completed Dynamic Programming — keep going!',
     html: `
@@ -21,7 +21,7 @@ export async function GET() {
     <!-- Header -->
     <div style="text-align:center; margin-bottom:32px;">
       <h1 style="color:#06b6d4; font-size:28px; margin:0; letter-spacing:-1px;">
-        dsa.flow
+        dsaflow.app
       </h1>
       <p style="color:#475569; font-size:13px; margin:4px 0 0;">
         FAANG Placement Prep
@@ -135,7 +135,7 @@ export async function GET() {
     <!-- Footer -->
     <div style="text-align:center; margin-top:32px;">
       <p style="color:#334155; font-size:12px; margin:0 0 8px;">
-        You're receiving this because you're a dsa.flow member.
+        You're receiving this because you're a dsaflow.app member.
       </p>
       <a href="#" style="color:#475569; font-size:12px;">
         Unsubscribe

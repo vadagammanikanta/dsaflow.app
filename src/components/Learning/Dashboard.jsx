@@ -39,7 +39,7 @@ export default function Dashboard() {
         <div className="hero-badge">
           🚀 {isPremium ? 'Premium Account Active' : 'Placement Ready • Free Trial Active'}
         </div>
-        <h1>Master DSA with <span className="gradient-text">dsa.flow</span></h1>
+        <h1>Master DSA with <span className="gradient-text">dsaflow.app</span></h1>
         
         {/* Motivational Quote */}
         <p className="hero-quote" style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontStyle: 'italic', marginBottom: '16px' }}>

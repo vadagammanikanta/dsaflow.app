@@ -26,7 +26,7 @@ export default function AdminDashboard() {
   // AI chat state
   const [aiInput, setAiInput] = useState('');
   const [aiChat, setAiChat] = useState([
-    { role: 'ai', content: 'Greetings, Administrator. I am the Intellectual Admin AI for dsa.flow. How may I assist you with user analytics or curriculum insights today?' }
+    { role: 'ai', content: 'Greetings, Administrator. I am the Intellectual Admin AI for dsaflow.app. How may I assist you with user analytics or curriculum insights today?' }
   ]);
   const [aiThinking, setAiThinking] = useState(false);
 
@@ -209,7 +209,7 @@ export default function AdminDashboard() {
       let response = '';
       const lower = userMessage.toLowerCase();
       if (lower.includes('email') || lower.includes('draft')) {
-        response = "Certainly. Here is a draft for your broadcast:\\n\\n**Subject:** Important Update to your dsa.flow Account\\n\\n**Body:**\\nWe've recently rolled out our new AI tools and offline code snippets. Check your dashboard to experience the seamless performance! Let me know if you want me to refine this tone.";
+        response = "Certainly. Here is a draft for your broadcast:\\n\\n**Subject:** Important Update to your dsaflow.app Account\\n\\n**Body:**\\nWe've recently rolled out our new AI tools and offline code snippets. Check your dashboard to experience the seamless performance! Let me know if you want me to refine this tone.";
       } else if (lower.includes('stats') || lower.includes('revenue') || lower.includes('users')) {
         response = `Based on current metrics, we have ${stats?.totalUsers || 0} total registered users, with ${stats?.upgradedMembers || 0} premium members generating ${stats?.revenue || '₹0'}. Consider running a discount campaign for the ${stats?.freeTrialExpired || 0} users whose trial has expired.`;
       } else {
@@ -252,7 +252,7 @@ export default function AdminDashboard() {
       <div className="admin-sidebar">
         <div className="admin-brand">
           <span className="admin-brand-icon">⚡</span>
-          <span>dsa.flow <span className="admin-badge">ADMIN</span></span>
+          <span>dsaflow.app <span className="admin-badge">ADMIN</span></span>
         </div>
         <nav className="admin-nav">
           <button className={activeTab === 'overview' ? 'active' : ''} onClick={() => setActiveTab('overview')}>📊 Overview</button>
@@ -580,9 +580,9 @@ export default function AdminDashboard() {
                     <p style={{ color: 'var(--text-secondary)', fontSize: '0.78rem', margin: '0 0 8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Quick Templates:</p>
                     <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                       {[
-                        { label: '🎯 New Feature', subject: '🎯 New Feature Just Launched on dsa.flow!', body: '<p>We are thrilled to announce a brand new feature on <strong>dsa.flow</strong>. Log in now to experience it firsthand and level up your DSA prep!</p>\n<p>As always, your feedback helps us grow. 🚀</p>' },
-                        { label: '📅 Weekly Tip', subject: '💡 Your Weekly DSA Tip', body: '<p>Here is your weekly DSA interview tip from the dsa.flow team:</p>\n<blockquote style="border-left:3px solid #06b6d4; padding-left:14px; color:#94a3b8;">Always define your DP state in one clear English sentence before writing any code.</blockquote>\n<p>Keep grinding — FAANG is within reach! 🔥</p>' },
-                        { label: '🎉 Offer', subject: '🎉 Limited Offer: Upgrade to Premium Today!', body: '<p>For a <strong>limited time</strong>, we are offering exclusive access to dsa.flow Premium at a special rate.</p>\n<p>Get lifetime access to 450+ curated problems, AI tutor, code arena, and more. Do not miss out!</p>' },
+                        { label: '🎯 New Feature', subject: '🎯 New Feature Just Launched on dsaflow.app!', body: '<p>We are thrilled to announce a brand new feature on <strong>dsaflow.app</strong>. Log in now to experience it firsthand and level up your DSA prep!</p>\n<p>As always, your feedback helps us grow. 🚀</p>' },
+                        { label: '📅 Weekly Tip', subject: '💡 Your Weekly DSA Tip', body: '<p>Here is your weekly DSA interview tip from the dsaflow.app team:</p>\n<blockquote style="border-left:3px solid #06b6d4; padding-left:14px; color:#94a3b8;">Always define your DP state in one clear English sentence before writing any code.</blockquote>\n<p>Keep grinding — FAANG is within reach! 🔥</p>' },
+                        { label: '🎉 Offer', subject: '🎉 Limited Offer: Upgrade to Premium Today!', body: '<p>For a <strong>limited time</strong>, we are offering exclusive access to dsaflow.app Premium at a special rate.</p>\n<p>Get lifetime access to 450+ curated problems, AI tutor, code arena, and more. Do not miss out!</p>' },
                       ].map(t => (
                         <button
                           key={t.label}

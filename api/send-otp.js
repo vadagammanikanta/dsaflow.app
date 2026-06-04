@@ -35,12 +35,12 @@ export default async function handler(req, res) {
     // Send OTP via Resend
     const resend = new Resend(process.env.RESEND_API_KEY);
     const { error } = await resend.emails.send({
-      from: 'dsa.flow <noreply@dsaflow.app>',
+      from: 'dsaflow.app <noreply@dsaflow.app>',
       to: email,
-      subject: 'Your dsa.flow Verification Code',
+      subject: 'Your dsaflow.app Verification Code',
       html: `
         <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 500px; margin: 0 auto; background: #0f172a; color: #f8fafc; border-radius: 10px;">
-          <h2 style="color: #06b6d4; text-align: center;">dsa.flow Security</h2>
+          <h2 style="color: #06b6d4; text-align: center;">dsaflow.app Security</h2>
           <p>Hello,</p>
           <p>Your one-time verification code is:</p>
           <div style="background: #1e293b; padding: 15px; text-align: center; font-size: 28px; font-weight: bold; letter-spacing: 4px; border-radius: 8px; margin: 20px 0; color: #a78bfa;">

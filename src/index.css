@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 /* ═══════════════════════════════════════════════════════════════════
-   dsa.flow — Premium Design System with Dark & Light Themes
+   dsaflow.app — Premium Design System with Dark & Light Themes
    ═══════════════════════════════════════════════════════════════════ */
 
 /* ══ SUPPORT PAGE ══════════════════════════════════════════════════ */
@@ -2065,7 +2065,7 @@ main { padding-bottom: 56px; }
   animation: skeleton-pulse 1.8s infinite ease-in-out;
 }
 
-/* â•â• DSA.FLOW AI PAGE â€” RICH REDESIGN â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+/* â•â• dsaflow.app AI PAGE â€” RICH REDESIGN â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
 /* Root layout: sidebar + main */
 .aipage-root {

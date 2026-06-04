@@ -204,7 +204,7 @@ export default function DsaFlowAI() {
     return [
       {
         role: 'assistant',
-        content: `👋 Hey there! I'm **dsa.flow AI** — your personal DSA tutor, powered by Grok.
+        content: `👋 Hey there! I'm **dsaflow.app AI** — your personal DSA tutor, powered by Grok.
 
 I can help you with:
 - 🧠 **Solving** any DSA problem with step-by-step explanations
@@ -342,7 +342,7 @@ Ask me anything about DSA — let's crack those placements! 🚀`
         <div className="aisidebar-brand">
           <div className="aisidebar-logo">✦</div>
           <div>
-            <div className="aisidebar-title">dsa.flow AI</div>
+            <div className="aisidebar-title">dsaflow.app AI</div>
             <div className="aisidebar-subtitle">DSA Tutor</div>
           </div>
         </div>
@@ -412,7 +412,7 @@ Ask me anything about DSA — let's crack those placements! 🚀`
           <div className="ai-topbar-center">
             <div className="ai-topbar-avatar">✦</div>
             <div>
-              <div className="ai-topbar-name">dsa.flow AI</div>
+              <div className="ai-topbar-name">dsaflow.app AI</div>
               <div className="ai-topbar-status">
                 <span className="ai-status-dot" />
                 Online · Grok AI

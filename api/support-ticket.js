@@ -31,7 +31,7 @@ export default async function handler(req, res) {
     const db = getAdminDb();
     const ticket = {
       name: name || 'Anonymous User',
-      email: email || 'no-email@dsa.flow',
+      email: email || 'no-email@dsaflow.app',
       userId: userId || 'anonymous',
       subject,
       message,

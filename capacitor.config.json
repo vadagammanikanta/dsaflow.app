@@ -1,6 +1,6 @@
 {
   "appId": "com.dsaflow.app",
-  "appName": "dsa.flow",
+  "appName": "dsaflow.app",
   "webDir": "dist",
   "bundledWebRuntime": false
 }

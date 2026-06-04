@@ -1,4 +1,4 @@
-// LeetCode-style Problem Schema and Database for dsa.flow Coding Arena
+// LeetCode-style Problem Schema and Database for dsaflow.app Coding Arena
 
 export const problems = [
   {
@@ -270,7 +270,7 @@ public class Main {
         isHidden: false
       },
       {
-        input: "\"dsa.flow\"",
+        input: "\"dsaflow.app\"",
         expectedOutput: "\"wolf.asd\"",
         isHidden: true
       }

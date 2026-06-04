@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════════
-//  dsa.flow — Authentication Module
+//  dsaflow.app — Authentication Module
 //  Firebase Auth + Firestore with localStorage fallback
 //  ► Set FIREBASE_CONFIG with your project credentials to enable cloud storage
 //  ► If left as placeholders, the app runs in local-only demo mode
@@ -34,10 +34,10 @@ function tryInitFirebase() {
     _auth = firebase.auth();
     _db   = firebase.firestore();
     _firebaseReady = true;
-    console.info('[dsa.flow] Firebase connected ✓');
+    console.info('[dsaflow.app] Firebase connected ✓');
     return true;
   } catch (e) {
-    console.warn('[dsa.flow] Firebase init failed, using local mode:', e.message);
+    console.warn('[dsaflow.app] Firebase init failed, using local mode:', e.message);
     return false;
   }
 }
@@ -74,10 +74,10 @@ export async function signUp({ name, email, phone, password }) {
         paymentDate: null,
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
       });
-      console.info('[dsa.flow] User saved to Firestore ✓');
+      console.info('[dsaflow.app] User saved to Firestore ✓');
     } catch (e) {
       if (e.code === 'auth/email-already-in-use') throw new Error('Email already registered. Please sign in.');
-      console.warn('[dsa.flow] Firebase sign up failed, falling back to local mode:', e.message);
+      console.warn('[dsaflow.app] Firebase sign up failed, falling back to local mode:', e.message);
     }
   }
 
@@ -105,7 +105,7 @@ export async function signIn({ email, password }) {
           return data;
         }
       } catch (firestoreErr) {
-        console.warn('[dsa.flow] Firestore read failed during login:', firestoreErr.message);
+        console.warn('[dsaflow.app] Firestore read failed during login:', firestoreErr.message);
       }
       
       // If Firestore read failed or snap doesn't exist, but Auth succeeded:
@@ -132,7 +132,7 @@ export async function signIn({ email, password }) {
       if (e.code === 'auth/invalid-email')       throw new Error('Invalid email format.');
       if (e.code === 'auth/too-many-requests')   throw new Error('Too many failed attempts. Please try again later.');
       
-      console.warn('[dsa.flow] Firebase sign in failed, falling back to local mode:', e.message);
+      console.warn('[dsaflow.app] Firebase sign in failed, falling back to local mode:', e.message);
     }
   }
 
@@ -169,7 +169,7 @@ export async function loginWithCustomToken(token) {
       saveLocalUser(fallbackData);
       return fallbackData;
     } catch (e) {
-      console.error('[dsa.flow] Custom token login failed:', e);
+      console.error('[dsaflow.app] Custom token login failed:', e);
       throw new Error('Failed to securely login. Please try again.');
     }
   }
@@ -207,9 +207,9 @@ export async function markAsPaid(paymentId) {
         paymentId:   paymentId,
         paymentDate: user.paymentDate
       }, { merge: true });
-      console.info('[dsa.flow] Payment saved to Firestore via SDK ✓');
+      console.info('[dsaflow.app] Payment saved to Firestore via SDK ✓');
       return;
-    } catch (e) { console.warn('[dsa.flow] Firestore SDK update failed:', e.message); }
+    } catch (e) { console.warn('[dsaflow.app] Firestore SDK update failed:', e.message); }
   }
 
   // Fallback: Firestore REST API (works even without active Auth session)
@@ -235,9 +235,9 @@ export async function markAsPaid(paymentId) {
         }
       })
     });
-    console.info('[dsa.flow] Payment saved to Firestore via REST API ✓');
+    console.info('[dsaflow.app] Payment saved to Firestore via REST API ✓');
   } catch (e) {
-    console.warn('[dsa.flow] Firestore REST API update also failed:', e.message);
+    console.warn('[dsaflow.app] Firestore REST API update also failed:', e.message);
   }
 }
 
@@ -248,10 +248,10 @@ export async function resetPassword(email) {
   if (tryInitFirebase()) {
     try {
       await _auth.sendPasswordResetEmail(email);
-      console.info(`[dsa.flow] Password reset email sent to ${email} via SDK ✓`);
+      console.info(`[dsaflow.app] Password reset email sent to ${email} via SDK ✓`);
       return true;
     } catch (e) {
-      console.error('[dsa.flow] Firebase password reset failed:', e);
+      console.error('[dsaflow.app] Firebase password reset failed:', e);
       throw e;
     }
   }
@@ -331,7 +331,7 @@ export async function createSupportTicket({ name, email, subject, message, userI
     if (res.ok) {
       const data = await res.json();
       if (data.success) {
-        console.info('[dsa.flow] Support ticket saved to Firestore via API ✓');
+        console.info('[dsaflow.app] Support ticket saved to Firestore via API ✓');
         return true;
       }
     }
@@ -340,7 +340,7 @@ export async function createSupportTicket({ name, email, subject, message, userI
     const errData = await res.json().catch(() => ({}));
     throw new Error(errData.error || `HTTP error ${res.status}`);
   } catch (e) {
-    console.warn('[dsa.flow] Cloud API support ticket save failed, checking local fallback:', e.message);
+    console.warn('[dsaflow.app] Cloud API support ticket save failed, checking local fallback:', e.message);
     
     // If we're in local demo mode (Firebase not connected or running locally without backend), use localStorage fallback
     if (!tryInitFirebase()) {
@@ -358,7 +358,7 @@ export async function createSupportTicket({ name, email, subject, message, userI
           status: 'pending'
         });
         localStorage.setItem('dsaflow_tickets', JSON.stringify(tickets));
-        console.info('[dsa.flow] Support ticket saved to local storage ✓');
+        console.info('[dsaflow.app] Support ticket saved to local storage ✓');
         return true;
       } catch (localErr) {
         console.error('Failed to save ticket locally:', localErr);
@@ -389,7 +389,7 @@ export async function getSupportTickets(adminKey) {
       const errData = await res.json().catch(() => ({}));
       throw new Error(errData.error || `HTTP error ${res.status}`);
     } catch (e) {
-      console.error('[dsa.flow] Failed to fetch tickets via admin API:', e);
+      console.error('[dsaflow.app] Failed to fetch tickets via admin API:', e);
       throw e;
     }
   }
@@ -400,7 +400,7 @@ export async function getSupportTickets(adminKey) {
       const snapshot = await _db.collection('support_tickets').orderBy('createdAt', 'desc').get();
       return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     } catch (e) {
-      console.warn('[dsa.flow] Failed to load tickets from Firestore, falling back to local storage:', e.message);
+      console.warn('[dsaflow.app] Failed to load tickets from Firestore, falling back to local storage:', e.message);
     }
   }
   
@@ -428,7 +428,7 @@ export async function resolveSupportTicket(ticketId, adminKey) {
       const errData = await res.json().catch(() => ({}));
       throw new Error(errData.error || `HTTP error ${res.status}`);
     } catch (e) {
-      console.error('[dsa.flow] Failed to resolve ticket via admin API:', e);
+      console.error('[dsaflow.app] Failed to resolve ticket via admin API:', e);
       throw e;
     }
   }
@@ -443,7 +443,7 @@ export async function resolveSupportTicket(ticketId, adminKey) {
         return true;
       }
     } catch (e) {
-      console.warn('[dsa.flow] Failed to resolve ticket in Firestore:', e.message);
+      console.warn('[dsaflow.app] Failed to resolve ticket in Firestore:', e.message);
     }
   }
   

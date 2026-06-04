@@ -22,29 +22,29 @@ import './index.css';
 const QUOTES = [
   { text: "An algorithm must be seen to be believed.", author: "Donald Knuth" },
   { text: "First, solve the problem. Then, write the code.", author: "John Johnson" },
-  { text: "Every expert was once a beginner. Start today.", author: "dsa.flow" },
-  { text: "The best time to learn DSA was yesterday. The second best time is NOW.", author: "dsa.flow" },
+  { text: "Every expert was once a beginner. Start today.", author: "dsaflow.app" },
+  { text: "The best time to learn DSA was yesterday. The second best time is NOW.", author: "dsaflow.app" },
   { text: "Clean code always looks like it was written by someone who cares.", author: "Robert C. Martin" },
   { text: "Data structures + algorithms = programs. Master both.", author: "Niklaus Wirth" },
   { text: "Debugging is twice as hard as writing the code in the first place.", author: "Brian Kernighan" },
   { text: "The function of good software is to make the impossible possible.", author: "Theo de Raadt" },
-  { text: "Consistency beats talent every single time. Code daily.", author: "dsa.flow" },
-  { text: "Solving one LeetCode problem a day keeps unemployment away.", author: "dsa.flow" },
-  { text: "Hard problems only feel impossible before you solve them.", author: "dsa.flow" },
-  { text: "O(N²) is fine for 1000 elements. But your interviewer has 10⁶.", author: "dsa.flow" },
+  { text: "Consistency beats talent every single time. Code daily.", author: "dsaflow.app" },
+  { text: "Solving one LeetCode problem a day keeps unemployment away.", author: "dsaflow.app" },
+  { text: "Hard problems only feel impossible before you solve them.", author: "dsaflow.app" },
+  { text: "O(N²) is fine for 1000 elements. But your interviewer has 10⁶.", author: "dsaflow.app" },
   { text: "The secret to getting ahead is getting started.", author: "Mark Twain" },
-  { text: "Great software is not built in a day — but great habits are formed in one.", author: "dsa.flow" },
-  { text: "FAANG or not — DSA mastery opens every door.", author: "dsa.flow" },
-  { text: "Your comfort zone is the enemy of your placement offer.", author: "dsa.flow" },
-  { text: "Binary search cuts problems in half. So does asking the right question.", author: "dsa.flow" },
+  { text: "Great software is not built in a day — but great habits are formed in one.", author: "dsaflow.app" },
+  { text: "FAANG or not — DSA mastery opens every door.", author: "dsaflow.app" },
+  { text: "Your comfort zone is the enemy of your placement offer.", author: "dsaflow.app" },
+  { text: "Binary search cuts problems in half. So does asking the right question.", author: "dsaflow.app" },
   { text: "In programming, if you can't explain it simply, you don't understand it well enough.", author: "Albert Einstein (adapted)" },
-  { text: "DP is just recursion with a memory. So is learning.", author: "dsa.flow" },
-  { text: "The journey of 1000 LeetCode problems begins with a single array.", author: "dsa.flow" },
-  { text: "Code is poetry. DSA is the grammar.", author: "dsa.flow" },
-  { text: "Your future self will thank you for every hour of DSA practice today.", author: "dsa.flow" },
-  { text: "An optimal solution always exists. Finding it is the challenge.", author: "dsa.flow" },
-  { text: "Graphs are just trees that grew up and got complicated. Like real life.", author: "dsa.flow" },
-  { text: "Every O(N!) problem has an O(2^N) hidden inside it waiting to be found.", author: "dsa.flow" }
+  { text: "DP is just recursion with a memory. So is learning.", author: "dsaflow.app" },
+  { text: "The journey of 1000 LeetCode problems begins with a single array.", author: "dsaflow.app" },
+  { text: "Code is poetry. DSA is the grammar.", author: "dsaflow.app" },
+  { text: "Your future self will thank you for every hour of DSA practice today.", author: "dsaflow.app" },
+  { text: "An optimal solution always exists. Finding it is the challenge.", author: "dsaflow.app" },
+  { text: "Graphs are just trees that grew up and got complicated. Like real life.", author: "dsaflow.app" },
+  { text: "Every O(N!) problem has an O(2^N) hidden inside it waiting to be found.", author: "dsaflow.app" }
 ];
 
 function QuotesTicker() {
@@ -227,7 +227,7 @@ function AppLayout() {
           <div className="promo-header">
             <div className="auth-brand">
               <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-              <span>dsa.flow</span>
+              <span>dsaflow.app</span>
             </div>
             <span className="promo-edition-badge">Premium v2.4</span>
           </div>
@@ -295,7 +295,7 @@ function AppLayout() {
             <div className="auth-brand-mobile">
               <div className="auth-brand">
                 <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-                <span>dsa.flow</span>
+                <span>dsaflow.app</span>
               </div>
               <p className="auth-subtitle">India's #1 DSA Learning Platform for Placements</p>
             </div>
@@ -602,7 +602,7 @@ function AppLayout() {
         <div className="payment-card">
           <div className="payment-icon">⏳</div>
           <h2 className="payment-title">Your Free Trial Has Ended</h2>
-          <p className="payment-subtitle">Get <strong>lifetime access</strong> to dsa.flow for just</p>
+          <p className="payment-subtitle">Get <strong>lifetime access</strong> to dsaflow.app for just</p>
           <div className="payment-price">
             <span className="price-original">₹499</span>
             <span className="price-current">₹99</span>
@@ -623,7 +623,7 @@ function AppLayout() {
             {paymentLoading ? '⏳ Processing...' : '💳 Pay ₹99 — Unlock Lifetime Access'}
           </button>
           <div className="payment-security">
-            🔒 Secured by Razorpay • Support: <a href="mailto:dsa.flow@outlook.com" style={{ color: 'var(--accent-cyan)', textDecoration: 'none' }}>dsa.flow@outlook.com</a>
+            🔒 Secured by Razorpay • Support: <a href="mailto:dsaflow@outlook.com" style={{ color: 'var(--accent-cyan)', textDecoration: 'none' }}>dsaflow@outlook.com</a>
           </div>
           <button className="btn btn-secondary" onClick={logout} style={{ marginTop: '14px', width: '100%', opacity: 0.6, fontSize: '0.82rem' }}>
             Sign out &amp; switch account
