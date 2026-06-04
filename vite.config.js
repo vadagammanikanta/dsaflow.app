@@ -188,14 +188,14 @@ function localCompilerPlugin() {
 
               // 1. If custom apiKey is provided, fetch from x.ai
               if (customApiKey && customApiKey.trim().length > 0) {
-                const xaiRes = await fetch('https://api.x.ai/v1/chat/completions', {
+                const groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
                   method: 'POST',
                   headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${customApiKey.trim()}`
                   },
                   body: JSON.stringify({
-                    model: 'grok-2-latest',
+                    model: 'llama-3.3-70b-versatile',
                     messages: messages,
                     temperature: 0.4,
                     max_tokens: 2048,
@@ -203,20 +203,20 @@ function localCompilerPlugin() {
                   })
                 });
 
-                if (!xaiRes.ok) {
+                if (!groqRes.ok) {
                   let errMsg = '';
-                  const rawText = await xaiRes.text();
+                  const rawText = await groqRes.text();
                   try {
                     const errData = JSON.parse(rawText);
                     errMsg = errData?.error?.message || errData?.message || JSON.stringify(errData);
                   } catch (_) {
-                    errMsg = rawText || `xAI API returned status ${xaiRes.status}`;
+                    errMsg = rawText || `Groq API returned status ${groqRes.status}`;
                   }
-                  res.writeHead(xaiRes.status, { 'Content-Type': 'application/json' });
-                  return res.end(JSON.stringify({ error: `xAI Grok API Error: ${errMsg}` }));
+                  res.writeHead(groqRes.status, { 'Content-Type': 'application/json' });
+                  return res.end(JSON.stringify({ error: `Groq API Error: ${errMsg}` }));
                 }
 
-                const data = await xaiRes.json();
+                const data = await groqRes.json();
                 res.writeHead(200, { 'Content-Type': 'application/json' });
                 return res.end(JSON.stringify({ reply: data.choices?.[0]?.message?.content || '' }));
               }

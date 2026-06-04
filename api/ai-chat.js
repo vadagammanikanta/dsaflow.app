@@ -1,6 +1,6 @@
-// api/ai-chat.js — Groq/xAI-powered DSA AI Chat endpoint
+// api/ai-chat.js — Groq-powered DSA AI Chat endpoint
 // Requires GROQ_API_KEY environment variable set in Vercel for free tier.
-// Dynamically routes to xAI Grok API if a user-provided custom key is sent in the body.
+// Dynamically routes using the user-provided custom Groq API key if sent in the body.
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -35,18 +35,18 @@ Rules:
 7. Be encouraging and supportive — students are preparing for high-stakes interviews
 8. Never give just code without explanation — that defeats the purpose of learning`;
 
-  // 1. If custom xAI Grok key is provided, proxy directly to x.ai
+  // 1. If custom Groq key is provided, proxy directly to groq.com
   if (customApiKey && customApiKey.trim().length > 0) {
     const trimmedKey = customApiKey.trim();
     try {
-      const xaiRes = await fetch('https://api.x.ai/v1/chat/completions', {
+      const groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${trimmedKey}`
         },
         body: JSON.stringify({
-          model: 'grok-2-latest',
+          model: 'llama-3.3-70b-versatile',
           messages: [
             { role: 'system', content: systemPrompt },
             ...messages
@@ -57,20 +57,20 @@ Rules:
         })
       });
 
-      if (!xaiRes.ok) {
+      if (!groqRes.ok) {
         let errMsg = '';
-        const rawText = await xaiRes.text();
+        const rawText = await groqRes.text();
         try {
           const errData = JSON.parse(rawText);
           errMsg = errData?.error?.message || errData?.message || JSON.stringify(errData);
         } catch (_) {
-          errMsg = rawText || `xAI API returned status ${xaiRes.status}`;
+          errMsg = rawText || `Groq API returned status ${groqRes.status}`;
         }
-        console.error('[ai-chat] xAI API error response:', rawText);
-        return res.status(xaiRes.status).json({ error: `xAI Grok API Error: ${errMsg}` });
+        console.error('[ai-chat] Custom Groq API error response:', rawText);
+        return res.status(groqRes.status).json({ error: `Groq API Error: ${errMsg}` });
       }
 
-      const data = await xaiRes.json();
+      const data = await groqRes.json();
       const reply = data.choices?.[0]?.message?.content || '';
 
       return res.status(200).json({
@@ -80,8 +80,8 @@ Rules:
       });
 
     } catch (err) {
-      console.error('[ai-chat] xAI Fetch error:', err);
-      return res.status(502).json({ error: `Failed to reach xAI Grok API: ${err.message}` });
+      console.error('[ai-chat] Custom Groq Fetch error:', err);
+      return res.status(502).json({ error: `Failed to reach Groq API: ${err.message}` });
     }
   }
 

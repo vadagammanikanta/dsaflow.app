@@ -183,7 +183,7 @@ function StatsBar({ messageCount }) {
       <div className="ai-stat-divider" />
       <div className="ai-stat">
         <span className="ai-stat-icon">🔥</span>
-        <span>Grok AI</span>
+        <span>Groq AI</span>
       </div>
       <div className="ai-stat-divider" />
       <div className="ai-stat">
@@ -204,7 +204,7 @@ export default function DsaFlowAI() {
     return [
       {
         role: 'assistant',
-        content: `👋 Hey there! I'm **dsaflow.app AI** — your personal DSA tutor, powered by Grok.
+        content: `👋 Hey there! I'm **dsaflow.app AI** — your personal DSA tutor, powered by Groq.
 
 I can help you with:
 - 🧠 **Solving** any DSA problem with step-by-step explanations
@@ -369,8 +369,8 @@ Ask me anything about DSA — let's crack those placements! 🚀`
         {!isKeyActive && (
           <div className="aisidebar-model-card">
             <div className="aisidebar-model-badge">AI Model</div>
-            <div className="aisidebar-model-name">Grok AI</div>
-            <div className="aisidebar-model-meta">Powered by xAI API</div>
+            <div className="aisidebar-model-name">Groq AI</div>
+            <div className="aisidebar-model-meta">Powered by Groq API</div>
             <div className="aisidebar-model-bar">
               <div className="aisidebar-model-fill" style={{ width: `${Math.min((userMsgCount / 10) * 100, 100)}%` }} />
             </div>
@@ -381,13 +381,13 @@ Ask me anything about DSA — let's crack those placements! 🚀`
         {/* Bring Your Own Key Widget */}
         <div className="aisidebar-byok-card">
           <div className="byok-header">
-            {isKeyActive ? '⚡ Grok Unlimited Active' : '🚀 Unlock Unlimited AI'}
+            {isKeyActive ? '⚡ Groq Unlimited Active' : '🚀 Unlock Unlimited AI'}
           </div>
           
           {isKeyActive ? (
             <div style={{ textAlign: 'center', marginTop: '10px' }}>
               <div className="byok-desc" style={{ color: 'var(--accent-green)', fontWeight: '500', marginBottom: '12px' }}>
-                🎉 Custom Grok key is active. Enjoy unlimited requests!
+                🎉 Custom Groq key is active. Enjoy unlimited requests!
               </div>
               <div style={{ fontSize: '0.82rem', fontFamily: 'monospace', background: 'rgba(255,255,255,0.05)', padding: '6px 12px', borderRadius: '6px', color: 'var(--text-muted)', marginBottom: '14px', wordBreak: 'break-all' }}>
                 {customApiKey.slice(0, 8)}••••••••••••••••
@@ -403,12 +403,12 @@ Ask me anything about DSA — let's crack those placements! 🚀`
           ) : (
             <>
               <div className="byok-desc">
-                Enter your own Grok API key below to continue chatting for free and unlock unlimited requests.
+                Enter your own Groq API key below to continue chatting for free and unlock unlimited requests.
               </div>
               <input 
                 type="password" 
                 className="byok-input" 
-                placeholder="Paste xai-..." 
+                placeholder="Paste gsk_..." 
                 value={tempKey}
                 onChange={(e) => setTempKey(e.target.value)}
                 style={{ marginBottom: '10px' }}
@@ -426,7 +426,7 @@ Ask me anything about DSA — let's crack those placements! 🚀`
 
               <div className="byok-footer">
                 Stored securely in your browser. <br/>
-                <a href="https://console.x.ai" target="_blank" rel="noreferrer" style={{ color: 'var(--accent-cyan)' }}>Get a free key here</a>
+                <a href="https://console.groq.com" target="_blank" rel="noreferrer" style={{ color: 'var(--accent-cyan)' }}>Get a free key here</a>
               </div>
             </>
           )}
@@ -451,7 +451,7 @@ Ask me anything about DSA — let's crack those placements! 🚀`
               <div className="ai-topbar-name">dsaflow.app AI</div>
               <div className="ai-topbar-status">
                 <span className="ai-status-dot" />
-                Online · Grok AI
+                Online · Groq AI
               </div>
             </div>
           </div>
@@ -465,7 +465,7 @@ Ask me anything about DSA — let's crack those placements! 🚀`
           <div className="ai-welcome-banner">
             <div className="ai-welcome-glyph">✦</div>
             <h2 className="ai-welcome-heading">Your Personal DSA Tutor</h2>
-            <p className="ai-welcome-sub">Powered by Grok · Specialized in algorithms, data structures & placement prep</p>
+            <p className="ai-welcome-sub">Powered by Groq · Specialized in algorithms, data structures & placement prep</p>
             <StatsBar messageCount={messages.length} />
           </div>
         )}
