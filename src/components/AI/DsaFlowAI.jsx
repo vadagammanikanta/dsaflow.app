@@ -267,34 +267,18 @@ Ask me anything about DSA — let's crack those placements! 🚀`
 
       let replyText = '';
 
-      if (customApiKey.trim()) {
-        // Direct call to xAI Grok API using the user's custom key
-        const grokRes = await fetch('https://api.x.ai/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${customApiKey.trim()}`
-          },
-          body: JSON.stringify({
-            messages: historyToSend,
-            model: 'grok-2-latest',
-            stream: false
-          })
-        });
-        const grokData = await grokRes.json();
-        if (!grokRes.ok) throw new Error(grokData.error?.message || 'Failed to get response from Grok API.');
-        replyText = grokData.choices[0].message.content;
-      } else {
-        // Default proxy call
-        const res = await fetch('/api/ai-chat', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ messages: historyToSend })
-        });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || 'Failed to get response from AI.');
-        replyText = data.reply;
-      }
+      // Always route requests through the backend proxy to avoid client-side CORS errors
+      const res = await fetch('/api/ai-chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: historyToSend,
+          customApiKey: customApiKey.trim() || undefined
+        })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to get response from AI.');
+      replyText = data.reply;
       
       setMessages(prev => [...prev, { role: 'assistant', content: replyText }]);
     } catch (err) {

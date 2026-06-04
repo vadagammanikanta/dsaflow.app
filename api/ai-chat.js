@@ -1,5 +1,6 @@
-// api/ai-chat.js — Groq-powered DSA AI Chat endpoint
-// Requires GROQ_API_KEY environment variable set in Vercel
+// api/ai-chat.js — Groq/xAI-powered DSA AI Chat endpoint
+// Requires GROQ_API_KEY environment variable set in Vercel for free tier.
+// Dynamically routes to xAI Grok API if a user-provided custom key is sent in the body.
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -9,14 +10,9 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { messages } = req.body;
+  const { messages, customApiKey } = req.body;
   if (!messages || !Array.isArray(messages)) {
     return res.status(400).json({ error: 'Missing messages array in request body.' });
-  }
-
-  const apiKey = process.env.GROQ_API_KEY;
-  if (!apiKey) {
-    return res.status(500).json({ error: 'GROQ_API_KEY environment variable is not configured.' });
   }
 
   // DSA-focused system prompt
@@ -39,6 +35,59 @@ Rules:
 7. Be encouraging and supportive — students are preparing for high-stakes interviews
 8. Never give just code without explanation — that defeats the purpose of learning`;
 
+  // 1. If custom xAI Grok key is provided, proxy directly to x.ai
+  if (customApiKey && customApiKey.trim().length > 0) {
+    const trimmedKey = customApiKey.trim();
+    try {
+      const xaiRes = await fetch('https://api.x.ai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${trimmedKey}`
+        },
+        body: JSON.stringify({
+          model: 'grok-2-latest',
+          messages: [
+            { role: 'system', content: systemPrompt },
+            ...messages
+          ],
+          temperature: 0.4,
+          max_tokens: 2048,
+          stream: false
+        })
+      });
+
+      if (!xaiRes.ok) {
+        let errMsg = 'xAI Grok API request failed. Please check if your API key is valid and has billing enabled.';
+        try {
+          const errData = await xaiRes.json();
+          errMsg = errData?.error?.message || errMsg;
+        } catch (_) {}
+        console.error('[ai-chat] xAI API error:', errMsg);
+        return res.status(xaiRes.status).json({ error: errMsg });
+      }
+
+      const data = await xaiRes.json();
+      const reply = data.choices?.[0]?.message?.content || '';
+
+      return res.status(200).json({
+        reply,
+        model: data.model,
+        usage: data.usage
+      });
+
+    } catch (err) {
+      console.error('[ai-chat] xAI Fetch error:', err);
+      return res.status(502).json({ error: `Failed to reach xAI Grok API: ${err.message}` });
+    }
+  }
+
+  // 2. Default fallback to Groq Llama 3.3 using server variable
+  const apiKey = process.env.GROQ_API_KEY;
+  if (!apiKey) {
+    return res.status(500).json({ error: 'GROQ_API_KEY environment variable is not configured.' });
+  }
+
   try {
     const groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
@@ -47,7 +96,7 @@ Rules:
         'Authorization': `Bearer ${apiKey}`
       },
       body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile', // Best free model on Groq for reasoning
+        model: 'llama-3.3-70b-versatile',
         messages: [
           { role: 'system', content: systemPrompt },
           ...messages

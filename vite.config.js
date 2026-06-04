@@ -178,6 +178,87 @@ function localCompilerPlugin() {
               return res.end(JSON.stringify({ error: err.message }));
             }
           });
+        } else if (req.url === '/api/ai-chat' && req.method === 'POST') {
+          let body = '';
+          req.on('data', chunk => body += chunk);
+          req.on('end', async () => {
+            try {
+              const payload = JSON.parse(body);
+              const { messages, customApiKey } = payload;
+
+              // 1. If custom apiKey is provided, fetch from x.ai
+              if (customApiKey && customApiKey.trim().length > 0) {
+                const xaiRes = await fetch('https://api.x.ai/v1/chat/completions', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${customApiKey.trim()}`
+                  },
+                  body: JSON.stringify({
+                    model: 'grok-2-latest',
+                    messages: messages,
+                    temperature: 0.4,
+                    max_tokens: 2048,
+                    stream: false
+                  })
+                });
+
+                if (!xaiRes.ok) {
+                  let errMsg = 'xAI Grok API request failed.';
+                  try {
+                    const errData = await xaiRes.json();
+                    errMsg = errData?.error?.message || errMsg;
+                  } catch (_) {}
+                  res.writeHead(xaiRes.status, { 'Content-Type': 'application/json' });
+                  return res.end(JSON.stringify({ error: errMsg }));
+                }
+
+                const data = await xaiRes.json();
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                return res.end(JSON.stringify({ reply: data.choices?.[0]?.message?.content || '' }));
+              }
+
+              // 2. Otherwise use local GROQ_API_KEY if configured
+              const apiKey = process.env.GROQ_API_KEY;
+              if (!apiKey) {
+                res.writeHead(500, { 'Content-Type': 'application/json' });
+                return res.end(JSON.stringify({ error: 'GROQ_API_KEY environment variable is not configured locally.' }));
+              }
+
+              const groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${apiKey}`
+                },
+                body: JSON.stringify({
+                  model: 'llama-3.3-70b-versatile',
+                  messages: messages,
+                  temperature: 0.4,
+                  max_tokens: 2048,
+                  stream: false
+                })
+              });
+
+              if (!groqRes.ok) {
+                let errMsg = 'Groq API request failed.';
+                try {
+                  const errData = await groqRes.json();
+                  errMsg = errData?.error?.message || errMsg;
+                } catch (_) {}
+                res.writeHead(groqRes.status, { 'Content-Type': 'application/json' });
+                return res.end(JSON.stringify({ error: errMsg }));
+              }
+
+              const data = await groqRes.json();
+              res.writeHead(200, { 'Content-Type': 'application/json' });
+              return res.end(JSON.stringify({ reply: data.choices?.[0]?.message?.content || '' }));
+
+            } catch (err) {
+              res.writeHead(500, { 'Content-Type': 'application/json' });
+              return res.end(JSON.stringify({ error: err.message }));
+            }
+          });
         } else {
           next();
         }
