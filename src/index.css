@@ -3493,3 +3493,6 @@ main { padding-bottom: 56px; }
     width: 100%;
   }
 }
+
+/* Lazy load spinner */
+@keyframes spin { to { transform: rotate(360deg); } }

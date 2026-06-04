@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">dsa.flow</string>
-    <string name="title_activity_main">dsa.flow</string>
+    <string name="app_name">dsaflow.app</string>
+    <string name="title_activity_main">dsaflow.app</string>
     <string name="package_name">com.dsaflow.app</string>
     <string name="custom_url_scheme">com.dsaflow.app</string>
 </resources>

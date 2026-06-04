@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AppProvider } from './context/AppContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
@@ -7,17 +7,28 @@ import Navbar from './components/Layout/Navbar';
 import Dashboard from './components/Learning/Dashboard';
 import Roadmap from './components/Learning/Roadmap';
 import LearningHub from './components/Learning/LearningHub';
-import Arena from './components/Arena/Arena';
-import WebIDE from './components/IDE/WebIDE';
-import Visualizer from './components/Visualizer/Visualizer';
-import MockQuiz from './components/Quiz/MockQuiz';
-import Platforms from './components/Platforms/Platforms';
-import Support from './components/Support/Support';
-import DsaFlowAI from './components/AI/DsaFlowAI';
-import AdminDashboard from './components/Admin/AdminDashboard';
-import Patterns from './components/Patterns/Patterns';
 import { openRazorpayCheckout } from '../modules/payment/payment';
 import './index.css';
+
+// Heavy components — lazy loaded to reduce initial bundle
+const Arena       = lazy(() => import('./components/Arena/Arena'));
+const WebIDE      = lazy(() => import('./components/IDE/WebIDE'));
+const Visualizer  = lazy(() => import('./components/Visualizer/Visualizer'));
+const MockQuiz    = lazy(() => import('./components/Quiz/MockQuiz'));
+const Platforms   = lazy(() => import('./components/Platforms/Platforms'));
+const Support     = lazy(() => import('./components/Support/Support'));
+const DsaFlowAI   = lazy(() => import('./components/AI/DsaFlowAI'));
+const AdminDashboard = lazy(() => import('./components/Admin/AdminDashboard'));
+const Patterns    = lazy(() => import('./components/Patterns/Patterns'));
+
+// Minimal loading fallback
+const PageLoader = () => (
+  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '60vh', color: 'var(--text-muted)', flexDirection: 'column', gap: '12px' }}>
+    <div style={{ width: '32px', height: '32px', border: '3px solid var(--border-glass)', borderTop: '3px solid var(--accent-purple)', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+    <span style={{ fontSize: '0.85rem' }}>Loading...</span>
+  </div>
+);
+
 
 const QUOTES = [
   { text: "An algorithm must be seen to be believed.", author: "Donald Knuth" },
@@ -643,21 +654,23 @@ function AppLayout() {
         <Header />
         <Navbar />
         <main className="main-content" style={{ position: 'relative' }}>
-          <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/roadmap" element={<Roadmap />} />
-            <Route path="/learn" element={<LearningHub />} />
-            <Route path="/arena" element={<Arena />} />
-            <Route path="/ide" element={<WebIDE />} />
-            <Route path="/visualizer" element={<Visualizer />} />
-            <Route path="/platforms" element={<Platforms />} />
-            <Route path="/quiz" element={<MockQuiz />} />
-            <Route path="/ai" element={<DsaFlowAI />} />
-            <Route path="/support" element={<Support />} />
-            <Route path="/patterns" element={<Patterns />} />
-            <Route path="/admin-dsa-secret" element={<AdminDashboard />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
+          <Suspense fallback={<PageLoader />}>
+            <Routes>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/roadmap" element={<Roadmap />} />
+              <Route path="/learn" element={<LearningHub />} />
+              <Route path="/arena" element={<Arena />} />
+              <Route path="/ide" element={<WebIDE />} />
+              <Route path="/visualizer" element={<Visualizer />} />
+              <Route path="/platforms" element={<Platforms />} />
+              <Route path="/quiz" element={<MockQuiz />} />
+              <Route path="/ai" element={<DsaFlowAI />} />
+              <Route path="/support" element={<Support />} />
+              <Route path="/patterns" element={<Patterns />} />
+              <Route path="/admin-dsa-secret" element={<AdminDashboard />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </Suspense>
         </main>
       </div>
       <QuotesTicker />

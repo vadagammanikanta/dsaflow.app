@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { useApp } from '../../context/AppContext';
 import './patterns.css';
 
 // ═══════════════════════════════════════════════════════════
@@ -535,9 +536,15 @@ const DIFF_COLOR = { Easy: '#4ade80', Medium: '#fbbf24', Hard: '#f87171' };
 const DIFF_BG = { Easy: 'rgba(74, 222, 128, 0.15)', Medium: 'rgba(251, 191, 36, 0.15)', Hard: 'rgba(248, 113, 113, 0.15)' };
 
 export default function Patterns() {
+  const { appState, togglePatternProblem } = useApp();
   const [selected, setSelected] = useState(null);
   const [search, setSearch] = useState('');
   const [filterDiff, setFilterDiff] = useState('All');
+
+  // Total problems solved across ALL patterns
+  const totalSolved = Object.values(appState.patternProgress || {})
+    .reduce((sum, p) => sum + (p.done?.length || 0), 0);
+  const totalProblems = PATTERNS.reduce((s, p) => s + p.problems.length, 0);
 
   const filtered = useMemo(() => {
     return PATTERNS.filter(p => {
@@ -567,7 +574,8 @@ export default function Patterns() {
           </p>
           <div className="patterns-hero-stats">
             <div className="ph-stat"><span>{PATTERNS.length}</span> Patterns</div>
-            <div className="ph-stat"><span>{PATTERNS.reduce((s, p) => s + p.problems.length, 0)}</span> Problems</div>
+            <div className="ph-stat"><span>{totalProblems}</span> Problems</div>
+            <div className="ph-stat"><span style={{ color: totalSolved > 0 ? '#4ade80' : undefined }}>{totalSolved}</span> Solved</div>
             <div className="ph-stat"><span>3</span> Difficulty Levels</div>
           </div>
         </div>
@@ -601,7 +609,10 @@ export default function Patterns() {
       <div className="patterns-layout">
         {/* Pattern Cards Grid */}
         <div className="patterns-grid">
-          {filtered.map(p => (
+          {filtered.map(p => {
+            const doneCnt = (appState.patternProgress?.[p.id]?.done || []).length;
+            const pct = Math.round((doneCnt / p.problems.length) * 100);
+            return (
             <div
               key={p.id}
               className={`pattern-card ${selected === p.id ? 'active' : ''}`}
@@ -624,11 +635,23 @@ export default function Patterns() {
                   <span key={i} className="pattern-use-tag">{u}</span>
                 ))}
               </div>
+              {/* Mini progress bar */}
+              {doneCnt > 0 && (
+                <div style={{ margin: '8px 0 4px', height: '3px', background: 'var(--border-glass)', borderRadius: '2px', overflow: 'hidden' }}>
+                  <div style={{ width: `${pct}%`, height: '100%', background: p.color, transition: 'width 0.3s' }} />
+                </div>
+              )}
               <div className="pattern-card-footer">
                 <span className="pattern-view-btn">{selected === p.id ? 'Close ↑' : 'View Problems →'}</span>
+                {doneCnt > 0 && (
+                  <span style={{ fontSize: '0.7rem', color: '#4ade80', marginLeft: 'auto' }}>
+                    ✓ {doneCnt}/{p.problems.length}
+                  </span>
+                )}
               </div>
             </div>
-          ))}
+          );
+          })}
           {filtered.length === 0 && (
             <div className="patterns-empty">
               <span>🔎</span>
@@ -655,38 +678,56 @@ export default function Patterns() {
               {active.useCases.map((u, i) => <span key={i} className="detail-use-tag">{u}</span>)}
             </div>
 
-            <div className="detail-section-label" style={{ marginTop: '20px' }}>📋 Problem List ({active.problems.length})</div>
+            <div className="detail-section-label" style={{ marginTop: '20px' }}>
+              📋 Problem List ({active.problems.length})
+              {(() => {
+                const doneCnt = (appState.patternProgress?.[active.id]?.done || []).length;
+                return doneCnt > 0
+                  ? <span style={{ marginLeft: '8px', color: '#4ade80', fontSize: '0.75rem', fontWeight: 600 }}>✓ {doneCnt} done</span>
+                  : null;
+              })()}
+            </div>
             <div className="detail-problem-list">
-              {active.problems.map((prob, i) => (
-                <a
-                  key={i}
-                  href={prob.leetcode}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="detail-problem-item"
-                >
-                  <span className="detail-problem-num">{String(i + 1).padStart(2, '0')}</span>
-                  <span className="detail-problem-name">{prob.name}</span>
-                  <span
-                    className="detail-problem-diff"
-                    style={{ color: DIFF_COLOR[prob.difficulty], background: DIFF_BG[prob.difficulty] }}
-                  >
-                    {prob.difficulty}
-                  </span>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="detail-problem-arrow"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-                </a>
-              ))}
+              {active.problems.map((prob, i) => {
+                const isDone = (appState.patternProgress?.[active.id]?.done || []).includes(i);
+                return (
+                  <div key={i} className="detail-problem-item" style={{ opacity: isDone ? 0.75 : 1 }}>
+                    {/* Checkbox — stops link navigation */}
+                    <button
+                      onClick={e => { e.stopPropagation(); togglePatternProblem(active.id, i); }}
+                      style={{
+                        width: '18px', height: '18px', borderRadius: '4px', border: `2px solid ${isDone ? '#4ade80' : 'var(--border-glass)'}`,
+                        background: isDone ? '#4ade80' : 'transparent', cursor: 'pointer', flexShrink: 0,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px',
+                        color: '#000', transition: 'all 0.15s', padding: 0
+                      }}
+                      title={isDone ? 'Mark as unsolved' : 'Mark as solved'}
+                    >
+                      {isDone ? '✓' : ''}
+                    </button>
+                    <span className="detail-problem-num">{String(i + 1).padStart(2, '0')}</span>
+                    <a
+                      href={prob.leetcode}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="detail-problem-name"
+                      style={{ textDecoration: isDone ? 'line-through' : 'none', flex: 1, color: 'inherit' }}
+                    >
+                      {prob.name}
+                    </a>
+                    <span
+                      className="detail-problem-diff"
+                      style={{ color: DIFF_COLOR[prob.difficulty], background: DIFF_BG[prob.difficulty] }}
+                    >
+                      {prob.difficulty}
+                    </span>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="detail-problem-arrow"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                  </div>
+                );
+              })}
             </div>
 
-            <a
-              href="https://github.com/dipjul/Grokking-the-Coding-Interview-Patterns-for-Coding-Questions"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="detail-source-link"
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0 1 12 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.929.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/></svg>
-              View on GitHub
-            </a>
+
           </div>
         )}
       </div>
