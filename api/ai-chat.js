@@ -58,13 +58,16 @@ Rules:
       });
 
       if (!xaiRes.ok) {
-        let errMsg = 'xAI Grok API request failed. Please check if your API key is valid and has billing enabled.';
+        let errMsg = '';
+        const rawText = await xaiRes.text();
         try {
-          const errData = await xaiRes.json();
-          errMsg = errData?.error?.message || errMsg;
-        } catch (_) {}
-        console.error('[ai-chat] xAI API error:', errMsg);
-        return res.status(xaiRes.status).json({ error: errMsg });
+          const errData = JSON.parse(rawText);
+          errMsg = errData?.error?.message || errData?.message || JSON.stringify(errData);
+        } catch (_) {
+          errMsg = rawText || `xAI API returned status ${xaiRes.status}`;
+        }
+        console.error('[ai-chat] xAI API error response:', rawText);
+        return res.status(xaiRes.status).json({ error: `xAI Grok API Error: ${errMsg}` });
       }
 
       const data = await xaiRes.json();

@@ -204,13 +204,16 @@ function localCompilerPlugin() {
                 });
 
                 if (!xaiRes.ok) {
-                  let errMsg = 'xAI Grok API request failed.';
+                  let errMsg = '';
+                  const rawText = await xaiRes.text();
                   try {
-                    const errData = await xaiRes.json();
-                    errMsg = errData?.error?.message || errMsg;
-                  } catch (_) {}
+                    const errData = JSON.parse(rawText);
+                    errMsg = errData?.error?.message || errData?.message || JSON.stringify(errData);
+                  } catch (_) {
+                    errMsg = rawText || `xAI API returned status ${xaiRes.status}`;
+                  }
                   res.writeHead(xaiRes.status, { 'Content-Type': 'application/json' });
-                  return res.end(JSON.stringify({ error: errMsg }));
+                  return res.end(JSON.stringify({ error: `xAI Grok API Error: ${errMsg}` }));
                 }
 
                 const data = await xaiRes.json();
