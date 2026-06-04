@@ -622,12 +622,12 @@ function AppLayout() {
           <p className="payment-desc">One-time payment • Lifetime access • No subscription</p>
 
           <div className="payment-features">
-            <div className="pf-item"><span className="pf-icon">🧩</span> 16 complete DSA modules</div>
-            <div className="pf-item"><span className="pf-icon">🌐</span> Multi-language code (JS, C++, Java, Python)</div>
-            <div className="pf-item"><span className="pf-icon">📊</span> Interactive algorithm visualizer</div>
-            <div className="pf-item"><span className="pf-icon">🎯</span> 15-question placement quiz</div>
-            <div className="pf-item"><span className="pf-icon">🗺️</span> Structured DSA roadmap</div>
-            <div className="pf-item"><span className="pf-icon">🏆</span> LeetCode + HackerRank guides</div>
+            <div className="pf-item"><span className="pf-icon">🧩</span> 42 complete DSA modules</div>
+            <div className="pf-item"><span className="pf-icon">🔄</span> 26 Grokking Coding Patterns (211+ problems)</div>
+            <div className="pf-item"><span className="pf-icon">🤖</span> AI Placement Assistant (Powered by Groq)</div>
+            <div className="pf-item"><span className="pf-icon">🔥</span> Daily Streak Tracker &amp; Interview Target Countdown</div>
+            <div className="pf-item"><span className="pf-icon">📊</span> Interactive code visualizers &amp; IDE sandbox</div>
+            <div className="pf-item"><span className="pf-icon">🎯</span> Mock quizzes &amp; full placement roadmap</div>
           </div>
 
           <button className="btn btn-accent payment-cta" onClick={handlePayNow} disabled={paymentLoading}>

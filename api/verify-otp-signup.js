@@ -65,11 +65,14 @@ export default async function handler(req, res) {
 
     // Optionally save extra data to Firestore
     await db.collection('users').doc(userRecord.uid).set({
+      uid: userRecord.uid,
       name: name || '',
       email: email.toLowerCase(),
-      phone: phone || '',
-      createdAt: new Date().toISOString(),
-      isPaid: false
+      whatsapp: phone || '',
+      signupDate: Date.now(),
+      trialExpiry: Date.now() + 24 * 60 * 60 * 1000, // 24 hours trial
+      isPaid: false,
+      createdAt: new Date().toISOString()
     }, { merge: true });
 
     // Generate a Custom Token to log them in automatically on the frontend

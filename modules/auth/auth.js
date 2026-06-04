@@ -267,7 +267,22 @@ export function getCurrentUser() { return getLocalUser(); }
 export function getTrialInfo() {
   const user = getLocalUser();
   if (!user) return null;
-  const remaining = user.trialExpiry - Date.now();
+  
+  let expiry = user.trialExpiry;
+  if (!expiry && user.signupDate) {
+    expiry = user.signupDate + 24 * 60 * 60 * 1000;
+  }
+  if (!expiry && user.createdAt) {
+    // If createdAt is an ISO string, convert to timestamp
+    const t = new Date(user.createdAt).getTime();
+    if (!isNaN(t)) expiry = t + 24 * 60 * 60 * 1000;
+  }
+  // Safe default fallback
+  if (!expiry) {
+    expiry = Date.now() + 24 * 60 * 60 * 1000;
+  }
+
+  const remaining = expiry - Date.now();
   return {
     isActive:  remaining > 0,
     remaining: Math.max(0, remaining),
