@@ -9,8 +9,11 @@ export default function Arena() {
   const [code, setCode] = useState('');
   const [output, setOutput] = useState('');
   const [isRunning, setIsRunning] = useState(false);
-  const [activeTab, setActiveTab] = useState('testcases'); // 'testcases', 'custominput', 'output'
+  const [activeTab, setActiveTab] = useState('testcases');
   const [customInput, setCustomInput] = useState('');
+  const [explainResult, setExplainResult] = useState('');
+  const [explainLoading, setExplainLoading] = useState(false);
+  const [showExplain, setShowExplain] = useState(false);
   
   const activeProblem = problems.find(p => p.id === activeProblemId);
   const descRef = useRef(null);
@@ -109,6 +112,30 @@ export default function Arena() {
     }
   };
 
+  const handleExplainCode = async () => {
+    setExplainLoading(true);
+    setShowExplain(true);
+    setExplainResult('');
+    try {
+      const res = await fetch('/api/ai-chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: [{
+            role: 'user',
+            content: `Explain this ${appState.selectedLanguage} code for the problem "${activeProblem.title}" in simple terms. Break it down step by step, explain the algorithm, and state the time and space complexity:\n\n\`\`\`${appState.selectedLanguage}\n${code}\n\`\`\``
+          }]
+        })
+      });
+      const data = await res.json();
+      setExplainResult(data.reply || 'Could not explain code.');
+    } catch (err) {
+      setExplainResult('Error: ' + err.message);
+    } finally {
+      setExplainLoading(false);
+    }
+  };
+
   return (
     <div className="arena-workspace">
       
@@ -164,13 +191,18 @@ export default function Arena() {
                 <option value="java">☕ Java</option>
               </select>
             </div>
-            <button 
-              className="btn btn-secondary btn-sm" 
-              onClick={() => setCode(activeProblem.starterCode[appState.selectedLanguage] || '')}
-              style={{ padding: '4px 10px', fontSize: '0.8rem' }}
-            >
-              🔄 Reset Code
-            </button>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button className="btn btn-secondary btn-sm" onClick={handleExplainCode} style={{ padding: '4px 10px', fontSize: '0.8rem', background: 'rgba(124,77,255,0.1)', borderColor: 'rgba(124,77,255,0.3)', color: '#c4b5fd' }} disabled={!code.trim() || explainLoading}>
+                🧠 Explain Code
+              </button>
+              <button 
+                className="btn btn-secondary btn-sm" 
+                onClick={() => setCode(activeProblem.starterCode[appState.selectedLanguage] || '')}
+                style={{ padding: '4px 10px', fontSize: '0.8rem' }}
+              >
+                🔄 Reset
+              </button>
+            </div>
           </div>
           <div className="arena-editor-canvas">
             <Editor
@@ -275,6 +307,32 @@ export default function Arena() {
         </div>
 
       </div>
+
+      {/* Explain Code Modal */}
+      {showExplain && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(4px)' }} onClick={() => setShowExplain(false)}>
+          <div style={{ background: '#0d1117', border: '1px solid rgba(124,77,255,0.3)', borderRadius: '20px', padding: '28px 28px 24px', maxWidth: '560px', width: '92%', maxHeight: '80vh', overflowY: 'auto', position: 'relative' }} onClick={e => e.stopPropagation()}>
+            <button onClick={() => setShowExplain(false)} style={{ position: 'absolute', top: '16px', right: '16px', background: 'rgba(255,255,255,0.05)', border: 'none', color: '#94a3b8', borderRadius: '8px', padding: '6px 10px', cursor: 'pointer' }}>✕</button>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
+              <span style={{ fontSize: '1.5rem' }}>🧠</span>
+              <div>
+                <h3 style={{ margin: 0, fontSize: '1rem', color: '#f1f5f9' }}>Code Explanation</h3>
+                <p style={{ margin: 0, fontSize: '0.75rem', color: '#64748b' }}>Powered by Groq AI</p>
+              </div>
+            </div>
+            {explainLoading ? (
+              <div style={{ textAlign: 'center', padding: '32px', color: '#94a3b8' }}>
+                <div style={{ fontSize: '2rem', marginBottom: '12px', animation: 'spin 1s linear infinite', display: 'inline-block' }}>⏳</div>
+                <p>Analyzing your code...</p>
+              </div>
+            ) : (
+              <div style={{ color: '#cbd5e1', fontSize: '0.875rem', lineHeight: 1.7, whiteSpace: 'pre-wrap', fontFamily: 'var(--font-main)' }}>
+                {explainResult}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -20,6 +20,8 @@ const Support     = lazy(() => import('./components/Support/Support'));
 const DsaFlowAI   = lazy(() => import('./components/AI/DsaFlowAI'));
 const AdminDashboard = lazy(() => import('./components/Admin/AdminDashboard'));
 const Patterns    = lazy(() => import('./components/Patterns/Patterns'));
+const StudyPlanner = lazy(() => import('./components/Learning/StudyPlanner'));
+const Leaderboard  = lazy(() => import('./components/Learning/Leaderboard'));
 
 // Minimal loading fallback
 const PageLoader = () => (
@@ -830,6 +832,8 @@ function AppLayout() {
               <Route path="/ai" element={<DsaFlowAI />} />
               <Route path="/support" element={<Support />} />
               <Route path="/patterns" element={<Patterns />} />
+              <Route path="/planner" element={<StudyPlanner />} />
+              <Route path="/leaderboard" element={<Leaderboard />} />
               <Route path="/admin-dsa-secret" element={<AdminDashboard />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>

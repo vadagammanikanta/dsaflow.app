@@ -2,6 +2,37 @@ import React, { useState, useMemo } from 'react';
 import { useApp } from '../../context/AppContext';
 import './patterns.css';
 
+// Company tag colors
+const COMPANY_COLORS = {
+  'Amazon': '#ff9900', 'Google': '#4285f4', 'Facebook': '#1877f2', 'Meta': '#1877f2',
+  'Microsoft': '#00a4ef', 'Apple': '#555', 'Uber': '#000', 'Flipkart': '#2874f0',
+  'Adobe': '#ff0000', 'Bloomberg': '#5f72bd', 'LinkedIn': '#0a66c2', 'Netflix': '#e50914',
+};
+
+// Company tags per pattern (top companies that ask this pattern)
+const PATTERN_COMPANIES = {
+  1: ['Amazon','Google','Uber'],     // Sliding Window
+  2: ['Facebook','Amazon','Google'], // Two Pointers
+  3: ['Amazon','Microsoft','Meta'],  // Fast & Slow
+  4: ['Google','Facebook','Amazon'], // Merge Intervals
+  5: ['Amazon','Google'],           // Cyclic Sort
+  6: ['Microsoft','Amazon','Meta'],  // In-place LinkedList
+  7: ['Amazon','Google','Facebook'], // BFS
+  8: ['Google','Amazon','Microsoft'],// DFS
+  9: ['Amazon','Google','Adobe'],    // Two Heaps
+  10: ['Google','Amazon','Facebook'],// Subsets
+  11: ['Amazon','Microsoft','Uber'], // Modified Binary Search
+  12: ['Google','Facebook','Amazon'],// Bitwise XOR
+  13: ['Amazon','Google','Bloomberg'],// Top K Elements
+  14: ['Google','Amazon'],           // K-way Merge
+  15: ['Amazon','Facebook','Google'],// 0/1 Knapsack
+  16: ['Google','Amazon','Meta'],    // Topological Sort
+  17: ['Amazon','Microsoft'],        // Monotonic Stack
+  18: ['Google','Amazon','Adobe'],   // Backtracking
+  19: ['Amazon','Google','Microsoft'],// Greedy
+  20: ['Facebook','Amazon','Google'],// Graph
+};
+
 // ═══════════════════════════════════════════════════════════
 //  DATA — All 20 Grokking Patterns with full problem lists
 //  Source: github.com/dipjul/Grokking-the-Coding-Interview
@@ -536,10 +567,12 @@ const DIFF_COLOR = { Easy: '#4ade80', Medium: '#fbbf24', Hard: '#f87171' };
 const DIFF_BG = { Easy: 'rgba(74, 222, 128, 0.15)', Medium: 'rgba(251, 191, 36, 0.15)', Hard: 'rgba(248, 113, 113, 0.15)' };
 
 export default function Patterns() {
-  const { appState, togglePatternProblem } = useApp();
+  const { appState, togglePatternProblem, savePatternNote } = useApp();
   const [selected, setSelected] = useState(null);
   const [search, setSearch] = useState('');
   const [filterDiff, setFilterDiff] = useState('All');
+  const [noteKey, setNoteKey] = useState(null); // 'patternId-probIdx'
+  const [noteText, setNoteText] = useState('');
 
   // Total problems solved across ALL patterns
   const totalSolved = Object.values(appState.patternProgress || {})
@@ -690,38 +723,62 @@ export default function Patterns() {
             <div className="detail-problem-list">
               {active.problems.map((prob, i) => {
                 const isDone = (appState.patternProgress?.[active.id]?.done || []).includes(i);
+                const key = `${active.id}-${i}`;
+                const savedNote = appState.patternNotes?.[key] || '';
+                const hasNote = !!savedNote;
+                const companies = (prob.companies || []).slice(0, 3);
                 return (
-                  <div key={i} className="detail-problem-item" style={{ opacity: isDone ? 0.75 : 1 }}>
-                    {/* Checkbox — stops link navigation */}
-                    <button
-                      onClick={e => { e.stopPropagation(); togglePatternProblem(active.id, i); }}
-                      style={{
-                        width: '18px', height: '18px', borderRadius: '4px', border: `2px solid ${isDone ? '#4ade80' : 'var(--border-glass)'}`,
-                        background: isDone ? '#4ade80' : 'transparent', cursor: 'pointer', flexShrink: 0,
-                        display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px',
-                        color: '#000', transition: 'all 0.15s', padding: 0
-                      }}
-                      title={isDone ? 'Mark as unsolved' : 'Mark as solved'}
-                    >
-                      {isDone ? '✓' : ''}
-                    </button>
-                    <span className="detail-problem-num">{String(i + 1).padStart(2, '0')}</span>
-                    <a
-                      href={prob.leetcode}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="detail-problem-name"
-                      style={{ textDecoration: isDone ? 'line-through' : 'none', flex: 1, color: 'inherit' }}
-                    >
-                      {prob.name}
-                    </a>
-                    <span
-                      className="detail-problem-diff"
-                      style={{ color: DIFF_COLOR[prob.difficulty], background: DIFF_BG[prob.difficulty] }}
-                    >
-                      {prob.difficulty}
-                    </span>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="detail-problem-arrow"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                  <div key={i} className="detail-problem-item" style={{ opacity: isDone ? 0.75 : 1, flexDirection: 'column', alignItems: 'flex-start', gap: '4px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', width: '100%' }}>
+                      {/* Checkbox */}
+                      <button
+                        onClick={e => { e.stopPropagation(); togglePatternProblem(active.id, i); }}
+                        style={{ width: '18px', height: '18px', borderRadius: '4px', border: `2px solid ${isDone ? '#4ade80' : 'var(--border-glass)'}`, background: isDone ? '#4ade80' : 'transparent', cursor: 'pointer', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', color: '#000', transition: 'all 0.15s', padding: 0 }}
+                        title={isDone ? 'Mark as unsolved' : 'Mark as solved'}
+                      >
+                        {isDone ? '✓' : ''}
+                      </button>
+                      <span className="detail-problem-num">{String(i + 1).padStart(2, '0')}</span>
+                      <a href={prob.leetcode} target="_blank" rel="noopener noreferrer" className="detail-problem-name" style={{ textDecoration: isDone ? 'line-through' : 'none', flex: 1, color: 'inherit' }}>
+                        {prob.name}
+                      </a>
+                      <span className="detail-problem-diff" style={{ color: DIFF_COLOR[prob.difficulty], background: DIFF_BG[prob.difficulty] }}>{prob.difficulty}</span>
+                      {/* Note button */}
+                      <button
+                        onClick={e => { e.stopPropagation(); setNoteKey(noteKey === key ? null : key); setNoteText(savedNote); }}
+                        title={hasNote ? 'Edit note' : 'Add note'}
+                        style={{ background: hasNote ? 'rgba(251,191,36,0.1)' : 'rgba(255,255,255,0.04)', border: `1px solid ${hasNote ? 'rgba(251,191,36,0.3)' : 'rgba(255,255,255,0.08)'}`, color: hasNote ? '#fbbf24' : 'var(--text-muted)', borderRadius: '6px', padding: '3px 7px', fontSize: '0.7rem', cursor: 'pointer', flexShrink: 0 }}
+                      >
+                        {hasNote ? '📝' : '+'}
+                      </button>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="detail-problem-arrow"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                    </div>
+                    {/* Company tags */}
+                    {companies.length > 0 && (
+                      <div style={{ display: 'flex', gap: '4px', paddingLeft: '54px', flexWrap: 'wrap' }}>
+                        {companies.map(c => (
+                          <span key={c} style={{ fontSize: '0.62rem', fontWeight: 700, color: COMPANY_COLORS[c] || '#94a3b8', background: `${COMPANY_COLORS[c] || '#94a3b8'}18`, padding: '1px 6px', borderRadius: '99px', border: `1px solid ${COMPANY_COLORS[c] || '#94a3b8'}30` }}>{c}</span>
+                        ))}
+                      </div>
+                    )}
+                    {/* Inline Note Editor */}
+                    {noteKey === key && (
+                      <div style={{ paddingLeft: '54px', width: '100%', boxSizing: 'border-box', marginTop: '4px' }}>
+                        <textarea
+                          value={noteText}
+                          onChange={e => setNoteText(e.target.value)}
+                          placeholder="Add a personal note, hint, or approach..."
+                          style={{ width: '100%', minHeight: '60px', background: 'rgba(251,191,36,0.05)', border: '1px solid rgba(251,191,36,0.25)', borderRadius: '8px', padding: '8px 10px', color: '#f1f5f9', fontSize: '0.8rem', fontFamily: 'var(--font-main)', resize: 'vertical', outline: 'none' }}
+                          onClick={e => e.stopPropagation()}
+                        />
+                        <div style={{ display: 'flex', gap: '6px', marginTop: '4px' }}>
+                          <button className="btn btn-primary" style={{ padding: '4px 12px', fontSize: '0.75rem' }} onClick={e => { e.stopPropagation(); savePatternNote(key, noteText); setNoteKey(null); }}>Save</button>
+                          <button className="btn btn-secondary" style={{ padding: '4px 10px', fontSize: '0.75rem' }} onClick={e => { e.stopPropagation(); setNoteKey(null); }}>Cancel</button>
+                          {savedNote && <button className="btn" style={{ padding: '4px 10px', fontSize: '0.75rem', color: '#f43f5e', border: '1px solid rgba(244,63,94,0.3)', background: 'transparent' }} onClick={e => { e.stopPropagation(); savePatternNote(key, ''); setNoteKey(null); }}>Delete</button>}
+                        </div>
+                        {savedNote && <p style={{ margin: '4px 0 0', fontSize: '0.72rem', color: '#fbbf24' }}>💡 Saved: "{savedNote.slice(0, 60)}{savedNote.length > 60 ? '...' : ''}"</p>}
+                      </div>
+                    )}
                   </div>
                 );
               })}

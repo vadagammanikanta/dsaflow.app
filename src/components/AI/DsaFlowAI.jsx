@@ -252,6 +252,8 @@ Ask me anything about DSA — let's crack those placements! 🚀`
   const [loading, setLoading] = useState(false);
   const [activeCategory, setActiveCategory] = useState(0);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [mockMode, setMockMode] = useState(false); // Mock interview mode
+  const [mockScore, setMockScore] = useState(null);
   const bottomRef = useRef(null);
   const inputRef = useRef(null);
   const messagesRef = useRef(null);
@@ -267,6 +269,41 @@ Ask me anything about DSA — let's crack those placements! 🚀`
     inputRef.current.style.height = Math.min(inputRef.current.scrollHeight, 160) + 'px';
   }, [input]);
 
+  const startMockInterview = () => {
+    setMockMode(true);
+    setMockScore(null);
+    setMessages([
+      {
+        role: 'assistant',
+        content: `🎯 **Mock Interview Started!**
+
+I'll act as your technical interviewer. I'll ask you DSA questions one at a time, evaluate your answers, and give you a score.
+
+Let's begin!
+
+---
+
+**Question 1:** Explain the Two Sum problem. What is your approach and what's the time complexity of your optimal solution?
+
+*(Type your answer below — be as detailed as you would in a real interview.)*`
+      }
+    ]);
+  };
+
+  const endMockInterview = () => {
+    setMockMode(false);
+    setMessages([{
+      role: 'assistant',
+      content: `👋 Mock interview ended! Here's what to remember:
+- Always clarify constraints before coding
+- State your approach before writing code
+- Analyze time & space complexity
+- Think about edge cases
+
+Keep practicing! 🚀`
+    }]);
+  };
+
   const sendMessage = async (text) => {
     const userText = (text || input).trim();
     if (!userText || loading) return;
@@ -277,6 +314,10 @@ Ask me anything about DSA — let's crack those placements! 🚀`
     setLoading(true);
 
     try {
+      const systemContext = mockMode
+        ? 'You are a strict but fair technical interviewer at a top tech company. The user is answering DSA interview questions. Evaluate their answer, give feedback, a score out of 10, then ask the next interview question. Focus on algorithms, data structures, time/space complexity, and real interview scenarios. Be concise but thorough.'
+        : undefined;
+
       const historyToSend = newMessages.slice(-20).map(m => ({
         role: m.role === 'assistant' ? 'assistant' : 'user',
         content: m.content
@@ -284,13 +325,13 @@ Ask me anything about DSA — let's crack those placements! 🚀`
 
       let replyText = '';
 
-      // Always route requests through the backend proxy to avoid client-side CORS errors
       const res = await fetch('/api/ai-chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           messages: historyToSend,
-          customApiKey: customApiKey.trim() || undefined
+          customApiKey: customApiKey.trim() || undefined,
+          ...(systemContext ? { systemOverride: systemContext } : {})
         })
       });
       const data = await res.json();
@@ -435,6 +476,25 @@ Ask me anything about DSA — let's crack those placements! 🚀`
         <button className="aisidebar-clear-btn" onClick={clearChat}>
           🗑️ Clear Conversation
         </button>
+
+        {/* Mock Interview Button */}
+        {!mockMode ? (
+          <button
+            className="btn btn-accent"
+            style={{ margin: '8px 0 0', width: '100%', fontSize: '0.85rem', padding: '10px' }}
+            onClick={startMockInterview}
+          >
+            🎯 Start Mock Interview
+          </button>
+        ) : (
+          <button
+            className="btn btn-secondary"
+            style={{ margin: '8px 0 0', width: '100%', fontSize: '0.85rem', padding: '10px', borderColor: 'rgba(244,63,94,0.4)', color: '#f43f5e' }}
+            onClick={endMockInterview}
+          >
+            ⏹ End Mock Interview
+          </button>
+        )}
       </aside>
 
       {/* ── Main Chat Panel ── */}
@@ -461,12 +521,21 @@ Ask me anything about DSA — let's crack those placements! 🚀`
         </div>
 
         {/* ── Welcome Banner (shows only at start) ── */}
-        {messages.length <= 1 && (
+        {messages.length <= 1 && !mockMode && (
           <div className="ai-welcome-banner">
             <div className="ai-welcome-glyph">✦</div>
             <h2 className="ai-welcome-heading">Your Personal DSA Tutor</h2>
-            <p className="ai-welcome-sub">Powered by Groq · Specialized in algorithms, data structures & placement prep</p>
+            <p className="ai-welcome-sub">Powered by Groq · Specialized in algorithms, data structures &amp; placement prep</p>
             <StatsBar messageCount={messages.length} />
+          </div>
+        )}
+        {mockMode && (
+          <div style={{ background: 'rgba(244,63,94,0.06)', border: '1px solid rgba(244,63,94,0.25)', borderRadius: '10px', padding: '10px 16px', margin: '12px 0', display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <span style={{ fontSize: '1.2rem' }}>🎯</span>
+            <div>
+              <p style={{ margin: 0, fontSize: '0.82rem', fontWeight: 700, color: '#f87171' }}>Mock Interview Mode Active</p>
+              <p style={{ margin: 0, fontSize: '0.72rem', color: '#94a3b8' }}>Answer questions as if in a real interview. AI will score each response.</p>
+            </div>
           </div>
         )}
 

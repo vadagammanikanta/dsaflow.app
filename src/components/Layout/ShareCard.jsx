@@ -16,16 +16,27 @@ export default function ShareCard({ type, value, userName, onClose }) {
   }, []);
 
   const isStreak = type === 'streak';
-  const emoji = value >= 30 ? '🏆' : value >= 7 ? '⚡' : '🔥';
-  const title = isStreak
-    ? `${emoji} ${value}-Day Streak!`
-    : `✅ Phase Complete!`;
-  const subtitle = isStreak
-    ? `Crushed ${value} consecutive days of DSA practice on dsaflow.app!`
-    : `Just completed the "${value}" phase on dsaflow.app!`;
+  const isWeekly = type === 'weekly';
+  const emoji = isWeekly
+    ? '📊'
+    : isStreak
+      ? (value >= 30 ? '🏆' : value >= 7 ? '⚡' : '🔥')
+      : '✅';
+
+  const title = isWeekly
+    ? `📊 Weekly Progress Report`
+    : isStreak
+      ? `${emoji} ${value}-Day Streak!`
+      : `✅ Phase Complete!`;
+
+  const subtitle = isWeekly
+    ? `Solved ${value.problems} problems, completed ${value.modules} modules this week on dsaflow.app! Current streak: ${value.streak} days.`
+    : isStreak
+      ? `Crushed ${value} consecutive days of DSA practice on dsaflow.app!`
+      : `Just completed the "${value}" phase on dsaflow.app!`;
 
   const shareText = encodeURIComponent(
-    `${title} ${subtitle} Join me on dsaflow.app — India's best DSA platform for placements! 🚀 https://dsaflow.app`
+    `${title} — ${subtitle} Join me on dsaflow.app — India's best DSA platform for placements! 🚀 https://dsaflow.app`
   );
 
   const twitterUrl = `https://twitter.com/intent/tweet?text=${shareText}`;
