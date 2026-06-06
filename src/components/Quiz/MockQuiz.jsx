@@ -3,7 +3,7 @@ import { quizQuestions } from '../../../modules/learning/content';
 import { useApp } from '../../context/AppContext';
 
 export default function MockQuiz() {
-  const { updateAppState } = useApp();
+  const { appState, updateAppState } = useApp();
   
   const [screen, setScreen] = useState('welcome'); // 'welcome', 'active', 'results'
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -37,6 +37,7 @@ export default function MockQuiz() {
       setSelectedOption(null);
     } else {
       setScreen('results');
+      updateAppState({ quizHighScore: Math.max(appState.quizHighScore || 0, score) });
     }
   };
 

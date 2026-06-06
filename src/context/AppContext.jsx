@@ -128,10 +128,17 @@ export function AppProvider({ children }) {
         if (lastActive !== today) {
           parsed.dayStreak = computeStreak(lastActive, currentStreak);
           parsed.lastActiveDate = today;
+          
+          // Check for badge unlocks on streak increase
+          const newlyEarned = computeBadges(parsed);
+          if (newlyEarned.length > 0) {
+            parsed.earnedBadges = [...(parsed.earnedBadges || []), ...newlyEarned];
+            parsed.newBadges = newlyEarned;
+          }
         }
 
         return parsed;
-      } catch (e) { /* ignore parse errors */ }
+      } catch { /* ignore parse errors */ }
     }
     return {
       completedLessons: [],
@@ -163,44 +170,33 @@ export function AppProvider({ children }) {
     localStorage.setItem('dsaflow_app_state', JSON.stringify(appState));
   }, [appState]);
 
-  // Mark today active whenever app loads
-  useEffect(() => {
-    const today = todayStr();
-    if (appState.lastActiveDate !== today) {
+  const checkAndAwardBadges = (state) => {
+    const newlyEarned = computeBadges(state);
+    if (newlyEarned.length > 0) {
+      return {
+        ...state,
+        earnedBadges: [...(state.earnedBadges || []), ...newlyEarned],
+        newBadges: newlyEarned,
+      };
+    }
+    return state;
+  };
+
+  const checkNightOwlBadge = () => {
+    if (new Date().getHours() >= 22) {
       setAppState(prev => {
-        const nextStreak = computeStreak(prev.lastActiveDate, prev.dayStreak);
-        const wk = getWeekKey();
-        const currentWeek = prev.weeklyScores?.[wk] || { problems: 0, modules: 0, streak: 0 };
-        const nextWeekly = {
-          ...prev.weeklyScores,
-          [wk]: {
-            ...currentWeek,
-            streak: Math.max(currentWeek.streak, nextStreak)
-          }
-        };
-        return {
-          ...prev,
-          dayStreak: nextStreak,
-          lastActiveDate: today,
-          weeklyScores: nextWeekly,
-        };
+        const earned = new Set(prev.earnedBadges || []);
+        if (!earned.has('night_owl')) {
+          return {
+            ...prev,
+            earnedBadges: [...(prev.earnedBadges || []), 'night_owl'],
+            newBadges: ['night_owl']
+          };
+        }
+        return prev;
       });
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // Check & award badges on state changes
-  useEffect(() => {
-    const newlyEarned = computeBadges(appState);
-    if (newlyEarned.length > 0) {
-      setAppState(prev => ({
-        ...prev,
-        earnedBadges: [...(prev.earnedBadges || []), ...newlyEarned],
-        newBadges: newlyEarned,
-      }));
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [appState.dayStreak, appState.patternProgress, appState.completedLessons, appState.potdStreak]);
+  };
 
   const updateAppState = (updates) => {
     setAppState(prev => ({ ...prev, ...updates }));
@@ -223,11 +219,12 @@ export function AppProvider({ children }) {
           streak: Math.max(currentWeek.streak, prev.dayStreak || 0)
         }
       };
-      return {
+      const nextState = {
         ...prev,
         completedLessons: [...prev.completedLessons, id],
         weeklyScores: nextWeekly,
       };
+      return checkAndAwardBadges(nextState);
     });
   };
 
@@ -253,7 +250,7 @@ export function AppProvider({ children }) {
         }
       };
 
-      return {
+      const nextState = {
         ...prev,
         patternProgress: {
           ...pp,
@@ -263,6 +260,7 @@ export function AppProvider({ children }) {
         },
         weeklyScores: nextWeekly,
       };
+      return checkAndAwardBadges(nextState);
     });
   };
 
@@ -325,13 +323,14 @@ export function AppProvider({ children }) {
         }
       };
 
-      return {
+      const nextState = {
         ...prev,
         potdSolved: { ...(prev.potdSolved || {}), [today]: potdId },
         potdStreak: newStreak,
         potdLastDate: today,
         weeklyScores: nextWeekly,
       };
+      return checkAndAwardBadges(nextState);
     });
   };
 
@@ -369,6 +368,7 @@ export function AppProvider({ children }) {
       resetProgress,
       mobileMenuOpen,
       setMobileMenuOpen,
+      checkNightOwlBadge,
     }}>
       {children}
     </AppContext.Provider>

@@ -10,7 +10,7 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { messages, customApiKey } = req.body;
+  const { messages, customApiKey, systemOverride } = req.body;
   if (!messages || !Array.isArray(messages)) {
     return res.status(400).json({ error: 'Missing messages array in request body.' });
   }
@@ -35,6 +35,8 @@ Rules:
 7. Be encouraging and supportive — students are preparing for high-stakes interviews
 8. Never give just code without explanation — that defeats the purpose of learning`;
 
+  const activeSystemPrompt = systemOverride || systemPrompt;
+
   // 1. If custom Groq key is provided, proxy directly to groq.com
   if (customApiKey && customApiKey.trim().length > 0) {
     const trimmedKey = customApiKey.trim();
@@ -48,7 +50,7 @@ Rules:
         body: JSON.stringify({
           model: 'llama-3.3-70b-versatile',
           messages: [
-            { role: 'system', content: systemPrompt },
+            { role: 'system', content: activeSystemPrompt },
             ...messages
           ],
           temperature: 0.4,
@@ -101,7 +103,7 @@ Rules:
       body: JSON.stringify({
         model: 'llama-3.3-70b-versatile',
         messages: [
-          { role: 'system', content: systemPrompt },
+          { role: 'system', content: activeSystemPrompt },
           ...messages
         ],
         temperature: 0.4,

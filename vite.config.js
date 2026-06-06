@@ -1,3 +1,4 @@
+/* global process */
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
@@ -63,7 +64,6 @@ function localCompilerPlugin() {
 
               let data = null;
               let attempts = 3;
-              let lastErr = null;
 
               for (let attempt = 1; attempt <= attempts; attempt++) {
                 try {
@@ -93,7 +93,6 @@ function localCompilerPlugin() {
 
                   break;
                 } catch (err) {
-                  lastErr = err;
                   if (attempt === attempts) {
                     console.error("[Local Compiler] Exhausted all retry attempts:", err);
                     res.writeHead(502, { 'Content-Type': 'application/json' });
@@ -185,9 +184,17 @@ function localCompilerPlugin() {
           req.on('end', async () => {
             try {
               const payload = JSON.parse(body);
-              const { messages, customApiKey } = payload;
+              const { messages, customApiKey, systemOverride } = payload;
+              
+              const systemPrompt = `You are dsaflow.app AI — an elite DSA tutor built specifically for FAANG and product company placement preparation.`;
+              const finalSystemPrompt = systemOverride || systemPrompt;
+              
+              const activeMessages = [
+                { role: 'system', content: finalSystemPrompt },
+                ...messages
+              ];
 
-              // 1. If custom apiKey is provided, fetch from x.ai
+              // 1. If custom apiKey is provided, fetch from Groq
               if (customApiKey && customApiKey.trim().length > 0) {
                 const groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
                   method: 'POST',
@@ -197,7 +204,7 @@ function localCompilerPlugin() {
                   },
                   body: JSON.stringify({
                     model: 'llama-3.3-70b-versatile',
-                    messages: messages,
+                    messages: activeMessages,
                     temperature: 0.4,
                     max_tokens: 2048,
                     stream: false
@@ -237,7 +244,7 @@ function localCompilerPlugin() {
                 },
                 body: JSON.stringify({
                   model: 'llama-3.3-70b-versatile',
-                  messages: messages,
+                  messages: activeMessages,
                   temperature: 0.4,
                   max_tokens: 2048,
                   stream: false

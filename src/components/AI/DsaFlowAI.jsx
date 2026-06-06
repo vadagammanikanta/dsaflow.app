@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { useApp } from '../../context/AppContext';
 
 /* ── Suggested Prompt Categories ── */
 const PROMPT_CATEGORIES = [
@@ -196,6 +197,12 @@ function StatsBar({ messageCount }) {
 
 /* ── Main Component ── */
 export default function DsaFlowAI() {
+  const { checkNightOwlBadge } = useApp();
+
+  useEffect(() => {
+    checkNightOwlBadge();
+  }, [checkNightOwlBadge]);
+
   const [messages, setMessages] = useState(() => {
     const saved = localStorage.getItem('dsaflow_ai_history');
     if (saved) {
