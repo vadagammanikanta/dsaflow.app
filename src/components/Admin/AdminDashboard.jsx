@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { getSupportTickets, resolveSupportTicket } from '../../../modules/auth/auth.js';
+import { curriculum } from '../../../modules/learning/content_a2z';
 import './admin.css';
 
 export default function AdminDashboard() {
@@ -13,6 +14,11 @@ export default function AdminDashboard() {
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  // Expanded User & Filtering State
+  const [expandedUserId, setExpandedUserId] = useState(null);
+  const [userSearch, setUserSearch] = useState('');
+  const [progressFilter, setProgressFilter] = useState('all');
 
   // Email form state
   const [emailSubject, setEmailSubject] = useState('');
@@ -32,6 +38,58 @@ export default function AdminDashboard() {
 
   // Action status
   const [actionStatus, setActionStatus] = useState('');
+
+  // Helper to get formatted language badge
+  const getLanguageBadge = (lang) => {
+    const l = (lang || '').toLowerCase();
+    switch (l) {
+      case 'javascript':
+      case 'js':
+        return <span className="admin-lang-badge js">⚡ JS</span>;
+      case 'python':
+      case 'py':
+        return <span className="admin-lang-badge python">🐍 Python</span>;
+      case 'java':
+        return <span className="admin-lang-badge java">☕ Java</span>;
+      case 'cpp':
+      case 'c++':
+        return <span className="admin-lang-badge cpp">🛠️ C++</span>;
+      default:
+        return <span className="admin-lang-badge default">💻 {lang || 'JS'}</span>;
+    }
+  };
+
+  // Compute filtered users
+  const filteredUsers = useMemo(() => {
+    return users.filter(u => {
+      const query = userSearch.toLowerCase();
+      const matchesSearch = 
+        u.name.toLowerCase().includes(query) || 
+        u.email.toLowerCase().includes(query) || 
+        (u.whatsapp && u.whatsapp.includes(query));
+
+      if (!matchesSearch) return false;
+
+      const completedCount = u.completedLessons?.length || 0;
+      if (progressFilter === 'no_progress') {
+        return completedCount === 0;
+      }
+      if (progressFilter === 'started') {
+        return completedCount > 0 && completedCount < curriculum.length;
+      }
+      if (progressFilter === 'halfway') {
+        return completedCount >= Math.floor(curriculum.length / 2) && completedCount < curriculum.length;
+      }
+      if (progressFilter === 'completed') {
+        return completedCount === curriculum.length;
+      }
+      if (progressFilter === 'quiz_done') {
+        return (u.quizHighScore || 0) > 0;
+      }
+
+      return true;
+    });
+  }, [users, userSearch, progressFilter]);
 
   const fetchStats = async (key) => {
     setLoading(true);
@@ -308,37 +366,237 @@ export default function AdminDashboard() {
 
           {activeTab === 'users' && (
             <div className="admin-users">
+              {/* Search & Filter Bar */}
+              <div className="admin-filter-bar" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '16px', marginBottom: '20px' }}>
+                <div className="filter-group">
+                  <input
+                    type="text"
+                    placeholder="Search users by name, email, or WhatsApp..."
+                    value={userSearch}
+                    onChange={e => setUserSearch(e.target.value)}
+                    className="admin-input"
+                    style={{ margin: 0 }}
+                  />
+                </div>
+                <div className="filter-group select-wrapper">
+                  <select
+                    value={progressFilter}
+                    onChange={e => setProgressFilter(e.target.value)}
+                    className="admin-input"
+                    style={{ margin: 0, cursor: 'pointer' }}
+                  >
+                    <option value="all">📊 All Progress Levels</option>
+                    <option value="no_progress">🔴 No Progress (0 modules)</option>
+                    <option value="started">🟡 Started (1+ modules)</option>
+                    <option value="halfway">🔵 Halfway Done (21+ modules)</option>
+                    <option value="completed">🟢 Fully Completed (42/42)</option>
+                    <option value="quiz_done">🏆 Quiz Attempted</option>
+                  </select>
+                </div>
+              </div>
+
               <div className="admin-table-container">
                 <table className="admin-table">
                   <thead>
                     <tr>
+                      <th style={{ width: '40px', textAlign: 'center' }}></th>
                       <th>Name</th>
                       <th>Email</th>
                       <th>Status</th>
-                      <th>Signup Date</th>
+                      <th>Progress</th>
+                      <th>Quiz Score</th>
+                      <th>Lang</th>
                       <th>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {users.map((u, i) => (
-                      <tr key={i}>
-                        <td>{u.name}</td>
-                        <td>{u.email}</td>
-                        <td>
-                          {u.isPaid 
-                            ? <span className="status-badge paid">Premium</span> 
-                            : <span className="status-badge free">Free/Trial</span>}
-                        </td>
-                        <td>{u.signupDate}</td>
-                        <td>
-                          {!u.isPaid && (
-                            <button className="admin-btn-small" onClick={() => handleManualUpgrade(u.email)}>
-                              ✨ Free Upgrade
-                            </button>
+                    {filteredUsers.map((u, i) => {
+                      const completedCount = u.completedLessons?.length || 0;
+                      const progressPct = curriculum.length ? Math.min(100, Math.round((completedCount / curriculum.length) * 100)) : 0;
+                      const isExpanded = expandedUserId === u.email;
+
+                      return (
+                        <React.Fragment key={i}>
+                          <tr 
+                            className={`user-row ${isExpanded ? 'row-expanded' : ''}`}
+                            onClick={() => setExpandedUserId(isExpanded ? null : u.email)}
+                            style={{ cursor: 'pointer' }}
+                          >
+                            <td className="expand-indicator-cell" style={{ textAlign: 'center', transition: 'transform 0.2s' }}>
+                              <span className={`expand-arrow ${isExpanded ? 'expanded' : ''}`} style={{ display: 'inline-block', transform: isExpanded ? 'rotate(90deg)' : 'none', color: 'var(--text-secondary)' }}>▶</span>
+                            </td>
+                            <td>
+                              <div className="user-name-cell">
+                                <strong style={{ color: 'var(--text-primary)' }}>{u.name}</strong>
+                              </div>
+                            </td>
+                            <td>{u.email}</td>
+                            <td>
+                              {u.isPaid 
+                                ? <span className="status-badge paid">Premium</span> 
+                                : <span className="status-badge free">Free/Trial</span>}
+                            </td>
+                            <td>
+                              <div className="admin-progress-cell" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                <div className="progress-bar-container" style={{ width: '100px', height: '6px', background: 'rgba(255,255,255,0.05)', borderRadius: '3px', overflow: 'hidden', border: '1px solid var(--border-glass)' }}>
+                                  <div className="progress-bar-fill" style={{ width: `${progressPct}%`, height: '100%', background: 'linear-gradient(90deg, var(--accent-purple), var(--accent-cyan))' }} />
+                                </div>
+                                <span className="progress-text" style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{completedCount}/{curriculum.length} ({progressPct}%)</span>
+                              </div>
+                            </td>
+                            <td>
+                              {u.quizHighScore ? (
+                                <span className="quiz-score-badge high" style={{ background: 'rgba(0, 255, 128, 0.1)', color: '#00ff80', border: '1px solid rgba(0, 255, 128, 0.3)', padding: '2px 8px', borderRadius: '4px', fontSize: '0.8rem', fontWeight: 'bold' }}>{u.quizHighScore}%</span>
+                              ) : (
+                                <span className="quiz-score-badge none" style={{ color: 'var(--text-muted)' }}>—</span>
+                              )}
+                            </td>
+                            <td>{getLanguageBadge(u.selectedLanguage)}</td>
+                            <td onClick={e => e.stopPropagation()}>
+                              <div style={{ display: 'flex', gap: '8px' }}>
+                                {!u.isPaid && (
+                                  <button className="admin-btn-small" onClick={() => handleManualUpgrade(u.email)}>
+                                    ✨ Upgrade
+                                  </button>
+                                )}
+                                {u.whatsapp && (
+                                  <a 
+                                    href={`https://wa.me/${u.whatsapp.replace(/\D/g, '')}`}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="admin-btn-small"
+                                    style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', background: 'rgba(37, 211, 102, 0.1)', color: '#25D366', borderColor: 'rgba(37, 211, 102, 0.3)' }}
+                                    title="Contact via WhatsApp"
+                                  >
+                                    💬 Chat
+                                  </a>
+                                )}
+                              </div>
+                            </td>
+                          </tr>
+
+                          {/* Expanded Detail Row */}
+                          {isExpanded && (
+                            <tr className="detail-expanded-row" style={{ background: 'rgba(255, 255, 255, 0.01)' }}>
+                              <td colSpan={8} className="detail-expanded-cell" style={{ padding: '20px 24px', borderTop: 'none', borderBottom: '1px solid var(--border-glass)' }}>
+                                <div className="detail-expanded-container">
+                                  <div className="detail-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '24px' }}>
+                                    
+                                    {/* Left: Metadata and Summary */}
+                                    <div className="detail-meta-panel" style={{ borderRight: '1px solid var(--border-glass)', paddingRight: '20px' }}>
+                                      <h3 style={{ margin: '0 0 16px', fontSize: '1rem', color: 'var(--accent-cyan)' }}>👤 User Dashboard Insight</h3>
+                                      <table className="meta-detail-table" style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '20px' }}>
+                                        <tbody>
+                                          <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
+                                            <td style={{ padding: '8px 0', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>WhatsApp:</td>
+                                            <td style={{ padding: '8px 0', textAlign: 'right', fontSize: '0.85rem' }}>
+                                              {u.whatsapp ? (
+                                                <a href={`https://wa.me/${u.whatsapp.replace(/\D/g, '')}`} target="_blank" rel="noreferrer" style={{ color: 'var(--accent-cyan)', textDecoration: 'none', fontWeight: 'bold' }}>
+                                                  {u.whatsapp} ↗
+                                                </a>
+                                              ) : <span style={{ color: 'var(--text-muted)' }}>Not provided</span>}
+                                            </td>
+                                          </tr>
+                                          <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
+                                            <td style={{ padding: '8px 0', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Signup Date:</td>
+                                            <td style={{ padding: '8px 0', textAlign: 'right', fontSize: '0.85rem', color: 'var(--text-primary)' }}>{u.signupDate || 'N/A'}</td>
+                                          </tr>
+                                          <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
+                                            <td style={{ padding: '8px 0', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Last Sync:</td>
+                                            <td style={{ padding: '8px 0', textAlign: 'right', fontSize: '0.85rem', color: 'var(--text-primary)' }}>{u.lastSynced || 'Never'}</td>
+                                          </tr>
+                                          <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
+                                            <td style={{ padding: '8px 0', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Status:</td>
+                                            <td style={{ padding: '8px 0', textAlign: 'right', fontSize: '0.85rem' }}>
+                                              {u.isPaid ? (
+                                                <span style={{ color: '#00ff80', fontWeight: 'bold' }}>⭐ Premium Access</span>
+                                              ) : (
+                                                <span style={{ color: '#f59e0b', fontWeight: 'bold' }}>⌛ Trial ({u.status || 'Active'})</span>
+                                              )}
+                                            </td>
+                                          </tr>
+                                          {u.paymentId && (
+                                            <>
+                                              <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
+                                                <td style={{ padding: '8px 0', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Payment ID:</td>
+                                                <td style={{ padding: '8px 0', textAlign: 'right', fontSize: '0.8rem' }}><code style={{ color: 'var(--accent-purple)' }}>{u.paymentId}</code></td>
+                                              </tr>
+                                              <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
+                                                <td style={{ padding: '8px 0', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Payment Date:</td>
+                                                <td style={{ padding: '8px 0', textAlign: 'right', fontSize: '0.85rem', color: 'var(--text-primary)' }}>{u.paymentDate || 'N/A'}</td>
+                                              </tr>
+                                            </>
+                                          )}
+                                        </tbody>
+                                      </table>
+
+                                      <div className="quick-actions-box" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-glass)', borderRadius: '8px', padding: '12px 14px' }}>
+                                        <h4 style={{ margin: '0 0 8px', fontSize: '0.85rem', color: 'var(--text-primary)' }}>⚡ Quick Actions</h4>
+                                        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                                          {!u.isPaid && (
+                                            <button 
+                                              className="admin-btn-primary" 
+                                              style={{ padding: '6px 12px', fontSize: '0.78rem', width: 'auto' }}
+                                              onClick={() => handleManualUpgrade(u.email)}
+                                            >
+                                              Grant Lifetime Upgrade
+                                            </button>
+                                          )}
+                                          <button
+                                            className="admin-btn"
+                                            style={{ padding: '6px 12px', fontSize: '0.78rem', width: 'auto', background: 'rgba(255,255,255,0.05)', color: 'white', border: '1px solid var(--border-glass)' }}
+                                            onClick={() => {
+                                              setEmailTarget('free');
+                                              setEmailSubject(`Hi ${u.name.split(' ')[0]}, keep up the great DSA progress! 🚀`);
+                                              setEmailBody(`<p>Hey ${u.name.split(' ')[0]},</p>\n<p>We noticed you have completed ${completedCount} modules on dsaflow.app! Keep up the great work.</p>`);
+                                              setActiveTab('broadcast');
+                                            }}
+                                          >
+                                            ✉️ Draft Email
+                                          </button>
+                                        </div>
+                                      </div>
+                                    </div>
+
+                                    {/* Right: Modules checklist */}
+                                    <div className="detail-progress-panel">
+                                      <h3 style={{ margin: '0 0 4px', fontSize: '1rem', color: 'var(--accent-purple)' }}>Curriculum Mastery Checklist</h3>
+                                      <p style={{ margin: '0 0 16px', fontSize: '0.8rem', color: 'var(--text-muted)' }}>🟢 highlights completed modules, ⚪ represents topics they have not started yet.</p>
+                                      
+                                      <div className="curriculum-check-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '10px', maxHeight: '250px', overflowY: 'auto', paddingRight: '8px' }}>
+                                        {curriculum.map(lesson => {
+                                          const isCompleted = u.completedLessons?.includes(lesson.id);
+                                          return (
+                                            <div 
+                                              key={lesson.id} 
+                                              className="curriculum-check-item"
+                                              style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 10px', background: isCompleted ? 'rgba(0, 255, 128, 0.04)' : 'rgba(255,255,255,0.01)', border: '1px solid var(--border-glass)', borderRadius: '6px', fontSize: '0.8rem' }}
+                                              title={`${lesson.title} (${lesson.category} - ${lesson.difficulty})`}
+                                            >
+                                              <span className="check-icon">{isCompleted ? '🟢' : '⚪'}</span>
+                                              <span className="check-title" style={{ flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', color: isCompleted ? 'var(--text-primary)' : 'var(--text-muted)' }}>{lesson.title}</span>
+                                              <span className="check-phase" style={{ fontSize: '0.65rem', background: 'var(--bg-input)', color: 'var(--text-secondary)', padding: '1px 4px', borderRadius: '3px' }}>P{lesson.phase}</span>
+                                            </div>
+                                          );
+                                        })}
+                                      </div>
+                                    </div>
+
+                                  </div>
+                                </div>
+                              </td>
+                            </tr>
                           )}
+                        </React.Fragment>
+                      );
+                    })}
+                    {filteredUsers.length === 0 && (
+                      <tr>
+                        <td colSpan={8} style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '40px' }}>
+                          No users matching search or filters.
                         </td>
                       </tr>
-                    ))}
+                    )}
                   </tbody>
                 </table>
               </div>

@@ -413,3 +413,107 @@ select.admin-input option {
 .chat-input-area button {
   width: 100px;
 }
+
+/* Progress & Language Badges */
+.admin-lang-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.admin-lang-badge.js {
+  background: rgba(247, 223, 30, 0.1);
+  color: #f7df1e;
+  border-color: rgba(247, 223, 30, 0.2);
+}
+
+.admin-lang-badge.python {
+  background: rgba(55, 115, 165, 0.1);
+  color: #38bdf8;
+  border-color: rgba(55, 115, 165, 0.2);
+}
+
+.admin-lang-badge.java {
+  background: rgba(248, 152, 29, 0.1);
+  color: #f97316;
+  border-color: rgba(248, 152, 29, 0.2);
+}
+
+.admin-lang-badge.cpp {
+  background: rgba(0, 89, 156, 0.1);
+  color: #60a5fa;
+  border-color: rgba(0, 89, 156, 0.2);
+}
+
+.admin-lang-badge.default {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-secondary);
+}
+
+.quiz-score-badge.high {
+  animation: pulse-green 2s infinite;
+}
+
+@keyframes pulse-green {
+  0% { box-shadow: 0 0 0 0 rgba(0, 255, 128, 0.2); }
+  70% { box-shadow: 0 0 0 6px rgba(0, 255, 128, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(0, 255, 128, 0); }
+}
+
+/* User Row Hover Effects */
+.user-row {
+  transition: background-color 0.2s, transform 0.2s;
+}
+
+.user-row:hover {
+  background: rgba(255, 255, 255, 0.03) !important;
+}
+
+.user-row.row-expanded {
+  background: rgba(0, 229, 255, 0.03) !important;
+}
+
+.expand-arrow {
+  display: inline-block;
+  transition: transform 0.2s ease;
+  font-size: 0.65rem;
+}
+
+.expand-arrow.expanded {
+  transform: rotate(90deg);
+  color: var(--accent-cyan) !important;
+}
+
+/* Curriculum grid scrollbar */
+.curriculum-check-grid::-webkit-scrollbar {
+  width: 6px;
+}
+.curriculum-check-grid::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+}
+.curriculum-check-grid::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+}
+.curriculum-check-grid::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* Curriculum checks hover */
+.curriculum-check-item {
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+.curriculum-check-item:hover {
+  transform: translateY(-1px);
+  border-color: rgba(255, 255, 255, 0.15) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.curriculum-check-item.completed:hover {
+  border-color: rgba(0, 255, 128, 0.2) !important;
+}

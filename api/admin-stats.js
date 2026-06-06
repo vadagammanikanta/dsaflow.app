@@ -44,16 +44,20 @@ export default async function handler(req, res) {
     const users = snapshot.docs.map(doc => {
       const d = doc.data();
       return {
-        docId:       doc.id,
-        uid:         d.uid         || doc.id,
-        name:        d.name        || 'Unknown',
-        email:       d.email       || '',
-        whatsapp:    d.whatsapp    || '',
-        isPaid:      d.isPaid      || false,
-        paymentId:   d.paymentId   || null,
-        paymentDate: d.paymentDate || null,
-        signupDate:  d.signupDate  || null,
-        trialExpiry: d.trialExpiry || null,
+        docId:            doc.id,
+        uid:              d.uid             || doc.id,
+        name:             d.name            || 'Unknown',
+        email:            d.email           || '',
+        whatsapp:         d.whatsapp        || '',
+        isPaid:           d.isPaid          || false,
+        paymentId:        d.paymentId       || null,
+        paymentDate:      d.paymentDate     || null,
+        signupDate:       d.signupDate      || null,
+        trialExpiry:      d.trialExpiry     || null,
+        completedLessons: d.completedLessons || [],
+        quizHighScore:    d.quizHighScore    || 0,
+        selectedLanguage: d.selectedLanguage || 'javascript',
+        lastSynced:       d.lastSynced       || null,
       };
     });
 
@@ -73,19 +77,27 @@ export default async function handler(req, res) {
         generatedAt:      new Date().toISOString()
       },
       upgradedMembers: upgradedUsers.map(u => ({
-        name:        u.name,
-        email:       u.email,
-        whatsapp:    u.whatsapp,
-        paymentId:   u.paymentId,
-        paymentDate: u.paymentDate ? new Date(u.paymentDate).toLocaleString('en-IN') : null,
-        signupDate:  u.signupDate  ? new Date(u.signupDate).toLocaleString('en-IN')  : null,
+        name:             u.name,
+        email:            u.email,
+        whatsapp:         u.whatsapp,
+        paymentId:        u.paymentId,
+        paymentDate:      u.paymentDate ? new Date(u.paymentDate).toLocaleString('en-IN') : null,
+        signupDate:       u.signupDate  ? new Date(u.signupDate).toLocaleString('en-IN')  : null,
+        completedLessons: u.completedLessons,
+        quizHighScore:    u.quizHighScore,
+        selectedLanguage: u.selectedLanguage,
+        lastSynced:       u.lastSynced ? new Date(u.lastSynced).toLocaleString('en-IN') : null,
       })),
       freeUsers: freeUsers.map(u => ({
-        name:       u.name,
-        email:      u.email,
-        whatsapp:   u.whatsapp,
-        status:     u.trialExpiry && u.trialExpiry > now ? '🟡 Trial Active' : '🔴 Trial Expired',
-        signupDate: u.signupDate ? new Date(u.signupDate).toLocaleString('en-IN') : null,
+        name:             u.name,
+        email:            u.email,
+        whatsapp:         u.whatsapp,
+        status:           u.trialExpiry && u.trialExpiry > now ? '🟡 Trial Active' : '🔴 Trial Expired',
+        signupDate:       u.signupDate ? new Date(u.signupDate).toLocaleString('en-IN') : null,
+        completedLessons: u.completedLessons,
+        quizHighScore:    u.quizHighScore,
+        selectedLanguage: u.selectedLanguage,
+        lastSynced:       u.lastSynced ? new Date(u.lastSynced).toLocaleString('en-IN') : null,
       }))
     });
 
