@@ -6,7 +6,7 @@
 
 ### 🚀 Master Data Structures & Algorithms — The Smart Way
 
-[![Live Demo](https://img.shields.io/badge/🌐_Live_App-dsaflow.app-7c4dff?style=for-the-badge&logoColor=white)](https://dsa-learning-hub-delta.vercel.app)
+[![Live Demo](https://img.shields.io/badge/🌐_Live_App-dsaflow.app-7c4dff?style=for-the-badge&logoColor=white)](https://dsaflow.app)
 [![React](https://img.shields.io/badge/React_19-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev)
 [![Vite](https://img.shields.io/badge/Vite_8-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev)
 [![Firebase](https://img.shields.io/badge/Firebase-FF6F00?style=for-the-badge&logo=firebase&logoColor=white)](https://firebase.google.com)
@@ -154,6 +154,6 @@ This project is private and proprietary. All rights reserved © 2026 dsaflow.app
 
 <div align="center">
 
-Built with ❤️ by **V S S S Manikanta** &nbsp;|&nbsp; [Live App](https://dsa-learning-hub-delta.vercel.app) &nbsp;|&nbsp; Support: dsaflow@outlook.com
+Built with ❤️ by **V S S S Manikanta** &nbsp;|&nbsp; [Live App](https://dsaflow.app) &nbsp;|&nbsp; Support: dsaflow@outlook.com
 
 </div>
