@@ -293,12 +293,29 @@ export function getTrialInfo() {
 
 /* ═══ CLOUD SYNC ══════════════════════════════════════════════════════ */
 export async function syncProgressToCloud(uid, appState) {
-  if (!tryInitFirebase()) return;
+  if (!tryInitFirebase() || !uid || !appState) return;
   try {
     await _db.collection('users').doc(uid).set({
       completedLessons: appState.completedLessons || [],
+      solvedProblems: appState.solvedProblems || {},
+      bookmarkedProblems: appState.bookmarkedProblems || {},
+      patternProgress: appState.patternProgress || {},
+      patternNotes: appState.patternNotes || {},
       quizHighScore: appState.quizHighScore || 0,
       selectedLanguage: appState.selectedLanguage || 'javascript',
+      activeDifficulty: appState.activeDifficulty || 'all',
+      activeLessonId: appState.activeLessonId || 'language-syntax',
+      dayStreak: appState.dayStreak || 1,
+      lastActiveDate: appState.lastActiveDate || '',
+      interviewDate: appState.interviewDate || null,
+      notes: appState.notes || {},
+      potdSolved: appState.potdSolved || {},
+      potdStreak: appState.potdStreak || 0,
+      potdLastDate: appState.potdLastDate || null,
+      earnedBadges: appState.earnedBadges || [],
+      leaderboardName: appState.leaderboardName || '',
+      notifEnabled: !!appState.notifEnabled,
+      weeklyScores: appState.weeklyScores || {},
       lastSynced: Date.now()
     }, { merge: true });
   } catch (e) {

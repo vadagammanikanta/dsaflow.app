@@ -5,7 +5,22 @@ import { useApp } from '../../context/AppContext';
 
 export default function Arena() {
   const { appState, updateAppState } = useApp();
-  const [activeProblemId, setActiveProblemId] = useState(problems[0].id);
+  
+  // State for all problems including local storage imports
+  const [allProblems, setAllProblems] = useState(() => {
+    const saved = localStorage.getItem('dsaflow_imported_problems');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        return [...problems, ...parsed];
+      } catch (e) {
+        console.error('Failed to parse imported problems:', e);
+      }
+    }
+    return problems;
+  });
+
+  const [activeProblemId, setActiveProblemId] = useState(allProblems[0].id);
   const [code, setCode] = useState('');
   const [output, setOutput] = useState('');
   const [isRunning, setIsRunning] = useState(false);
@@ -15,8 +30,62 @@ export default function Arena() {
   const [explainLoading, setExplainLoading] = useState(false);
   const [showExplain, setShowExplain] = useState(false);
   
-  const activeProblem = problems.find(p => p.id === activeProblemId);
+  // Import problem states
+  const [importUrl, setImportUrl] = useState('');
+  const [importLoading, setImportLoading] = useState(false);
+  const [importError, setImportError] = useState('');
+
+  const activeProblem = allProblems.find(p => p.id === activeProblemId);
   const descRef = useRef(null);
+
+  // Resize Panel State
+  const [leftWidth, setLeftWidth] = useState(450); // Default problem selector/desc width
+  const [bottomHeight, setBottomHeight] = useState(250); // Default console height
+  const containerRef = useRef(null);
+
+  // Drag handlers for horizontal resizing (left pane width)
+  const handleMouseDownH = (e) => {
+    e.preventDefault();
+    const startX = e.clientX;
+    const startWidth = leftWidth;
+
+    const handleMouseMove = (moveEvent) => {
+      const deltaX = moveEvent.clientX - startX;
+      const containerWidth = containerRef.current ? containerRef.current.offsetWidth : window.innerWidth;
+      const newWidth = Math.max(250, Math.min(containerWidth * 0.6, startWidth + deltaX));
+      setLeftWidth(newWidth);
+    };
+
+    const handleMouseUp = () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+  };
+
+  // Drag handlers for vertical resizing (bottom pane height)
+  const handleMouseDownV = (e) => {
+    e.preventDefault();
+    const startY = e.clientY;
+    const startHeight = bottomHeight;
+
+    const handleMouseMove = (moveEvent) => {
+      const deltaY = moveEvent.clientY - startY;
+      const containerHeight = containerRef.current ? containerRef.current.offsetHeight : window.innerHeight;
+      const newHeight = Math.max(100, Math.min(containerHeight * 0.7, startHeight - deltaY));
+      setBottomHeight(newHeight);
+    };
+
+    const handleMouseUp = () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+  };
 
   useEffect(() => {
     if (activeProblem) {
@@ -31,6 +100,43 @@ export default function Arena() {
       }
     }
   }, [activeProblem, appState.selectedLanguage]);
+
+  const handleImportProblem = async (e) => {
+    e.preventDefault();
+    if (!importUrl.trim()) return;
+    setImportLoading(true);
+    setImportError('');
+    try {
+      const res = await fetch('/api/import-problem', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: importUrl.trim() })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to import problem.');
+      
+      const newProblem = data.problem;
+      if (allProblems.some(p => p.id === newProblem.id)) {
+        throw new Error('Problem is already imported or exists.');
+      }
+      
+      const importedSaved = localStorage.getItem('dsaflow_imported_problems');
+      let importedList = [];
+      if (importedSaved) {
+        try { importedList = JSON.parse(importedSaved); } catch(e){}
+      }
+      importedList.push(newProblem);
+      localStorage.setItem('dsaflow_imported_problems', JSON.stringify(importedList));
+
+      setAllProblems(prev => [...prev, newProblem]);
+      setActiveProblemId(newProblem.id);
+      setImportUrl('');
+    } catch (err) {
+      setImportError(err.message || 'Import failed.');
+    } finally {
+      setImportLoading(false);
+    }
+  };
 
   const handleRunCode = async () => {
     setIsRunning(true);
@@ -137,15 +243,15 @@ export default function Arena() {
   };
 
   return (
-    <div className="arena-workspace">
+    <div className="arena-workspace" ref={containerRef}>
       
       {/* Left Pane: Problem Description */}
-      <div className="arena-left-pane">
+      <div className="arena-left-pane" style={{ width: `${leftWidth}px`, flex: '0 0 auto' }}>
         <div className="problem-selector-wrapper" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', flexWrap: 'wrap', gap: '6px' }}>
             <label style={{ fontWeight: 600, fontSize: '0.85rem' }}>Select Problem:</label>
             <span style={{ fontSize: '0.75rem', color: 'var(--accent-cyan)', background: 'rgba(0, 229, 255, 0.06)', padding: '2px 8px', borderRadius: '50px', border: '1px solid rgba(0, 229, 255, 0.18)', fontWeight: '600' }}>
-              📢 All problems will be added soon!
+              📢 Custom URL problems supported!
             </span>
           </div>
           <select 
@@ -154,13 +260,45 @@ export default function Arena() {
             onChange={(e) => setActiveProblemId(e.target.value)}
             style={{ width: '100%' }}
           >
-            {problems.map(p => (
+            {allProblems.map(p => (
               <option key={p.id} value={p.id}>
                 {p.title} ({p.difficulty})
               </option>
             ))}
           </select>
         </div>
+
+        {/* LeetCode / GFG Problem Importer */}
+        <form onSubmit={handleImportProblem} style={{ marginTop: '16px', background: 'rgba(255, 255, 255, 0.02)', padding: '14px', borderRadius: '12px', border: '1px solid var(--border-glass)' }}>
+          <div style={{ fontWeight: 600, fontSize: '0.82rem', marginBottom: '8px', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span>🔗</span> Import LeetCode / GFG Problem
+          </div>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <input 
+              type="url" 
+              className="text-input" 
+              placeholder="Paste LeetCode/GFG URL..." 
+              value={importUrl}
+              onChange={e => setImportUrl(e.target.value)}
+              style={{ flexGrow: 1, padding: '6px 12px', fontSize: '0.8rem', background: 'var(--bg-input)', border: '1px solid var(--border-glass)', borderRadius: '6px', color: '#fff' }}
+              required
+            />
+            <button 
+              type="submit" 
+              className="btn btn-primary btn-sm" 
+              disabled={importLoading}
+              style={{ padding: '6px 12px', fontSize: '0.8rem', whiteSpace: 'nowrap' }}
+            >
+              {importLoading ? '⏳ Importing...' : 'Import'}
+            </button>
+          </div>
+          {importError && (
+            <div style={{ color: 'var(--accent-rose)', fontSize: '0.72rem', marginTop: '6px', fontWeight: '500' }}>
+              ⚠️ {importError}
+            </div>
+          )}
+        </form>
+
         <div 
           ref={descRef} 
           className="problem-content" 
@@ -169,7 +307,11 @@ export default function Arena() {
       </div>
 
       {/* Resize Handle 1 (Horizontal) */}
-      <div className="arena-resize-handle" id="arena-handle-1"></div>
+      <div 
+        className="arena-resize-handle" 
+        id="arena-handle-1"
+        onMouseDown={handleMouseDownH}
+      ></div>
 
       {/* Right Container: Editor & Output */}
       <div className="arena-right-container">
@@ -221,10 +363,14 @@ export default function Arena() {
         </div>
 
         {/* Resize Handle 2 (Vertical) */}
-        <div className="arena-resize-handle-v" id="arena-handle-2"></div>
+        <div 
+          className="arena-resize-handle-v" 
+          id="arena-handle-2"
+          onMouseDown={handleMouseDownV}
+        ></div>
 
         {/* Bottom Right Pane: Console & Output */}
-        <div className="arena-bottom-right-pane">
+        <div className="arena-bottom-right-pane" style={{ height: `${bottomHeight}px` }}>
           <div className="console-tabs-header">
             <div className="console-tabs">
               <button 

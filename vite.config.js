@@ -2,6 +2,8 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
+import path from 'path'
+import { pathToFileURL } from 'url'
 
 // Custom Vite plugin to handle code execution locally in dev mode via Wandbox
 function localCompilerPlugin() {
@@ -268,6 +270,63 @@ function localCompilerPlugin() {
             } catch (err) {
               res.writeHead(500, { 'Content-Type': 'application/json' });
               return res.end(JSON.stringify({ error: err.message }));
+            }
+          });
+        } else if (req.url.startsWith('/api/')) {
+          const urlObj = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
+          const apiName = urlObj.pathname.replace(/^\/api\//, '');
+          const absolutePath = path.resolve(process.cwd(), 'api', `${apiName}.js`);
+          const fileUrl = pathToFileURL(absolutePath).href;
+          
+          let body = '';
+          req.on('data', chunk => body += chunk);
+          req.on('end', async () => {
+            try {
+              const module = await import(fileUrl);
+              const handler = module.default;
+              
+              let parsedBody = {};
+              if (body) {
+                try {
+                  parsedBody = JSON.parse(body);
+                } catch (e) {}
+              }
+              
+              const decoratedReq = Object.assign(req, {
+                body: parsedBody,
+                query: Object.fromEntries(urlObj.searchParams)
+              });
+              
+              const decoratedRes = Object.assign(res, {
+                status(code) {
+                  res.statusCode = code;
+                  return decoratedRes;
+                },
+                json(data) {
+                  if (!res.headersSent) {
+                    res.writeHead(res.statusCode || 200, { 'Content-Type': 'application/json' });
+                  }
+                  res.end(JSON.stringify(data));
+                  return decoratedRes;
+                }
+              });
+              
+              if (!process.env.FIREBASE_SERVICE_ACCOUNT) {
+                try {
+                  const fs = await import('fs');
+                  if (fs.existsSync('./service-account.json')) {
+                    process.env.FIREBASE_SERVICE_ACCOUNT = fs.readFileSync('./service-account.json', 'utf8');
+                  }
+                } catch (e) {
+                  console.warn('Failed to load service-account.json to process.env:', e);
+                }
+              }
+              
+              await handler(decoratedReq, decoratedRes);
+            } catch (err) {
+              console.error(`[Local API Runner] Error running ${handlerPath}:`, err);
+              res.writeHead(500, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify({ error: `Failed to run local API handler: ${err.message}` }));
             }
           });
         } else {

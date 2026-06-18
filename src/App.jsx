@@ -22,6 +22,7 @@ const AdminDashboard = lazy(() => import('./components/Admin/AdminDashboard'));
 const Patterns    = lazy(() => import('./components/Patterns/Patterns'));
 const StudyPlanner = lazy(() => import('./components/Learning/StudyPlanner'));
 const Leaderboard  = lazy(() => import('./components/Learning/Leaderboard'));
+const Duels        = lazy(() => import('./components/Learning/Duels'));
 
 // Minimal loading fallback
 const PageLoader = () => (
@@ -220,6 +221,10 @@ function AppLayout() {
           const data = await res.json();
           if (!res.ok) throw new Error(data.error || 'Failed to send OTP.');
           
+          if (data.devOtp) {
+            console.log('[Dev Mode] Simulated OTP:', data.devOtp);
+            setOtpCode(data.devOtp);
+          }
           setShowOtpScreen(true);
         } else {
           // Step 2: Verify OTP and securely create account via backend
@@ -263,6 +268,10 @@ function AppLayout() {
           const data = await res.json();
           if (!res.ok) throw new Error(data.error || 'Failed to send OTP.');
           
+          if (data.devOtp) {
+            console.log('[Dev Mode] Simulated OTP:', data.devOtp);
+            setForgotOtpCode(data.devOtp);
+          }
           setShowForgotOtpScreen(true);
           setForgotSuccess('OTP sent to your email.');
         } else {
@@ -834,6 +843,7 @@ function AppLayout() {
               <Route path="/patterns" element={<Patterns />} />
               <Route path="/planner" element={<StudyPlanner />} />
               <Route path="/leaderboard" element={<Leaderboard />} />
+              <Route path="/duels" element={<Duels />} />
               <Route path="/admin-dsa-secret" element={<AdminDashboard />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>

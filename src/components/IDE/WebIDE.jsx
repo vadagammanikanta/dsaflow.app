@@ -23,8 +23,30 @@ export default function WebIDE() {
     return defaultVFS;
   });
 
-  const [activeFileId, setActiveFileId] = useState('main-js');
-  const [expandedFolders, setExpandedFolders] = useState(['basics']);
+  const [activeFileId, setActiveFileId] = useState(() => {
+    return localStorage.getItem('dsaflow_ide_active_file') || 'main-js';
+  });
+
+  const [expandedFolders, setExpandedFolders] = useState(() => {
+    const defaultVal = ['basics'];
+    const activeId = localStorage.getItem('dsaflow_ide_active_file') || 'main-js';
+    let initialFiles = defaultVFS;
+    const saved = localStorage.getItem('dsaflow_vfs');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed.length > 0) initialFiles = parsed;
+      } catch (e) {}
+    }
+    const fileObj = initialFiles.find(f => f.id === activeId);
+    if (fileObj && fileObj.parentId && fileObj.parentId !== 'root') {
+      if (!defaultVal.includes(fileObj.parentId)) {
+        defaultVal.push(fileObj.parentId);
+      }
+    }
+    return defaultVal;
+  });
+
   const [editingId, setEditingId] = useState(null);
   const [editingName, setEditingName] = useState('');
   
@@ -34,29 +56,46 @@ export default function WebIDE() {
   const [isExecuting, setIsExecuting] = useState(false);
   const [activeConsoleTab, setActiveConsoleTab] = useState('ide-custominput'); // 'ide-custominput' or 'ide-output'
 
+  // Resize Panel State
+  const [leftWidth, setLeftWidth] = useState(320);
+  const [bottomHeight, setBottomHeight] = useState(250);
+  const containerRef = useRef(null);
+
   // Derived state for the currently active file
   const activeFile = files.find(f => f.id === activeFileId && f.type === 'file');
 
-  // Sync to local storage
+  // Sync VFS to local storage
   const saveVFS = (newFiles) => {
     setFiles(newFiles);
     localStorage.setItem('dsaflow_vfs', JSON.stringify(newFiles));
   };
 
+  // Sync active file ID to localStorage
+  useEffect(() => {
+    if (activeFileId) {
+      localStorage.setItem('dsaflow_ide_active_file', activeFileId);
+    } else {
+      localStorage.removeItem('dsaflow_ide_active_file');
+    }
+  }, [activeFileId]);
+
   // Load from localStorage on mount and listen to custom open file event
   useEffect(() => {
     const handleOpenFile = (e) => {
+      let activeVFS = files;
       const saved = localStorage.getItem('dsaflow_vfs');
       if (saved) {
         try {
           const parsed = JSON.parse(saved);
           setFiles(parsed);
+          activeVFS = parsed;
         } catch (err) {}
       }
       if (e.detail && e.detail.id) {
         setActiveFileId(e.detail.id);
+        localStorage.setItem('dsaflow_ide_active_file', e.detail.id);
         // If file has parent folder, auto-expand it
-        const fileObj = files.find(f => f.id === e.detail.id);
+        const fileObj = activeVFS.find(f => f.id === e.detail.id);
         if (fileObj && fileObj.parentId && fileObj.parentId !== 'root') {
           setExpandedFolders(prev => prev.includes(fileObj.parentId) ? prev : [...prev, fileObj.parentId]);
         }
@@ -65,6 +104,50 @@ export default function WebIDE() {
     window.addEventListener('ide_open_file', handleOpenFile);
     return () => window.removeEventListener('ide_open_file', handleOpenFile);
   }, [files]);
+
+  // Drag handlers for horizontal resizing (left pane width)
+  const handleMouseDownH = (e) => {
+    e.preventDefault();
+    const startX = e.clientX;
+    const startWidth = leftWidth;
+
+    const handleMouseMove = (moveEvent) => {
+      const deltaX = moveEvent.clientX - startX;
+      const containerWidth = containerRef.current ? containerRef.current.offsetWidth : window.innerWidth;
+      const newWidth = Math.max(200, Math.min(containerWidth * 0.5, startWidth + deltaX));
+      setLeftWidth(newWidth);
+    };
+
+    const handleMouseUp = () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+  };
+
+  // Drag handlers for vertical resizing (bottom pane height)
+  const handleMouseDownV = (e) => {
+    e.preventDefault();
+    const startY = e.clientY;
+    const startHeight = bottomHeight;
+
+    const handleMouseMove = (moveEvent) => {
+      const deltaY = moveEvent.clientY - startY;
+      const containerHeight = containerRef.current ? containerRef.current.offsetHeight : window.innerHeight;
+      const newHeight = Math.max(100, Math.min(containerHeight * 0.7, startHeight - deltaY));
+      setBottomHeight(newHeight);
+    };
+
+    const handleMouseUp = () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+  };
 
   const getLanguageFromExtension = (filename) => {
     if (!filename) return 'plaintext';
@@ -308,10 +391,10 @@ export default function WebIDE() {
   const rootItems = files.filter(f => f.parentId === 'root' || f.parentId === null);
 
   return (
-    <div className="arena-workspace">
+    <div className="arena-workspace" ref={containerRef}>
       
       {/* Left Pane: File Explorer */}
-      <div className="arena-left-pane">
+      <div className="arena-left-pane" style={{ width: `${leftWidth}px`, flex: '0 0 auto' }}>
         <div className="ide-explorer-header">
           <h3 style={{ fontSize: '0.9rem', margin: 0, color: 'var(--text-secondary)' }}>Explorer</h3>
           <div style={{ display: 'flex', gap: '4px' }}>
@@ -339,7 +422,11 @@ export default function WebIDE() {
       </div>
       
       {/* Resize Handle 1 (Horizontal) */}
-      <div className="arena-resize-handle" id="ide-handle-1"></div>
+      <div 
+        className="arena-resize-handle" 
+        id="ide-handle-1"
+        onMouseDown={handleMouseDownH}
+      ></div>
       
       {/* Right Container: Editor + Console */}
       <div className="arena-right-container">
@@ -394,10 +481,14 @@ export default function WebIDE() {
         </div>
         
         {/* Resize Handle 2 (Vertical) */}
-        <div className="arena-resize-handle-v" id="ide-handle-2"></div>
+        <div 
+          className="arena-resize-handle-v" 
+          id="ide-handle-2"
+          onMouseDown={handleMouseDownV}
+        ></div>
         
         {/* Bottom Right Pane: Console & Output */}
-        <div className="arena-bottom-right-pane">
+        <div className="arena-bottom-right-pane" style={{ height: `${bottomHeight}px` }}>
           <div className="console-tabs-header">
             <div className="console-tabs">
               <button 

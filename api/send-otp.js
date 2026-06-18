@@ -33,6 +33,15 @@ export default async function handler(req, res) {
     });
 
     // Send OTP via Resend
+    if (!process.env.RESEND_API_KEY) {
+      console.log("=========================================");
+      console.log("📨 [LOCAL OTP SIMULATED]");
+      console.log(`To: ${email}`);
+      console.log(`Your dsaflow.app Verification Code is: ${otp}`);
+      console.log("=========================================");
+      return res.status(200).json({ success: true, message: 'OTP sent successfully (Simulated).', devOtp: otp });
+    }
+
     const resend = new Resend(process.env.RESEND_API_KEY);
     const { error } = await resend.emails.send({
       from: 'dsaflow.app <noreply@dsaflow.app>',

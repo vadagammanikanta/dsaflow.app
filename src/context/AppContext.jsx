@@ -1,5 +1,7 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { curriculum } from '../../modules/learning/content_a2z';
+import { useAuth } from './AuthContext';
+import { syncProgressToCloud, loadProgressFromCloud } from '../../modules/auth/auth.js';
 
 const AppContext = createContext();
 
@@ -104,6 +106,7 @@ export function computeBadges(appState) {
 }
 
 export function AppProvider({ children }) {
+  const { user } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [appState, setAppState] = useState(() => {
     const saved = localStorage.getItem('dsaflow_app_state')
@@ -165,10 +168,136 @@ export function AppProvider({ children }) {
     };
   });
 
+  const silentReset = () => {
+    setAppState({
+      completedLessons: [],
+      solvedProblems: {},
+      bookmarkedProblems: {},
+      patternProgress: {},
+      patternNotes: {},
+      quizHighScore: 0,
+      selectedLanguage: 'javascript',
+      activeDifficulty: 'all',
+      activeLessonId: 'language-syntax',
+      dayStreak: 1,
+      lastActiveDate: todayStr(),
+      interviewDate: null,
+      notes: {},
+      potdSolved: {},
+      potdStreak: 0,
+      potdLastDate: null,
+      earnedBadges: [],
+      newBadges: [],
+      leaderboardName: '',
+      notifEnabled: false,
+      weeklyScores: {},
+    });
+  };
+
+  const lastUidRef = useRef(user ? user.uid : null);
+
+  // Clear progress state on logout
+  useEffect(() => {
+    const prevUid = lastUidRef.current;
+    const currentUid = user ? user.uid : null;
+    
+    if (prevUid && !currentUid) {
+      console.info('[dsaflow.app] User logged out. Wiping progress state.');
+      silentReset();
+    }
+    lastUidRef.current = currentUid;
+  }, [user]);
+
+  // Load progress from cloud on user change (login/switch)
+  useEffect(() => {
+    const fetchCloudProgress = async () => {
+      if (user && user.uid) {
+        console.info('[dsaflow.app] Fetching progress from cloud...');
+        const cloudData = await loadProgressFromCloud(user.uid);
+        if (cloudData) {
+          console.info('[dsaflow.app] Merging cloud progress:', cloudData);
+          setAppState(prev => {
+            const completedLessons = Array.from(new Set([
+              ...(prev.completedLessons || []),
+              ...(cloudData.completedLessons || [])
+            ]));
+            
+            const earnedBadges = Array.from(new Set([
+              ...(prev.earnedBadges || []),
+              ...(cloudData.earnedBadges || [])
+            ]));
+
+            const solvedProblems = {
+              ...(prev.solvedProblems || {}),
+              ...(cloudData.solvedProblems || {})
+            };
+            const bookmarkedProblems = {
+              ...(prev.bookmarkedProblems || {}),
+              ...(cloudData.bookmarkedProblems || {})
+            };
+            const patternProgress = {
+              ...(prev.patternProgress || {}),
+              ...(cloudData.patternProgress || {})
+            };
+            const patternNotes = {
+              ...(prev.patternNotes || {}),
+              ...(cloudData.patternNotes || {})
+            };
+            const notes = {
+              ...(prev.notes || {}),
+              ...(cloudData.notes || {})
+            };
+            const potdSolved = {
+              ...(prev.potdSolved || {}),
+              ...(cloudData.potdSolved || {})
+            };
+            const weeklyScores = {
+              ...(prev.weeklyScores || {}),
+              ...(cloudData.weeklyScores || {})
+            };
+
+            // Sanitize completed lessons
+            const validLessonIds = new Set(curriculum.map(c => c.id));
+            const sanitizedLessons = completedLessons.filter(id => validLessonIds.has(id));
+
+            const activeLessonId = validLessonIds.has(cloudData.activeLessonId) 
+              ? cloudData.activeLessonId 
+              : prev.activeLessonId || 'language-syntax';
+
+            return {
+              ...prev,
+              completedLessons: sanitizedLessons,
+              solvedProblems,
+              bookmarkedProblems,
+              patternProgress,
+              patternNotes,
+              notes,
+              potdSolved,
+              weeklyScores,
+              earnedBadges,
+              quizHighScore: Math.max(prev.quizHighScore || 0, cloudData.quizHighScore || 0),
+              selectedLanguage: cloudData.selectedLanguage || prev.selectedLanguage || 'javascript',
+              dayStreak: Math.max(prev.dayStreak || 1, cloudData.dayStreak || 1),
+              potdStreak: Math.max(prev.potdStreak || 0, cloudData.potdStreak || 0),
+              interviewDate: cloudData.interviewDate || prev.interviewDate,
+              leaderboardName: cloudData.leaderboardName || prev.leaderboardName || '',
+              notifEnabled: !!cloudData.notifEnabled || !!prev.notifEnabled,
+              activeLessonId
+            };
+          });
+        }
+      }
+    };
+    fetchCloudProgress();
+  }, [user]);
+
   // Persist on every change
   useEffect(() => {
     localStorage.setItem('dsaflow_app_state', JSON.stringify(appState));
-  }, [appState]);
+    if (user && user.uid) {
+      syncProgressToCloud(user.uid, appState);
+    }
+  }, [appState, user]);
 
   const checkAndAwardBadges = (state) => {
     const newlyEarned = computeBadges(state);

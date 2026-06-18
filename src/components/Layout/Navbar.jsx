@@ -74,6 +74,12 @@ export default function Navbar() {
           <span>dsaflow AI</span>
         </NavLink>
 
+        {/* 1v1 Coding Duels */}
+        <NavLink to="/duels" className={({isActive}) => isActive ? "nav-item active" : "nav-item"}>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+          <span>1v1 Duels</span>
+        </NavLink>
+
         {/* 10. Study Planner */}
         <NavLink to="/planner" className={({isActive}) => isActive ? "nav-item active" : "nav-item"}>
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>

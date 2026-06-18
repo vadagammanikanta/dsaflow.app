@@ -620,7 +620,8 @@ export default function LessonViewer({ lesson }) {
     // Mark as completed when they start solving
     markLessonCompleted(lesson.id);
 
-    // Notify the IDE to open this file
+    // Persist active file ID for mount recovery and dispatch event
+    localStorage.setItem('dsaflow_ide_active_file', file.id);
     window.dispatchEvent(new CustomEvent('ide_open_file', { detail: { id: file.id } }));
     
     // Navigate to IDE

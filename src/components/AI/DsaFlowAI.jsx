@@ -115,7 +115,7 @@ function TypingIndicator() {
 }
 
 /* ── Code Block with Copy ── */
-function MessageBubble({ msg }) {
+function MessageBubble({ msg, msgIndex, speakingMsgId, onSpeakToggle }) {
   const isUser = msg.role === 'user';
   const [copied, copy] = useCopy();
   const bubbleRef = useRef(null);
@@ -139,6 +139,8 @@ function MessageBubble({ msg }) {
     });
   });
 
+  const isSpeaking = speakingMsgId === msgIndex;
+
   return (
     <div className={`ai-message ${isUser ? 'ai-message--user' : 'ai-message--bot'}`}>
       {!isUser && (
@@ -157,9 +159,29 @@ function MessageBubble({ msg }) {
           />
         )}
         {!isUser && (
-          <div className="ai-message-actions">
+          <div className="ai-message-actions" style={{ display: 'flex', gap: '6px' }}>
             <button className={`ai-action-btn ${copied ? 'ai-action-btn--copied' : ''}`} onClick={() => copy(msg.content)} title="Copy response">
               {copied ? '✓' : '⧉'}
+            </button>
+            <button 
+              className={`ai-action-btn ${isSpeaking ? 'ai-action-btn--speaking' : ''}`} 
+              onClick={() => onSpeakToggle(msg.content, msgIndex)} 
+              title={isSpeaking ? "Stop speaking" : "Speak response"}
+              style={{
+                color: isSpeaking ? 'var(--accent-cyan)' : 'var(--text-muted)',
+                background: isSpeaking ? 'rgba(0, 229, 255, 0.08)' : 'transparent',
+                border: 'none',
+                cursor: 'pointer',
+                borderRadius: '4px',
+                padding: '4px 6px',
+                fontSize: '0.8rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'all 0.2s'
+              }}
+            >
+              {isSpeaking ? '⏸' : '🔊'}
             </button>
           </div>
         )}
@@ -261,9 +283,106 @@ Ask me anything about DSA — let's crack those placements! 🚀`
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [mockMode, setMockMode] = useState(false); // Mock interview mode
   const [mockScore, setMockScore] = useState(null);
+  
+  // Speech States
+  const [autoSpeak, setAutoSpeak] = useState(() => {
+    return localStorage.getItem('dsaflow_ai_autospeak') === 'true';
+  });
+  const [speakingMsgId, setSpeakingMsgId] = useState(null);
+  const [isListening, setIsListening] = useState(false);
+  
   const bottomRef = useRef(null);
   const inputRef = useRef(null);
   const messagesRef = useRef(null);
+  const recognitionRef = useRef(null);
+
+  // Sync autoSpeak to localStorage
+  useEffect(() => {
+    localStorage.setItem('dsaflow_ai_autospeak', autoSpeak);
+  }, [autoSpeak]);
+
+  // Clean text for text-to-speech to omit long markdown elements like code blocks
+  const cleanTextForSpeech = (text) => {
+    return text
+      .replace(/```[\s\S]*?```/g, '[Code block omitted]')
+      .replace(/`([^`]+)`/g, '$1')
+      .replace(/\*\*([^*]+)\*\*/g, '$1')
+      .replace(/\*([^*]+)\*/g, '$1')
+      .replace(/#[#\s\w]+/g, ''); // strip headers
+  };
+
+  const toggleSpeakMessage = (text, index) => {
+    if (!('speechSynthesis' in window)) {
+      alert('Text-to-speech is not supported in this browser.');
+      return;
+    }
+
+    if (speakingMsgId === index) {
+      window.speechSynthesis.cancel();
+      setSpeakingMsgId(null);
+    } else {
+      window.speechSynthesis.cancel();
+      const cleaned = cleanTextForSpeech(text);
+      const utterance = new SpeechSynthesisUtterance(cleaned);
+      utterance.onend = () => setSpeakingMsgId(null);
+      utterance.onerror = () => setSpeakingMsgId(null);
+      setSpeakingMsgId(index);
+      window.speechSynthesis.speak(utterance);
+    }
+  };
+
+  // Configure Speech Recognition
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+  useEffect(() => {
+    if (SpeechRecognition) {
+      const rec = new SpeechRecognition();
+      rec.continuous = false;
+      rec.interimResults = false;
+      rec.lang = 'en-US';
+
+      rec.onstart = () => {
+        setIsListening(true);
+      };
+
+      rec.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        setInput(prev => prev + (prev ? ' ' : '') + transcript);
+      };
+
+      rec.onerror = (event) => {
+        console.error('Speech recognition error:', event.error);
+        setIsListening(false);
+      };
+
+      rec.onend = () => {
+        setIsListening(false);
+      };
+
+      recognitionRef.current = rec;
+    }
+
+    return () => {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, []);
+
+  const toggleListening = () => {
+    if (!recognitionRef.current) {
+      alert('Speech recognition is not supported in this browser.');
+      return;
+    }
+    if (isListening) {
+      recognitionRef.current.stop();
+    } else {
+      // Cancel speech before recording to avoid audio feedback
+      window.speechSynthesis.cancel();
+      setSpeakingMsgId(null);
+      recognitionRef.current.start();
+    }
+  };
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -277,43 +396,44 @@ Ask me anything about DSA — let's crack those placements! 🚀`
   }, [input]);
 
   const startMockInterview = () => {
+    window.speechSynthesis.cancel();
+    setSpeakingMsgId(null);
     setMockMode(true);
     setMockScore(null);
+    
+    const initialText = `🎯 **Mock Interview Started!**\n\nI'll act as your technical interviewer. I'll ask you DSA questions one at a time, evaluate your answers, and give you a score.\n\nLet's begin!\n\n---\n\n**Question 1:** Explain the Two Sum problem. What is your approach and what's the time complexity of your optimal solution?\n\n*(Type your answer below — be as detailed as you would in a real interview.)*`;
+    
     setMessages([
       {
         role: 'assistant',
-        content: `🎯 **Mock Interview Started!**
-
-I'll act as your technical interviewer. I'll ask you DSA questions one at a time, evaluate your answers, and give you a score.
-
-Let's begin!
-
----
-
-**Question 1:** Explain the Two Sum problem. What is your approach and what's the time complexity of your optimal solution?
-
-*(Type your answer below — be as detailed as you would in a real interview.)*`
+        content: initialText
       }
     ]);
+
+    if (autoSpeak) {
+      setTimeout(() => {
+        toggleSpeakMessage(initialText, 0);
+      }, 100);
+    }
   };
 
   const endMockInterview = () => {
+    window.speechSynthesis.cancel();
+    setSpeakingMsgId(null);
     setMockMode(false);
     setMessages([{
       role: 'assistant',
-      content: `👋 Mock interview ended! Here's what to remember:
-- Always clarify constraints before coding
-- State your approach before writing code
-- Analyze time & space complexity
-- Think about edge cases
-
-Keep practicing! 🚀`
+      content: `👋 Mock interview ended! Here's what to remember:\n- Always clarify constraints before coding\n- State your approach before writing code\n- Analyze time & space complexity\n- Think about edge cases\n\nKeep practicing! 🚀`
     }]);
   };
 
   const sendMessage = async (text) => {
     const userText = (text || input).trim();
     if (!userText || loading) return;
+
+    // Stop speaking when user submits a message
+    window.speechSynthesis.cancel();
+    setSpeakingMsgId(null);
 
     setInput('');
     const newMessages = [...messages, { role: 'user', content: userText }];
@@ -345,7 +465,15 @@ Keep practicing! 🚀`
       if (!res.ok) throw new Error(data.error || 'Failed to get response from AI.');
       replyText = data.reply;
       
+      const nextIndex = newMessages.length;
       setMessages(prev => [...prev, { role: 'assistant', content: replyText }]);
+      
+      if (autoSpeak) {
+        // Delay speaking slightly so the UI updates
+        setTimeout(() => {
+          toggleSpeakMessage(replyText, nextIndex);
+        }, 100);
+      }
     } catch (err) {
       setMessages(prev => [...prev, {
         role: 'assistant',
@@ -365,6 +493,8 @@ Keep practicing! 🚀`
   };
 
   const clearChat = () => {
+    window.speechSynthesis.cancel();
+    setSpeakingMsgId(null);
     setMessages([{
       role: 'assistant',
       content: `👋 Chat cleared! Ready for your next DSA question. What would you like to explore?`
@@ -522,6 +652,27 @@ Keep practicing! 🚀`
               </div>
             </div>
           </div>
+          <button 
+            className={`ai-topbar-speak ${autoSpeak ? 'active' : ''}`} 
+            onClick={() => setAutoSpeak(s => !s)} 
+            title={autoSpeak ? "Auto-speak active (Click to mute)" : "Auto-speak muted (Click to activate)"}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              color: autoSpeak ? 'var(--accent-cyan)' : 'var(--text-secondary)',
+              fontSize: '1.2rem',
+              cursor: 'pointer',
+              padding: '6px',
+              marginRight: '12px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: '6px',
+              transition: 'all 0.2s'
+            }}
+          >
+            {autoSpeak ? '🔊' : '🔇'}
+          </button>
           <button className="ai-topbar-clear" onClick={clearChat} title="Clear chat">
             🗑️
           </button>
@@ -578,7 +729,13 @@ Keep practicing! 🚀`
         {/* ── Messages ── */}
         <div className="ai-chat-messages" ref={messagesRef}>
           {messages.map((msg, i) => (
-            <MessageBubble key={i} msg={msg} />
+            <MessageBubble 
+              key={i} 
+              msg={msg} 
+              msgIndex={i}
+              speakingMsgId={speakingMsgId}
+              onSpeakToggle={toggleSpeakMessage}
+            />
           ))}
           {loading && <TypingIndicator />}
           <div ref={bottomRef} />
@@ -601,6 +758,31 @@ Keep practicing! 🚀`
             </div>
             <div className="ai-input-actions">
               <div className="ai-input-char-count">{input.length > 0 ? `${input.length} chars` : ''}</div>
+              {SpeechRecognition && (
+                <button
+                  className={`ai-mic-btn ${isListening ? 'ai-mic-btn--listening' : ''}`}
+                  onClick={toggleListening}
+                  disabled={loading || isLimitReached}
+                  title={isListening ? "Listening... Click to stop" : "Start Voice Input"}
+                  style={{
+                    background: isListening ? 'rgba(244, 63, 94, 0.15)' : 'transparent',
+                    border: 'none',
+                    color: isListening ? '#f43f5e' : 'var(--text-secondary)',
+                    borderRadius: '50%',
+                    width: '32px',
+                    height: '32px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    marginRight: '8px',
+                    transition: 'all 0.3s ease',
+                    boxShadow: isListening ? '0 0 10px rgba(244, 63, 94, 0.4)' : 'none'
+                  }}
+                >
+                  {isListening ? '🛑' : '🎤'}
+                </button>
+              )}
               <button
                 className={`ai-send-btn ${(!input.trim() || loading || isLimitReached) ? 'ai-send-btn--disabled' : 'ai-send-btn--active'}`}
                 onClick={() => sendMessage()}
