@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import Editor from '@monaco-editor/react';
 import { useAuth } from '../../context/AuthContext';
 import { useApp } from '../../context/AppContext';
+import ComplexityPlotter, { analyzeCodeComplexityLocally } from '../Visualizer/ComplexityPlotter';
 import { problems } from '../../../modules/arena/problems';
 
 export default function Duels() {
@@ -19,6 +20,52 @@ export default function Duels() {
   const [isRunning, setIsRunning] = useState(false);
   const [output, setOutput] = useState('');
   const [timeLeft, setTimeLeft] = useState(600); // 10 minutes match
+  
+  // Complexity State hooks
+  const [activeTab, setActiveTab] = useState('output'); // 'output' or 'complexity'
+  const [complexityResult, setComplexityResult] = useState({
+    timeComplexity: 'O(N)',
+    spaceComplexity: 'O(1)',
+    explanation: 'Run code or trigger analysis to calculate algorithmic scaling curves.',
+    steps: [
+      'Enter your algorithm in the Monaco editor canvas.',
+      'The static analyzer traces loops and recursive splits to map its performance curves.'
+    ],
+    isOptimized: true,
+    optimizedSuggestion: ''
+  });
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [inputN, setInputN] = useState(50);
+
+  const handleAnalyzeComplexity = async (codeToAnalyze = code) => {
+    if (!codeToAnalyze) return;
+    setIsAnalyzing(true);
+    try {
+      const response = await fetch('/api/complexity', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          code: codeToAnalyze,
+          language: appState.selectedLanguage,
+          customApiKey: localStorage.getItem('dsaflow_groq_key') || ''
+        })
+      });
+      if (!response.ok) {
+        throw new Error(`API returned status ${response.status}`);
+      }
+      const data = await response.json();
+      if (data.error) {
+        throw new Error(data.error);
+      }
+      setComplexityResult(data);
+    } catch (err) {
+      console.warn('[Duels] falling back to local complexity static rules:', err.message);
+      const localResult = analyzeCodeComplexityLocally(codeToAnalyze, appState.selectedLanguage);
+      setComplexityResult(localResult);
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
   
   const dbRef = useRef(null);
   const unsubscribeRef = useRef(null);
@@ -211,6 +258,9 @@ export default function Duels() {
     if (!problem || isRunning) return;
     setIsRunning(true);
     setOutput('⏳ Executing code against live SDE test cases...');
+    
+    // Trigger complexity analysis in background
+    handleAnalyzeComplexity(code);
 
     try {
       const publicCases = problem.testCases;
@@ -397,11 +447,192 @@ export default function Duels() {
               </div>
             </div>
 
-            {/* Console Output */}
-            <div className="card" style={{ height: '140px', padding: '16px', display: 'flex', flexDirection: 'column', gap: '8px', overflowY: 'auto' }}>
-              <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Console Output</div>
-              <div style={{ fontFamily: 'monospace', fontSize: '0.82rem', color: 'var(--text-secondary)', whiteSpace: 'pre-wrap' }}>
-                {output || 'Run or submit code to check live results...'}
+            {/* Console Output & Complexity Card */}
+            <div className="card" style={{ height: '260px', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-glass)', background: 'rgba(0,0,0,0.1)' }}>
+                <div style={{ display: 'flex' }}>
+                  <button 
+                    className={`console-tab ${activeTab === 'output' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('output')}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      padding: '10px 16px',
+                      fontSize: '0.8rem',
+                      fontWeight: 600,
+                      color: activeTab === 'output' ? 'var(--accent-cyan)' : 'var(--text-secondary)',
+                      cursor: 'pointer',
+                      borderBottom: activeTab === 'output' ? '2px solid var(--accent-cyan)' : '2px solid transparent'
+                    }}
+                  >
+                    💻 Output
+                  </button>
+                  <button 
+                    className={`console-tab ${activeTab === 'complexity' ? 'active' : ''}`}
+                    onClick={() => {
+                      setActiveTab('complexity');
+                      handleAnalyzeComplexity();
+                    }}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      padding: '10px 16px',
+                      fontSize: '0.8rem',
+                      fontWeight: 600,
+                      color: activeTab === 'complexity' ? 'var(--accent-cyan)' : 'var(--text-secondary)',
+                      cursor: 'pointer',
+                      borderBottom: activeTab === 'complexity' ? '2px solid var(--accent-cyan)' : '2px solid transparent'
+                    }}
+                  >
+                    📊 Complexity
+                  </button>
+                </div>
+              </div>
+
+              <div style={{ flexGrow: 1, padding: '16px', overflowY: 'auto' }}>
+                {activeTab === 'output' && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Console Output</div>
+                    <div style={{ fontFamily: 'monospace', fontSize: '0.82rem', color: 'var(--text-secondary)', whiteSpace: 'pre-wrap' }}>
+                      {output || 'Run or submit code to check live results...'}
+                    </div>
+                  </div>
+                )}
+
+                {activeTab === 'complexity' && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                    <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                      <div style={{
+                        flex: '1 1 120px',
+                        background: 'rgba(255, 255, 255, 0.02)',
+                        border: '1px solid var(--border-glass)',
+                        borderRadius: 'var(--radius-sm)',
+                        padding: '10px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '10px'
+                      }}>
+                        <div style={{ fontSize: '1.5rem' }}>⏱️</div>
+                        <div>
+                          <div style={{ fontSize: '0.68rem', color: 'var(--text-secondary)' }}>Time Complexity</div>
+                          <div style={{ 
+                            fontSize: '1.1rem', 
+                            fontWeight: 800, 
+                            color: 'var(--accent-cyan)',
+                            fontFamily: 'var(--font-code)' 
+                          }}>
+                            {complexityResult.timeComplexity}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div style={{
+                        flex: '1 1 120px',
+                        background: 'rgba(255, 255, 255, 0.02)',
+                        border: '1px solid var(--border-glass)',
+                        borderRadius: 'var(--radius-sm)',
+                        padding: '10px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '10px'
+                      }}>
+                        <div style={{ fontSize: '1.5rem' }}>💾</div>
+                        <div>
+                          <div style={{ fontSize: '0.68rem', color: 'var(--text-secondary)' }}>Space Complexity</div>
+                          <div style={{ 
+                            fontSize: '1.1rem', 
+                            fontWeight: 800, 
+                            color: 'var(--accent-purple)',
+                            fontFamily: 'var(--font-code)' 
+                          }}>
+                            {complexityResult.spaceComplexity}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div style={{ display: 'flex', alignItems: 'center' }}>
+                        <button 
+                          className="btn btn-secondary btn-sm" 
+                          onClick={() => handleAnalyzeComplexity()} 
+                          disabled={isAnalyzing || !code}
+                          style={{ padding: '6px 12px', fontSize: '0.75rem' }}
+                        >
+                          {isAnalyzing ? '⏳' : '🔄 Re-Analyze'}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '20px', flexDirection: 'row', flexWrap: 'wrap' }}>
+                      <div style={{ flex: '1 1 300px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                          <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-primary)' }}>
+                            Scaling Curves
+                          </label>
+                          <span style={{ fontSize: '0.74rem', color: 'var(--text-secondary)' }}>
+                            N: <strong style={{ color: 'var(--accent-cyan)', fontFamily: 'var(--font-code)' }}>{inputN}</strong>
+                          </span>
+                        </div>
+
+                        <input 
+                          type="range"
+                          min="1"
+                          max="100"
+                          value={inputN}
+                          onChange={e => setInputN(parseInt(e.target.value))}
+                          style={{ 
+                            width: '100%', 
+                            accentColor: 'var(--accent-cyan)', 
+                            cursor: 'pointer',
+                            background: 'rgba(255,255,255,0.06)',
+                            height: '5px',
+                            borderRadius: '3px'
+                          }}
+                        />
+
+                        <ComplexityPlotter activeComplexity={complexityResult.timeComplexity} n={inputN} />
+                      </div>
+
+                      <div style={{ flex: '1 1 200px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                        <div>
+                          <h4 style={{ fontSize: '0.8rem', margin: '0 0 4px 0', color: 'var(--text-primary)' }}>Analysis Summary</h4>
+                          <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', margin: 0, lineHeight: 1.45 }}>
+                            {complexityResult.explanation}
+                          </p>
+                        </div>
+
+                        <div>
+                          <h4 style={{ fontSize: '0.8rem', margin: '0 0 6px 0', color: 'var(--text-primary)' }}>Derivation Steps</h4>
+                          <ul style={{ paddingLeft: '14px', margin: 0, display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                            {complexityResult.steps && complexityResult.steps.map((step, idx) => (
+                              <li key={idx} style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', lineHeight: 1.35 }}>
+                                {step}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+
+                        {complexityResult.optimizedSuggestion && (
+                          <div style={{
+                            background: 'rgba(255, 109, 0, 0.05)',
+                            border: '1px solid rgba(255, 109, 0, 0.2)',
+                            borderRadius: 'var(--radius-sm)',
+                            padding: '10px',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '3px'
+                          }}>
+                            <div style={{ fontSize: '0.74rem', fontWeight: 700, color: 'var(--accent-orange)' }}>
+                              💡 Optimization Tip
+                            </div>
+                            <div style={{ fontSize: '0.74rem', color: 'var(--text-secondary)', lineHeight: 1.35 }}>
+                              {complexityResult.optimizedSuggestion}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>

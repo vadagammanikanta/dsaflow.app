@@ -380,3 +380,123 @@ export default function ComplexityPlotter({ activeComplexity = 'O(N)', n = 50 })
     </div>
   );
 }
+
+// Local rule-based complexity analyzer fallback
+export function analyzeCodeComplexityLocally(code, language) {
+  const lines = (code || '').split('\n')
+    .map(line => line.replace(/\/\/.*|\/\*[\s\S]*?\*\/|#.*/g, '').trim())
+    .filter(Boolean);
+  const cleanCode = lines.join('\n');
+
+  let timeComplexity = 'O(1)';
+  let spaceComplexity = 'O(1)';
+  let explanation = 'Constant execution path. The algorithm runs a fixed number of operations independent of input size.';
+  let steps = ['No loops, recursion, or growing data structures were detected.'];
+  let isOptimized = true;
+  let optimizedSuggestion = '';
+
+  const cleanCodeLower = cleanCode.toLowerCase();
+  const hasLogarithmicUpdate = cleanCode.includes('/=') || cleanCode.includes('*=') || cleanCode.includes('>>=') || cleanCode.includes('<<=') || cleanCodeLower.includes('binarysearch') || cleanCodeLower.includes('binary_search');
+
+  // Check recursive structures
+  let hasRecursion = false;
+  const functionDefs = cleanCode.match(/(?:function\s+(\w+)|def\s+(\w+)|void\s+(\w+)|int\s+(\w+)|public\s+\w+\s+(\w+))\s*\(/g);
+  if (functionDefs) {
+    for (const def of functionDefs) {
+      const funcName = def.replace(/(?:function|def|void|int|public|\s|\(|static)/g, '');
+      if (funcName && funcName.length > 2) {
+        const occurrences = (cleanCode.match(new RegExp(funcName, 'g')) || []).length;
+        if (occurrences > 1) {
+          hasRecursion = true;
+        }
+      }
+    }
+  }
+
+  // Count max nested loop constructs
+  let maxLoopNesting = 0;
+  let currentNesting = 0;
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const isLoopStart = /for\s*\(|while\s*\(|for\s+\w+\s+in|while\s+/.test(line);
+    if (isLoopStart) {
+      currentNesting++;
+      if (currentNesting > maxLoopNesting) {
+        maxLoopNesting = currentNesting;
+      }
+    }
+    if (line.includes('}') || line.trim() === '') {
+      if (currentNesting > 0) currentNesting--;
+    }
+  }
+
+  if (hasRecursion) {
+    if (cleanCode.includes('- 1') || cleanCode.includes('-1')) {
+      timeComplexity = 'O(2^N)';
+      spaceComplexity = 'O(N)';
+      explanation = 'Exponential scaling due to cascading recursive calls branching out at each level.';
+      steps = [
+        'Detected recursive calls decrementing input size (e.g. fib(n-1) + fib(n-2)).',
+        'Each function invocation branches into 2 or more sub-calls, forming a binary call tree.',
+        'Recursive call stack depth scales linearly to O(N), representing high memory overhead.'
+      ];
+      isOptimized = false;
+      optimizedSuggestion = 'Introduce dynamic programming (memoization or tabulation) or an iterative approach to reduce time complexity to O(N).';
+    } else {
+      timeComplexity = 'O(N log N)';
+      spaceComplexity = 'O(log N)';
+      explanation = 'Logarithmic splits combined with linear execution (standard divide-and-conquer).';
+      steps = [
+        'Detected binary splitting recursive calls (similar to Merge Sort or Quick Sort).',
+        'The input space is halved recursively, giving recursion tree height of O(log N).',
+        'Combining work at each level scales linearly with input size N, leading to O(N log N) overall execution.'
+      ];
+    }
+  } else if (maxLoopNesting >= 2) {
+    timeComplexity = 'O(N^2)';
+    explanation = 'Quadratic operations scaling due to nested loops processing input size N recursively.';
+    steps = [
+      'Outer loop traverses elements sequentially.',
+      'Inner loop executes nested within, iterating up to input size N for each outer loop cycle.',
+      'Total mathematical operations scale quadratically: N * N = N^2 operations.'
+    ];
+    isOptimized = false;
+    optimizedSuggestion = 'Consider checking if sorting, two-pointers, sliding-window, or a hash map can optimize the complexity to O(N) or O(N log N).';
+
+    if (cleanCode.includes('push') || cleanCode.includes('append') || cleanCode.includes('new') || cleanCode.includes('[') || cleanCode.includes('{')) {
+      spaceComplexity = 'O(N)';
+      steps.push('Auxiliary collection allocations or arrays scale up to O(N) space.');
+    }
+  } else if (maxLoopNesting === 1) {
+    if (hasLogarithmicUpdate) {
+      timeComplexity = 'O(log N)';
+      explanation = 'Logarithmic operations. Input search space is halved or multiplied on each loop step.';
+      steps = [
+        'Loop variable update modifies value exponentially (multiplies or divides by factor).',
+        'Total iterations grow logarithmically, making search exceptionally performant for large input sets.'
+      ];
+    } else {
+      timeComplexity = 'O(N)';
+      explanation = 'Linear scaling. The algorithm iterates over input elements sequentially in a single pass.';
+      steps = [
+        'A single loop runs relative to input size N.',
+        'Total processing time increases in direct proportion to input size.'
+      ];
+    }
+
+    if (cleanCode.includes('push') || cleanCode.includes('append') || cleanCode.includes('new') || cleanCode.includes('[') || cleanCode.includes('{')) {
+      spaceComplexity = 'O(N)';
+      steps.push('Allocated array elements or collections scale linearly with input size O(N).');
+    }
+  }
+
+  return {
+    timeComplexity,
+    spaceComplexity,
+    explanation,
+    steps,
+    isOptimized,
+    optimizedSuggestion
+  };
+}
+
