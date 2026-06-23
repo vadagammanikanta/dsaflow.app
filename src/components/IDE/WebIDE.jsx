@@ -1,5 +1,126 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Editor from '@monaco-editor/react';
+import ComplexityPlotter from '../Visualizer/ComplexityPlotter';
+
+// Local rule-based complexity analyzer fallback
+function analyzeCodeComplexityLocally(code, language) {
+  const lines = (code || '').split('\n')
+    .map(line => line.replace(/\/\/.*|\/\*[\s\S]*?\*\/|#.*/g, '').trim())
+    .filter(Boolean);
+  const cleanCode = lines.join('\n');
+
+  let timeComplexity = 'O(1)';
+  let spaceComplexity = 'O(1)';
+  let explanation = 'Constant execution path. The algorithm runs a fixed number of operations independent of input size.';
+  let steps = ['No loops, recursion, or growing data structures were detected.'];
+  let isOptimized = true;
+  let optimizedSuggestion = '';
+
+  const cleanCodeLower = cleanCode.toLowerCase();
+  const hasLogarithmicUpdate = cleanCode.includes('/=') || cleanCode.includes('*=') || cleanCode.includes('>>=') || cleanCode.includes('<<=') || cleanCodeLower.includes('binarysearch') || cleanCodeLower.includes('binary_search');
+
+  // Check recursive structures
+  let hasRecursion = false;
+  const functionDefs = cleanCode.match(/(?:function\s+(\w+)|def\s+(\w+)|void\s+(\w+)|int\s+(\w+)|public\s+\w+\s+(\w+))\s*\(/g);
+  if (functionDefs) {
+    for (const def of functionDefs) {
+      const funcName = def.replace(/(?:function|def|void|int|public|\s|\(|static)/g, '');
+      if (funcName && funcName.length > 2) {
+        const occurrences = (cleanCode.match(new RegExp(funcName, 'g')) || []).length;
+        if (occurrences > 1) {
+          hasRecursion = true;
+        }
+      }
+    }
+  }
+
+  // Count max nested loop constructs
+  let maxLoopNesting = 0;
+  let currentNesting = 0;
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const isLoopStart = /for\s*\(|while\s*\(|for\s+\w+\s+in|while\s+/.test(line);
+    if (isLoopStart) {
+      currentNesting++;
+      if (currentNesting > maxLoopNesting) {
+        maxLoopNesting = currentNesting;
+      }
+    }
+    if (line.includes('}') || line.trim() === '') {
+      if (currentNesting > 0) currentNesting--;
+    }
+  }
+
+  if (hasRecursion) {
+    if (cleanCode.includes('- 1') || cleanCode.includes('-1')) {
+      timeComplexity = 'O(2^N)';
+      spaceComplexity = 'O(N)';
+      explanation = 'Exponential scaling due to cascading recursive calls branching out at each level.';
+      steps = [
+        'Detected recursive calls decrementing input size (e.g. fib(n-1) + fib(n-2)).',
+        'Each function invocation branches into 2 or more sub-calls, forming a binary call tree.',
+        'Recursive call stack depth scales linearly to O(N), representing high memory overhead.'
+      ];
+      isOptimized = false;
+      optimizedSuggestion = 'Introduce dynamic programming (memoization or tabulation) or an iterative approach to reduce time complexity to O(N).';
+    } else {
+      timeComplexity = 'O(N log N)';
+      spaceComplexity = 'O(log N)';
+      explanation = 'Logarithmic splits combined with linear execution (standard divide-and-conquer).';
+      steps = [
+        'Detected binary splitting recursive calls (similar to Merge Sort or Quick Sort).',
+        'The input space is halved recursively, giving recursion tree height of O(log N).',
+        'Combining work at each level scales linearly with input size N, leading to O(N log N) overall execution.'
+      ];
+    }
+  } else if (maxLoopNesting >= 2) {
+    timeComplexity = 'O(N^2)';
+    explanation = 'Quadratic operations scaling due to nested loops processing input size N recursively.';
+    steps = [
+      'Outer loop traverses elements sequentially.',
+      'Inner loop executes nested within, iterating up to input size N for each outer loop cycle.',
+      'Total mathematical operations scale quadratically: N * N = N^2 operations.'
+    ];
+    isOptimized = false;
+    optimizedSuggestion = 'Consider checking if sorting, two-pointers, sliding-window, or a hash map can optimize the complexity to O(N) or O(N log N).';
+
+    if (cleanCode.includes('push') || cleanCode.includes('append') || cleanCode.includes('new') || cleanCode.includes('[') || cleanCode.includes('{')) {
+      spaceComplexity = 'O(N)';
+      steps.push('Auxiliary collection allocations or arrays scale up to O(N) space.');
+    }
+  } else if (maxLoopNesting === 1) {
+    if (hasLogarithmicUpdate) {
+      timeComplexity = 'O(log N)';
+      explanation = 'Logarithmic operations. Input search space is halved or multiplied on each loop step.';
+      steps = [
+        'Loop variable update modifies value exponentially (multiplies or divides by factor).',
+        'Total iterations grow logarithmically, making search exceptionally performant for large input sets.'
+      ];
+    } else {
+      timeComplexity = 'O(N)';
+      explanation = 'Linear scaling. The algorithm iterates over input elements sequentially in a single pass.';
+      steps = [
+        'A single loop runs relative to input size N.',
+        'Total processing time increases in direct proportion to input size.'
+      ];
+    }
+
+    if (cleanCode.includes('push') || cleanCode.includes('append') || cleanCode.includes('new') || cleanCode.includes('[') || cleanCode.includes('{')) {
+      spaceComplexity = 'O(N)';
+      steps.push('Allocated array elements or collections scale linearly with input size O(N).');
+    }
+  }
+
+  return {
+    timeComplexity,
+    spaceComplexity,
+    explanation,
+    steps,
+    isOptimized,
+    optimizedSuggestion
+  };
+}
+
 
 const defaultVFS = [
   { id: 'root', type: 'folder', name: 'root', parentId: null },
@@ -54,12 +175,57 @@ export default function WebIDE() {
   const [customInput, setCustomInput] = useState('');
   const [output, setOutput] = useState('');
   const [isExecuting, setIsExecuting] = useState(false);
-  const [activeConsoleTab, setActiveConsoleTab] = useState('ide-custominput'); // 'ide-custominput' or 'ide-output'
+  const [activeConsoleTab, setActiveConsoleTab] = useState('ide-custominput'); // 'ide-custominput', 'ide-output', or 'ide-complexity'
+
+  // Complexity calculation state
+  const [complexityResult, setComplexityResult] = useState({
+    timeComplexity: 'O(N)',
+    spaceComplexity: 'O(1)',
+    explanation: 'Run code or trigger analysis to calculate algorithmic scaling curves.',
+    steps: [
+      'Enter your algorithm in the Monaco editor canvas.',
+      'The static analyzer traces loops and recursive splits to map its performance curves.'
+    ],
+    isOptimized: true,
+    optimizedSuggestion: ''
+  });
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [inputN, setInputN] = useState(50);
 
   // Resize Panel State
   const [leftWidth, setLeftWidth] = useState(320);
   const [bottomHeight, setBottomHeight] = useState(250);
   const containerRef = useRef(null);
+
+  const handleAnalyzeComplexity = async (codeToAnalyze = activeFile?.content) => {
+    if (!codeToAnalyze) return;
+    setIsAnalyzing(true);
+    try {
+      const response = await fetch('/api/complexity', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          code: codeToAnalyze,
+          language: getLanguageFromExtension(activeFile?.name),
+          customApiKey: localStorage.getItem('dsaflow_groq_key') || ''
+        })
+      });
+      if (!response.ok) {
+        throw new Error(`API returned status ${response.status}`);
+      }
+      const data = await response.json();
+      if (data.error) {
+        throw new Error(data.error);
+      }
+      setComplexityResult(data);
+    } catch (err) {
+      console.warn('[WebIDE] falling back to local complexity static rules:', err.message);
+      const localResult = analyzeCodeComplexityLocally(codeToAnalyze, getLanguageFromExtension(activeFile?.name));
+      setComplexityResult(localResult);
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
 
   // Derived state for the currently active file
   const activeFile = files.find(f => f.id === activeFileId && f.type === 'file');
@@ -194,6 +360,9 @@ export default function WebIDE() {
     
     // Save state
     localStorage.setItem('dsaflow_vfs', JSON.stringify(files));
+
+    // Trigger complexity analysis in the background
+    handleAnalyzeComplexity(activeFile.content);
 
     const payload = {
       language: getLanguageFromExtension(activeFile.name),
@@ -503,6 +672,15 @@ export default function WebIDE() {
               >
                 💻 Output
               </button>
+              <button 
+                className={`console-tab ${activeConsoleTab === 'ide-complexity' ? 'active' : ''}`}
+                onClick={() => {
+                  setActiveConsoleTab('ide-complexity');
+                  handleAnalyzeComplexity();
+                }}
+              >
+                📊 Complexity
+              </button>
             </div>
             <div className="console-actions">
               <button 
@@ -533,7 +711,7 @@ export default function WebIDE() {
               </div>
             )}
             
-            {/* Output Tab */}
+             {/* Output Tab */}
             {activeConsoleTab === 'ide-output' && (
               <div className="console-tab-content" id="ide-tab-output">
                 <div id="ide-output-status" className="arena-status-badge">
@@ -541,6 +719,158 @@ export default function WebIDE() {
                 </div>
                 <div id="ide-output-val" className="console-output">
                   {output || 'Output will appear here...'}
+                </div>
+              </div>
+            )}
+
+            {/* Complexity Tab */}
+            {activeConsoleTab === 'ide-complexity' && (
+              <div className="console-tab-content active" id="ide-tab-complexity" style={{ display: 'flex', flexDirection: 'column', gap: '20px', paddingBottom: '20px' }}>
+                <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                  <div style={{
+                    flex: '1 1 140px',
+                    background: 'rgba(255, 255, 255, 0.02)',
+                    border: '1px solid var(--border-glass)',
+                    borderRadius: 'var(--radius-sm)',
+                    padding: '12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px'
+                  }}>
+                    <div style={{ fontSize: '1.8rem' }}>⏱️</div>
+                    <div>
+                      <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary)' }}>Time Complexity</div>
+                      <div style={{ 
+                        fontSize: '1.3rem', 
+                        fontWeight: 800, 
+                        color: 'var(--accent-cyan)',
+                        fontFamily: 'var(--font-code)' 
+                      }}>
+                        {complexityResult.timeComplexity}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style={{
+                    flex: '1 1 140px',
+                    background: 'rgba(255, 255, 255, 0.02)',
+                    border: '1px solid var(--border-glass)',
+                    borderRadius: 'var(--radius-sm)',
+                    padding: '12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px'
+                  }}>
+                    <div style={{ fontSize: '1.8rem' }}>💾</div>
+                    <div>
+                      <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary)' }}>Space Complexity</div>
+                      <div style={{ 
+                        fontSize: '1.3rem', 
+                        fontWeight: 800, 
+                        color: 'var(--accent-purple)',
+                        fontFamily: 'var(--font-code)' 
+                      }}>
+                        {complexityResult.spaceComplexity}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <button 
+                      className="btn btn-secondary" 
+                      onClick={() => handleAnalyzeComplexity()} 
+                      disabled={isAnalyzing || !activeFile}
+                      style={{ padding: '8px 16px', fontSize: '0.8rem', height: '100%' }}
+                    >
+                      {isAnalyzing ? '⏳ Analyzing...' : '🔄 Re-Analyze'}
+                    </button>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', gap: '20px', flexDirection: 'row', flexWrap: 'wrap' }}>
+                  <div style={{ flex: '1 1 400px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <label style={{ fontSize: '0.84rem', fontWeight: 600, color: 'var(--text-primary)' }}>
+                        Asymptotic Scaling Curves
+                      </label>
+                      <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
+                        Current N: <strong style={{ color: 'var(--accent-cyan)', fontFamily: 'var(--font-code)' }}>{inputN}</strong>
+                      </span>
+                    </div>
+
+                    <input 
+                      type="range"
+                      min="1"
+                      max="100"
+                      value={inputN}
+                      onChange={e => setInputN(parseInt(e.target.value))}
+                      style={{ 
+                        width: '100%', 
+                        accentColor: 'var(--accent-cyan)', 
+                        cursor: 'pointer',
+                        background: 'rgba(255,255,255,0.06)',
+                        height: '6px',
+                        borderRadius: '3px'
+                      }}
+                    />
+
+                    <ComplexityPlotter activeComplexity={complexityResult.timeComplexity} n={inputN} />
+                  </div>
+
+                  <div style={{ flex: '1 1 300px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                    <div>
+                      <h4 style={{ fontSize: '0.86rem', margin: '0 0 6px 0', color: 'var(--text-primary)' }}>Analysis Summary</h4>
+                      <p style={{ fontSize: '0.84rem', color: 'var(--text-secondary)', margin: 0, lineHeight: 1.5 }}>
+                        {complexityResult.explanation}
+                      </p>
+                    </div>
+
+                    <div>
+                      <h4 style={{ fontSize: '0.86rem', margin: '0 0 8px 0', color: 'var(--text-primary)' }}>Derivation Steps</h4>
+                      <ul style={{ paddingLeft: '16px', margin: 0, display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                        {complexityResult.steps && complexityResult.steps.map((step, idx) => (
+                          <li key={idx} style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.4 }}>
+                            {step}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    {complexityResult.optimizedSuggestion && (
+                      <div style={{
+                        background: 'rgba(255, 109, 0, 0.05)',
+                        border: '1px solid rgba(255, 109, 0, 0.2)',
+                        borderRadius: 'var(--radius-sm)',
+                        padding: '12px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '4px'
+                      }}>
+                        <div style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--accent-orange)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <span>💡</span> Optimization Suggestion
+                        </div>
+                        <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', lineHeight: 1.4 }}>
+                          {complexityResult.optimizedSuggestion}
+                        </div>
+                      </div>
+                    )}
+
+                    {!complexityResult.optimizedSuggestion && complexityResult.isOptimized && (
+                      <div style={{
+                        background: 'rgba(16, 185, 129, 0.05)',
+                        border: '1px solid rgba(16, 185, 129, 0.2)',
+                        borderRadius: 'var(--radius-sm)',
+                        padding: '12px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        fontSize: '0.78rem',
+                        color: 'var(--accent-emerald)'
+                      }}>
+                        <span>✨</span> Your algorithm's time complexity is fully optimized!
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             )}
