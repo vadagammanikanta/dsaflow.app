@@ -1,5 +1,5 @@
-// api/ai-chat.js — Groq-powered DSA AI Chat endpoint
-// Requires GROQ_API_KEY environment variable set in Vercel for free tier.
+// api/ai-chat.js — Groq-powered DSA AI Chat & Complexity Analyzer endpoint
+// Requires GROQ_API_KEY environment variable.
 // Dynamically routes using the user-provided custom Groq API key if sent in the body.
 
 export default async function handler(req, res) {
@@ -10,14 +10,52 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { messages, customApiKey, systemOverride } = req.body;
-  if (!messages || !Array.isArray(messages)) {
-    return res.status(400).json({ error: 'Missing messages array in request body.' });
-  }
+  const { messages, code, language, customApiKey, systemOverride } = req.body;
 
-  // DSA-focused system prompt
-  const systemPrompt = `You are dsaflow.app AI — an elite DSA tutor built specifically for FAANG and product company placement preparation.
+  let activeMessages = messages;
+  let temperature = 0.4;
+  let isComplexityAnalysis = false;
 
+  if (code) {
+    isComplexityAnalysis = true;
+    temperature = 0.1; // Low temperature for deterministic JSON complexity reports
+    
+    const complexitySystemPrompt = `You are a strict, elite algorithm complexity analysis system.
+Analyze the provided code and return a JSON object with details of its Time and Space complexity.
+Analyze loops, nested loops, recursion depth, auxiliary space, storage structures, and language-specific overhead.
+Return a clean, valid JSON block.
+Do NOT wrap the JSON block in any other text, markdown blocks, or explanation. Only return the raw JSON text.
+
+The JSON schema must exactly be:
+{
+  "timeComplexity": "O(N)", // Must be one of: O(1), O(log N), O(N), O(N log N), O(N^2), O(2^N), O(N!)
+  "spaceComplexity": "O(1)", // Must be one of: O(1), O(log N), O(N), O(N^2), etc.
+  "explanation": "A concise paragraph explaining the overall complexities and reasons.",
+  "steps": [
+    "First step of explanation",
+    "Second step..."
+  ],
+  "isOptimized": true,
+  "optimizedSuggestion": "If isOptimized is false, provide a quick design tip on how to optimize it. Otherwise empty string."
+}`;
+
+    const userPrompt = `Language: ${language || 'unknown'}
+Code to analyze:
+\`\`\`
+${code}
+\`\`\``;
+
+    activeMessages = [
+      { role: 'system', content: complexitySystemPrompt },
+      { role: 'user', content: userPrompt }
+    ];
+  } else {
+    // Regular AI Chat Mode
+    if (!messages || !Array.isArray(messages)) {
+      return res.status(400).json({ error: 'Missing messages array in request body.' });
+    }
+
+    const systemPrompt = `You are dsaflow.app AI — an elite DSA tutor built specifically for FAANG and product company placement preparation.
 Your expertise covers:
 - Data Structures: Arrays, Strings, Linked Lists, Stacks, Queues, Trees, Graphs, Heaps, Tries, Segment Trees
 - Algorithms: Sorting, Searching, BFS/DFS, Dynamic Programming, Greedy, Backtracking, Divide & Conquer, Two Pointers, Sliding Window, Binary Search
@@ -35,60 +73,15 @@ Rules:
 7. Be encouraging and supportive — students are preparing for high-stakes interviews
 8. Never give just code without explanation — that defeats the purpose of learning`;
 
-  const activeSystemPrompt = systemOverride || systemPrompt;
-
-  // 1. If custom Groq key is provided, proxy directly to groq.com
-  if (customApiKey && customApiKey.trim().length > 0) {
-    const trimmedKey = customApiKey.trim();
-    try {
-      const groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${trimmedKey}`
-        },
-        body: JSON.stringify({
-          model: 'llama-3.3-70b-versatile',
-          messages: [
-            { role: 'system', content: activeSystemPrompt },
-            ...messages
-          ],
-          temperature: 0.4,
-          max_tokens: 2048,
-          stream: false
-        })
-      });
-
-      if (!groqRes.ok) {
-        let errMsg = '';
-        const rawText = await groqRes.text();
-        try {
-          const errData = JSON.parse(rawText);
-          errMsg = errData?.error?.message || errData?.message || JSON.stringify(errData);
-        } catch (_) {
-          errMsg = rawText || `Groq API returned status ${groqRes.status}`;
-        }
-        console.error('[ai-chat] Custom Groq API error response:', rawText);
-        return res.status(groqRes.status).json({ error: `Groq API Error: ${errMsg}` });
-      }
-
-      const data = await groqRes.json();
-      const reply = data.choices?.[0]?.message?.content || '';
-
-      return res.status(200).json({
-        reply,
-        model: data.model,
-        usage: data.usage
-      });
-
-    } catch (err) {
-      console.error('[ai-chat] Custom Groq Fetch error:', err);
-      return res.status(502).json({ error: `Failed to reach Groq API: ${err.message}` });
-    }
+    const activeSystemPrompt = systemOverride || systemPrompt;
+    activeMessages = [
+      { role: 'system', content: activeSystemPrompt },
+      ...messages
+    ];
   }
 
-  // 2. Default fallback to Groq Llama 3.3 using server variable
-  const apiKey = process.env.GROQ_API_KEY;
+  const apiKey = (customApiKey && customApiKey.trim().length > 0) ? customApiKey.trim() : process.env.GROQ_API_KEY;
+
   if (!apiKey) {
     return res.status(500).json({ error: 'GROQ_API_KEY environment variable is not configured.' });
   }
@@ -102,26 +95,40 @@ Rules:
       },
       body: JSON.stringify({
         model: 'llama-3.3-70b-versatile',
-        messages: [
-          { role: 'system', content: activeSystemPrompt },
-          ...messages
-        ],
-        temperature: 0.4,
-        max_tokens: 2048,
+        messages: activeMessages,
+        temperature: temperature,
+        max_tokens: isComplexityAnalysis ? 1500 : 2048,
         stream: false
       })
     });
 
     if (!groqRes.ok) {
-      const errData = await groqRes.json();
-      console.error('[ai-chat] Groq API error:', errData);
-      return res.status(groqRes.status).json({
-        error: errData?.error?.message || 'Groq API request failed.'
-      });
+      const rawText = await groqRes.text();
+      console.error('[ai-chat] Groq API error response:', rawText);
+      return res.status(groqRes.status).json({ error: `Groq API Error: ${rawText}` });
     }
 
     const data = await groqRes.json();
-    const reply = data.choices?.[0]?.message?.content || '';
+    let reply = data.choices?.[0]?.message?.content || '';
+
+    if (isComplexityAnalysis) {
+      reply = reply.trim();
+      if (reply.startsWith('```')) {
+        reply = reply.replace(/^```json\s*/i, '').replace(/```$/, '').trim();
+      }
+
+      // Try parsing to verify valid JSON
+      try {
+        const parsedResult = JSON.parse(reply);
+        return res.status(200).json(parsedResult);
+      } catch (parseErr) {
+        console.warn('[ai-chat-complexity] AI returned invalid JSON. Content was:', reply);
+        return res.status(500).json({ 
+          error: 'AI did not return valid JSON.', 
+          rawContent: reply 
+        });
+      }
+    }
 
     return res.status(200).json({
       reply,

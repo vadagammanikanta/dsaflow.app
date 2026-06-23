@@ -7,6 +7,7 @@ import { DSAQuizEngine } from '../../../modules/learning/gemini-code-17802226515
 import { resourceLibrary } from './resource_library';
 import VideoEmbed from './VideoEmbed';
 import PlacementIntelligence from './PlacementIntelligence';
+import ComplexityPlotter from '../Visualizer/ComplexityPlotter';
 
 
 
@@ -495,6 +496,44 @@ function InteractiveQuiz({ lesson }) {
   );
 }
 
+// Small self-contained component to render an interactive complexity plot for a lesson
+function LessonComplexityPlot({ timeComplexity }) {
+  const [inputN, setInputN] = useState(50);
+  const activeComplexity = timeComplexity || 'O(N)';
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <label style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
+          Asymptotic Scaling Curves
+        </label>
+        <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+          Input Size N: <strong style={{ color: 'var(--accent-cyan)', fontFamily: 'var(--font-code)' }}>{inputN}</strong>
+        </span>
+      </div>
+      <input
+        type="range"
+        min="1"
+        max="100"
+        value={inputN}
+        onChange={e => setInputN(parseInt(e.target.value))}
+        style={{
+          width: '100%',
+          accentColor: 'var(--accent-cyan)',
+          cursor: 'pointer',
+          height: '6px',
+          borderRadius: '3px'
+        }}
+      />
+      <ComplexityPlotter activeComplexity={activeComplexity} n={inputN} />
+      <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', margin: 0, lineHeight: 1.5 }}>
+        The highlighted curve shows this algorithm's time complexity: <strong style={{ color: 'var(--accent-cyan)', fontFamily: 'var(--font-code)' }}>{activeComplexity}</strong>.
+        Drag the slider to see how operations scale as input size grows.
+      </p>
+    </div>
+  );
+}
+
 export default function LessonViewer({ lesson }) {
   const { appState, markLessonCompleted } = useApp();
   const navigate = useNavigate();
@@ -786,6 +825,61 @@ export default function LessonViewer({ lesson }) {
       )}
 
 
+
+      {/* ── Visual Complexity Calculator ── */}
+      <div style={{
+        paddingTop: '20px',
+        borderBottom: '1px solid var(--border-glass)',
+        marginBottom: '24px',
+        paddingBottom: '24px'
+      }}>
+        <h3 style={{ fontSize: '1.1rem', color: 'var(--text-primary)', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span>📊</span> Visual Time &amp; Space Complexity
+        </h3>
+
+        {/* Complexity badge row */}
+        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '16px' }}>
+          <div style={{
+            flex: '1 1 140px',
+            background: 'rgba(0, 229, 255, 0.05)',
+            border: '1px solid rgba(0, 229, 255, 0.2)',
+            borderRadius: '10px',
+            padding: '12px 16px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px'
+          }}>
+            <div style={{ fontSize: '1.6rem' }}>⏱️</div>
+            <div>
+              <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 700 }}>Time Complexity</div>
+              <div style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--accent-cyan)', fontFamily: 'var(--font-code)' }}>
+                {complexities.time || 'O(N)'}
+              </div>
+            </div>
+          </div>
+          <div style={{
+            flex: '1 1 140px',
+            background: 'rgba(124, 77, 255, 0.05)',
+            border: '1px solid rgba(124, 77, 255, 0.2)',
+            borderRadius: '10px',
+            padding: '12px 16px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px'
+          }}>
+            <div style={{ fontSize: '1.6rem' }}>💾</div>
+            <div>
+              <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 700 }}>Space Complexity</div>
+              <div style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--accent-purple)', fontFamily: 'var(--font-code)' }}>
+                {complexities.space || 'O(1)'}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Interactive N Slider + Plotter */}
+        <LessonComplexityPlot timeComplexity={complexities.time} />
+      </div>
 
       {/* Reference & Video Tutorials Section */}
       <div style={{ 
