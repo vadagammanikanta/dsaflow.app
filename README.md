@@ -1,159 +1,110 @@
 <div align="center">
 
-<img src="public/favicon.svg" alt="dsaflow.app logo" width="90" height="90" />
+<img src="public/favicon.svg" alt="dsaflow.app logo" width="100" height="100" />
 
-# dsaflow.app
+# dsaflow.app (SaaS Platform)
 
-### 🚀 Master Data Structures & Algorithms — The Smart Way
+### 🚀 Premium FAANG Placement Prep & 3D DSA Visualizer EdTech SaaS
 
-[![Live Demo](https://img.shields.io/badge/🌐_Live_App-dsaflow.app-7c4dff?style=for-the-badge&logoColor=white)](https://dsaflow.app)
-[![React](https://img.shields.io/badge/React_19-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev)
-[![Vite](https://img.shields.io/badge/Vite_8-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev)
-[![Firebase](https://img.shields.io/badge/Firebase-FF6F00?style=for-the-badge&logo=firebase&logoColor=white)](https://firebase.google.com)
-[![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://vercel.com)
+[![SaaS Pricing](https://img.shields.io/badge/Monetization-Premium_₹99_Lifetime-00e676?style=for-the-badge&logoColor=white)](https://dsaflow.app)
+[![Live Demo](https://img.shields.io/badge/🌐_Live_SaaS-dsaflow.app-7c4dff?style=for-the-badge&logoColor=white)](https://dsaflow.app)
+[![Capcapacitor Android](https://img.shields.io/badge/Mobile-Android_App_Ready-00e5ff?style=for-the-badge&logo=android&logoColor=white)](https://capacitorjs.com)
 
-*An elite, full-stack DSA platform built for FAANG placement preparation — featuring a 3D algorithm visualizer, Monaco IDE, AI tutor, curriculum tracker, placement quiz engine, daily challenges, milestone tracking, and full mobile responsiveness.*
+*dsaflow.app is a high-converting, fully responsive EdTech SaaS platform engineered for FAANG interview preparation. It features a stunning 3D Stack & Heap Pointer Visualizer, VS Code-powered Monaco coding arena, Google Gemini AI-tutor integration, placement assessment quizzes, milestone tracker, and daily coding challenges.*
 
 </div>
 
 ---
 
-## ✨ Features
+## 💼 Business & Monetization Model
 
-| Feature | Description |
-|---|---|
-| 🗺️ **Elite A-Z Roadmap** | 450+ curated problems across 35 DSA modules organized by topic and pattern. |
-| 📅 **Problem of the Day (POTD)** | Daily curated DSA challenges to keep your problem-solving skills sharp. |
-| 🏆 **Milestones & Streaks** | Track your progress with gamified milestones and continuous learning streaks. |
-| 🤖 **AI Tutor (Gemini)** | Personalized DSA interview coaching powered by Google Gemini. Ask questions, debug code, and optimize algorithms. |
-| 📱 **Fully Mobile Responsive** | Optimized for all devices. Code on your tablet, review algorithms on your phone with an adaptive mobile layout and drawer navigation. |
-| 🧠 **3D Algorithm Visualizer** | Real-time animated visual representations of Sorting, Trees, Graphs, and more. |
-| 💻 **Monaco Coding Arena** | VS Code-powered IDE with multi-language support — C++, Python, Java, JavaScript, Go. |
-| ⚡ **Live Code Execution** | Run and test code instantly via sandboxed cloud compilation (Wandbox API). |
-| 🎯 **Placement Quiz Engine** | Timed quizzes with high-score tracking, mirroring real company assessments. |
-| 🌓 **Light & Dark Modes** | Seamless theme switching with high-contrast accessibility optimizations. |
-| 🔐 **Firebase Auth** | Secure email/password authentication with 24-hour free trial system. |
-| 💳 **Razorpay Payments** | One-click ₹99 lifetime premium upgrade with instant email confirmation. |
-| 📧 **Resend Email System** | Welcome, upgrade, and admin broadcast emails via Resend API. |
-| 📊 **Admin Dashboard** | Full CRUD user management, support tickets, broadcast emails, and analytics. |
-| 📱 **Android Ready** | Capacitor integration for seamless native Android deployment. |
+`dsaflow.app` operates on a highly profitable **Product-Led Growth (PLG)** model designed to capture and convert EdTech traffic:
+
+*   **24-Hour Free Trial:** Secure email-based registration allows prospective students/professionals to explore the entire curriculum, IDE, and visualizers for 24 hours.
+*   **One-Click Premium Upgrade:** A seamless, localized paywall powered by **Razorpay** prompts users to unlock lifetime access for **₹99**.
+*   **Automatic Email Onboarding:** Integrated transactional emails via the **Resend API** deliver instant payment receipts, welcome materials, and admin broadcasts to keep user retention high.
+*   **Mobile App Expansion (Capacitor):** Packaged with Capacitor to deploy directly as a native Android App, opening up mobile app store monetization.
 
 ---
 
-## 🖥️ Technology Stack
+## 🛠️ High-Margin Serverless Architecture
 
-<div align="center">
+The platform's technology stack is designed to keep operational costs close to **$0 at scale**, maximizing the profit margins of each premium conversion:
 
-| Layer | Technology |
-|---|---|
-| **Frontend** | React 19, React Router v7, Context API |
-| **Styling** | Vanilla CSS, CSS Variables for Theming, Responsive Media Queries |
-| **Build Tool** | Vite 8 |
-| **Code Editor** | Monaco Editor (`@monaco-editor/react`) |
-| **Database** | Firebase Firestore |
-| **Authentication** | Firebase Auth (Email/Password) |
-| **Backend API** | Vercel Serverless Functions (Node.js) |
-| **Transactional Email** | Resend API |
-| **Payments** | Razorpay (Live) |
-| **Code Execution** | Wandbox API (sandboxed) |
-| **AI Integration** | Google Gemini API |
-| **Mobile** | Capacitor (Android) |
-| **Deployment** | Vercel |
-
-</div>
+*   **Zero-Maintenance Frontend:** Hosted on **Vercel** with full CDN acceleration.
+*   **Serverless APIs:** Backend functions run in response to demand on Vercel Serverless (Node.js), eliminating the cost of idle servers.
+*   **Scalable Database:** **Firebase Firestore** handles real-time user progress, support tickets, and milestone data with high free-tier limits.
+*   **AI Tutoring on Demand:** Connects directly with the **Google Gemini API** for on-demand code optimization feedback.
+*   **API Sandbox Compile:** Integrates with sandboxed compilation endpoints (Wandbox API) for multi-language runtimes (C++, Java, JS, Python, Go) without running resource-heavy compilers on local infrastructure.
 
 ---
 
-## 🚀 Getting Started
+## 🌟 SaaS Product Features
 
-### Prerequisites
-- Node.js 18+
-- A Firebase project — [create one here](https://console.firebase.google.com)
-- A Resend account — [create one here](https://resend.com) *(free tier available)*
-
-### 1. Clone the repository
-```bash
-git clone https://github.com/vadagammanikanta/dsaflow.app.git
-cd dsaflow.app
-```
-
-### 2. Install dependencies
-```bash
-npm install
-```
-
-### 3. Configure Firebase
-In `modules/auth/auth.js`, replace the `FIREBASE_CONFIG` object with your own Firebase project credentials:
-```js
-const FIREBASE_CONFIG = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
-};
-```
-
-### 4. Environment Variables
-Create a `.env` file in the root directory (for local development) or configure them in Vercel:
-
-| Variable | Description |
+| Feature Module | Business Value |
 |---|---|
-| `RESEND_API_KEY` | Your Resend API key |
-| `FIREBASE_SERVICE_ACCOUNT` | Full JSON content of your Firebase service account key |
-| `ADMIN_SECRET` | Strong secret passphrase to protect admin API endpoints |
-| `VITE_RAZORPAY_KEY_ID` | Your Razorpay **public** key (client-side) |
-| `VITE_GEMINI_API_KEY` | Google Gemini API key for the AI Tutor |
-
-### 5. Run locally
-```bash
-npm run dev
-```
-The application will start at `http://localhost:5173`.
+| 🧠 **3D Heap & Stack Visualizer** | Interactive visual debugger mapping code execution in 3D Stack/Heap spaces. High retention hook. |
+| 💻 **Monaco Coding Arena** | Embedded VS Code environment with active code compiler and support for 5+ programming languages. |
+| 🤖 **AI DSA Coach (Gemini)** | Inline chat assistant to explain complex recursion, optimize time/space complexity, or debug errors. |
+| 🗺️ **Premium A-Z Roadmap** | Curated list of 450+ high-frequency interview questions across 35 organized modules. |
+| 📅 **Daily Problems (POTD)** | Daily coding challenges with streak tracking to encourage continuous user engagement. |
+| 🌓 **Adaptive Theming** | Fully custom Light & Dark modes to maximize accessibility and user experience. |
+| 📊 **Admin CRM Dashboard** | Built-in controls for user CRUD, handling support tickets, and sending automated announcements. |
 
 ---
 
-## 📁 Project Structure
+## 📁 Technical Project Structure
 
 ```
 dsaflow.app/
-├── api/                          # Vercel Serverless Functions (Email, Code Execution, AI)
-├── modules/                      # Core application logic
-│   ├── auth/                     # Firebase Auth configuration
-│   ├── learning/                 # A-Z DSA curriculum content
-│   ├── payment/                  # Razorpay checkout integration
-│   ├── visualizers/              # 3D algorithm animations
-│   ├── arena/                    # Coding arena logic
-│   └── ide/                      # Monaco editor configuration
-├── src/                          # React Application
-│   ├── components/               # UI Components (Admin, AI, Arena, IDE, Dashboard, Quiz, etc.)
-│   ├── context/                  # Context API for Global State Management
-│   ├── index.css                 # Global styles, CSS variables, and Mobile Responsiveness
-│   ├── App.jsx                   # Main application router
-│   └── main.jsx                  # React entry point
-├── public/                       # Static assets
-└── index.html                    # Root HTML
+├── api/                          # Serverless Endpoint APIs (AI Tutor, Code Compile, Transactional Email)
+├── modules/                      # SaaS Module Logic
+│   ├── auth/                     # Firebase User Authentication & Trial management
+│   ├── learning/                 # High-frequency A-Z DSA curriculum content database
+│   ├── payment/                  # Razorpay merchant gateway integration
+│   ├── visualizers/              # Interactive 3D Stack & Heap pointer engine
+│   ├── arena/                    # Monaco Editor configuration
+│   └── ide/                      # Compiler runner
+├── src/                          # React 19 Frontend Web App
+│   ├── components/               # UI components (Admin portal, AI tutor sidebar, IDE, Quiz card)
+│   ├── context/                  # Global state management (user sessions, settings)
+│   └── index.css                 # Theme tokens (Light/Dark), Glassmorphic styling rules
 ```
 
 ---
 
-## 🔒 Security Highlights
+## 🚀 Deployment & Developer Setup
 
-- **Secure API Routes:** All sensitive operations (broadcasting, analytics) are protected via `ADMIN_SECRET`.
-- **Environment Variables:** API keys and sensitive tokens are strictly managed via environment variables.
-- **Client-Side Safety:** Razorpay integration utilizes only the public `KEY_ID` on the frontend.
-- **Isolated Code Execution:** User code submissions run in isolated sandboxed containers via Wandbox API.
-- **Data Privacy:** Firestore Security Rules ensure users can only access their own data.
+### Configuration
+1. **Database Setup:** Initialize a Firebase project and add your web credentials to `modules/auth/auth.js`.
+2. **Environment Keys:** Set up the following environment variables in Vercel/local hosting:
+   * `RESEND_API_KEY`: API Key for onboarding/broadcast emails.
+   * `FIREBASE_SERVICE_ACCOUNT`: Service account key credentials for administrative Firestore CRUD access.
+   * `VITE_RAZORPAY_KEY_ID`: Your merchant API credentials.
+   * `VITE_GEMINI_API_KEY`: Google Gemini Key for the tutoring panel.
+   * `ADMIN_SECRET`: Safe passphrase protecting admin analytics endpoints.
+
+### Run Local Development
+```bash
+npm install
+npm run dev
+```
 
 ---
 
-## 📄 License
+## 🔒 Enterprise & Data Security
+*   **Firestore Rules:** Strict database-level rules verify token authorization, ensuring users can only read/write their own progress records.
+*   **Compiler Sandboxing:** User code compilation takes place entirely within sandboxed compilation servers, protecting client servers from malicious scripts.
+*   **Encrypted Secrets:** All key integrations (Resend, Gemini, Razorpay, Firebase Admin) are kept strictly server-side.
 
-This project is private and proprietary. All rights reserved © 2026 dsaflow.app.
+---
+
+## 📄 License & Intellectual Property
+
+This software, database, and design assets are private, proprietary, and commercial property. All rights reserved © 2026 dsaflow.app.
 
 <div align="center">
 
-Built with ❤️ by **V S S S Manikanta** &nbsp;|&nbsp; [Live App](https://dsaflow.app) &nbsp;|&nbsp; Support: dsaflow@outlook.com
+Built with ❤️ by **V S S S Manikanta** &nbsp;|&nbsp; [Live SaaS](https://dsaflow.app) &nbsp;|&nbsp; Support: dsaflow@outlook.com
 
 </div>
