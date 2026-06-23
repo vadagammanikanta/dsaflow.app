@@ -64,7 +64,7 @@ export default function Header() {
   const handleSearchChange = (e) => {
     const q = e.target.value;
     setSearchVal(q);
-    const queryClean = q.trim().toLowerCase();
+    const queryClean = q.replace(/\s+/g, '').toLowerCase();
     
     if (queryClean.length < 2) {
       setSearchResults([]);
@@ -72,11 +72,14 @@ export default function Header() {
       return;
     }
     
-    const results = curriculum.filter(t =>
-      t.title.toLowerCase().includes(queryClean) || 
-      t.category.toLowerCase().includes(queryClean) || 
-      t.summary.toLowerCase().includes(queryClean)
-    ).slice(0, 6);
+    const results = curriculum.filter(t => {
+      const titleClean = (t.title || '').replace(/\s+/g, '').toLowerCase();
+      const categoryClean = (t.category || '').replace(/\s+/g, '').toLowerCase();
+      const summaryClean = (t.summary || '').replace(/\s+/g, '').toLowerCase();
+      return titleClean.includes(queryClean) || 
+             categoryClean.includes(queryClean) || 
+             summaryClean.includes(queryClean);
+    }).slice(0, 6);
     
     setSearchResults(results);
     setDropdownVisible(true);
