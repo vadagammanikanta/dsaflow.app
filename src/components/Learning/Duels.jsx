@@ -41,7 +41,7 @@ export default function Duels() {
     if (!codeToAnalyze) return;
     setIsAnalyzing(true);
     try {
-      const response = await fetch('/api/complexity', {
+      const response = await fetch('/api/ai-chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
